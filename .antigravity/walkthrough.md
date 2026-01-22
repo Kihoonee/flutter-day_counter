@@ -22,11 +22,19 @@
    - `ios/Podfile` iOS deployment target 14.0 → 15.0 업데이트 (Firebase 요구사항)
    - iPhone 15 Pro 시뮬레이터에서 앱 실행 성공
 
+5. **릴리즈 빌드 크래시 해결 (2026-01-22)**
+   - **증상**: 릴리즈 모드로 실행 시 앱이 바로 종료됨
+   - **원인**: Firebase 설정 파일(`google-services.json`, `GoogleService-Info.plist`) 및 초기화 코드 누락
+   - **해결**:
+     - `flutterfire configure` 실행하여 프로젝트 연결 및 파일 생성
+     - `lib/main.dart`에 `Firebase.initializeApp()` 추가
+     - `ios/Runner.xcodeproj` 설정 자동 업데이트 (gem `xcodeproj` 설치)
+
 ---
 
 ## 다음 단계
 
-1. **Firebase 설정** - `flutterfire configure` 명령어로 Firebase 프로젝트 연결
+1. **AdMob 설정** - `admob-skill/` 폴더의 가이드 참고
 2. **AdMob 설정** - `admob-skill/` 폴더의 가이드 참고
 3. **웹 빌드 수정** - `database_service.dart`의 `dart:io` 사용을 조건부 import로 변경 필요
 

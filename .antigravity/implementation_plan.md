@@ -1,67 +1,53 @@
-# Flutter Pro 템플릿 적용 계획
+# 릴리즈 빌드 크래시 분석 및 수정
 
-day_counter 프로젝트에 flutter-pro-template의 구조와 도구들을 적용합니다.
+릴리즈 빌드가 크래시되는 이유는 **`pubspec.yaml`에 Firebase가 포함되어 있지만 초기화되지 않았고**, 필요한 설정 파일들이 누락되었기 때문입니다.
 
-## Proposed Changes
+## 원인
+1. **설정 파일 누락**:
+   - `ios/Runner/GoogleService-Info.plist` 누락
+   - `android/app/google-services.json` 누락
+   - `lib/firebase_options.dart` 누락
+2. **초기화 코드 누락**:
+   - `lib/main.dart`에서 `Firebase.initializeApp()`이 호출되지 않음
 
-### 1단계: 스킬/스크립트 폴더 복사
+## 사용자 조치 필요
+> [!IMPORTANT]
+> `flutterfire configure`를 실행하여 설정 파일과 `firebase_options.dart`를 생성해야 합니다.
 
-템플릿에서 유용한 도구 폴더들을 프로젝트 루트로 복사합니다.
+터미널에서 다음 명령어를 실행하세요:
+```bash
+flutterfire configure
+```
+또는 수동으로 `GoogleService-Info.plist`를 `ios/Runner/`에, `google-services.json`을 `android/app/`에 배치하고 `firebase_options.dart`를 생성하세요.
 
-| 소스 | 대상 | 설명 |
-|------|------|------|
-| `tmp/flutter-pro-template/admob-skill/` | `./admob-skill/` | AdMob 통합 스킬 |
-| `tmp/flutter-pro-template/skill-creator/` | `./skill-creator/` | 스킬 생성 도구 |
-| `tmp/flutter-pro-template/directives/` | `./directives/` | SOP 문서 |
-| `tmp/flutter-pro-template/scripts/` | `./scripts/` | Dart 유틸리티 스크립트 |
-| `tmp/flutter-pro-template/.agent/` | `./.agent/` | AI 워크플로우 |
+## 변경 제안
 
----
+### 1. Main에서 Firebase 초기화
+`firebase_options.dart`가 준비되면 `main.dart`를 수정하여 Firebase를 초기화합니다.
 
-### 2단계: pubspec.yaml 패키지 추가
+#### [MODIFY] [main.dart](file:///Users/kihoonee/flutter/day_counter/lib/main.dart)
+```dart
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart'; // flutterfire configure로 생성됨
 
-현재 프로젝트에 없는 템플릿의 패키지들을 추가합니다.
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // Firebase 초기화
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
-#### [MODIFY] [pubspec.yaml](file:///Users/kihoonee/flutter/day_counter/pubspec.yaml)
-
-**dependencies 추가:**
-```yaml
-riverpod_annotation: ^4.0.0
-dio: ^5.4.0
-
-# Monetization & Analytics
-google_mobile_ads: ^7.0.0
-firebase_core: ^4.1.1
-firebase_analytics: ^12.1.1
-firebase_messaging: ^16.1.1
-firebase_remote_config: ^6.0.2
+  final prefs = await SharedPreferences.getInstance();
+  // ...
+}
 ```
 
-**dev_dependencies 추가:**
-```yaml
-riverpod_generator: ^4.0.0+1
-change_app_package_name: ^1.5.0
-```
-
----
-
-### 3단계: 템플릿 패턴 적용
-
-#### [NEW] [dio_client.dart](file:///Users/kihoonee/flutter/day_counter/lib/core/network/dio_client.dart)
-
-템플릿의 네트워크 클라이언트 구조를 복사하거나 참고하여 생성합니다.
-
----
-
-## Verification Plan
+## 검증 계획
 
 ### 자동 검증
-```bash
-flutter pub get
-dart run build_runner build --delete-conflicting-outputs
-flutter analyze
-```
+1. `flutter build ios --release` (또는 android) 실행.
+2. `flutter run --release`를 실행하여 앱이 크래시 없이 실행되는지 확인.
 
 ### 수동 검증
-- 앱 빌드 및 실행 확인
-- 기존 기능 정상 동작 확인
+1. Firebase 콘솔에서 Analytics 이벤트가 표시되는지 확인 (선택 사항).
