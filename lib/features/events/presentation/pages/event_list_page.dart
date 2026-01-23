@@ -87,6 +87,7 @@ class EventListPage extends ConsumerWidget {
                             dateLine: dateLine,
                             dText: _dText(diff),
                             themeIndex: e.themeIndex,
+                            iconIndex: e.iconIndex,
                             onTap: () => context.push('/detail', extra: e.id),
                           ),
                         );

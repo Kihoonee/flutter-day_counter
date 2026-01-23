@@ -27,6 +27,9 @@ abstract class Event with _$Event {
     // 카드 테마(0~n)
     @Default(0) int themeIndex,
 
+    // 아이콘(0~n)
+    @Default(0) int iconIndex,
+
     // 투두 리스트
     @Default([]) List<TodoItem> todos,
 

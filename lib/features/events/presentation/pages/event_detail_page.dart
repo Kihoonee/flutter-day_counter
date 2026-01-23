@@ -94,6 +94,7 @@ class _EventDetailPageState extends ConsumerState<EventDetailPage>
                       dateLine: dateLine,
                       dText: _dText(diff),
                       themeIndex: event.themeIndex,
+                      iconIndex: event.iconIndex,
                     ),
                   ),
                 ),

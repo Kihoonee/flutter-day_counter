@@ -4,23 +4,53 @@ import 'package:flutter/material.dart';
 class PosterTheme {
   final Color bg;
   final Color fg;
-  final IconData icon;
-  const PosterTheme(this.bg, this.fg, this.icon);
+  const PosterTheme(this.bg, this.fg);
 }
 
+// 아이콘 리스트 (인덱스로 관리)
+const eventIcons = <IconData>[
+  Icons.favorite_rounded,      // 0: 하트
+  Icons.cake_rounded,          // 1: 케이크
+  Icons.eco_rounded,           // 2: 나뭇잎
+  Icons.water_drop_rounded,    // 3: 물방울
+  Icons.bedtime_rounded,       // 4: 달
+  Icons.flight_rounded,        // 5: 비행기
+  Icons.card_giftcard_rounded, // 6: 선물
+  Icons.light_mode_rounded,    // 7: 해
+  Icons.article_rounded,       // 8: 문서
+  Icons.coffee_rounded,        // 9: 커피
+  Icons.pets_rounded,          // 10: 반려동물
+  Icons.school_rounded,        // 11: 학교
+  Icons.fitness_center_rounded,// 12: 운동
+  Icons.music_note_rounded,    // 13: 음악
+  Icons.monetization_on_rounded,// 14: 돈
+  Icons.home_rounded,          // 15: 집
+  Icons.star_rounded,          // 16: 별
+  Icons.work_rounded,          // 17: 일
+  Icons.local_dining_rounded,  // 18: 식사
+  Icons.directions_car_rounded,// 19: 차
+];
+
 const posterThemes = <PosterTheme>[
-  PosterTheme(Color(0xFFFFCDD2), Color(0xFF5D1010), Icons.favorite_rounded), // Red
-  PosterTheme(Color(0xFFFFCC80), Color(0xFF5D3000), Icons.cake_rounded),     // Orange
-  PosterTheme(Color(0xFFC8E6C9), Color(0xFF1B5E20), Icons.eco_rounded),      // Green
-  PosterTheme(Color(0xFFB2DFDB), Color(0xFF004D40), Icons.water_drop_rounded), // Teal
-  PosterTheme(Color(0xFFD1C4E9), Color(0xFF311B92), Icons.bedtime_rounded),  // Deep Purple
+  PosterTheme(Color(0xFFFFCDD2), Color(0xFF5D1010)), // Red
+  PosterTheme(Color(0xFFFFCC80), Color(0xFF5D3000)), // Orange
+  PosterTheme(Color(0xFFC8E6C9), Color(0xFF1B5E20)), // Green
+  PosterTheme(Color(0xFFB2DFDB), Color(0xFF004D40)), // Teal
+  PosterTheme(Color(0xFFD1C4E9), Color(0xFF311B92)), // Deep Purple
   
-  // New Themes
-  PosterTheme(Color(0xFF90CAF9), Color(0xFF0D47A1), Icons.flight_rounded),   // Blue
-  PosterTheme(Color(0xFFF48FB1), Color(0xFF880E4F), Icons.card_giftcard_rounded), // Pink
-  PosterTheme(Color(0xFFFFF59D), Color(0xFFF57F17), Icons.light_mode_rounded), // Yellow
-  PosterTheme(Color(0xFFCFD8DC), Color(0xFF263238), Icons.article_rounded),  // Blue Grey
-  PosterTheme(Color(0xFFBCAAA4), Color(0xFF3E2723), Icons.coffee_rounded),   // Brown
+  // Existing Additional
+  PosterTheme(Color(0xFF90CAF9), Color(0xFF0D47A1)), // Blue
+  PosterTheme(Color(0xFFF48FB1), Color(0xFF880E4F)), // Pink
+  PosterTheme(Color(0xFFFFF59D), Color(0xFFF57F17)), // Yellow
+  PosterTheme(Color(0xFFCFD8DC), Color(0xFF263238)), // Blue Grey
+  PosterTheme(Color(0xFFBCAAA4), Color(0xFF3E2723)), // Brown
+
+  // New Themes for User
+  PosterTheme(Color(0xFFF0F4C3), Color(0xFF827717)), // Lime
+  PosterTheme(Color(0xFFB2EBF2), Color(0xFF006064)), // Cyan
+  PosterTheme(Color(0xFFC5CAE9), Color(0xFF1A237E)), // Indigo
+  PosterTheme(Color(0xFFEA80FC), Color(0xFF4A148C)), // PurpleAccent
+  PosterTheme(Color(0xFFFFAB91), Color(0xFFBF360C)), // DeepOrange
 ];
 
 class PosterCard extends StatelessWidget {
@@ -28,6 +58,7 @@ class PosterCard extends StatelessWidget {
   final String dateLine;
   final String dText;
   final int themeIndex;
+  final int iconIndex;
   final VoidCallback? onTap;
 
   const PosterCard({
@@ -36,6 +67,7 @@ class PosterCard extends StatelessWidget {
     required this.dateLine,
     required this.dText,
     required this.themeIndex,
+    this.iconIndex = 0,
     this.onTap,
   });
 
@@ -46,6 +78,9 @@ class PosterCard extends StatelessWidget {
     // Select theme based on index (Safe lookup)
     final pTheme = posterThemes[themeIndex % posterThemes.length];
     final fgColor = pTheme.fg;
+
+    // Select icon based on index (Safe lookup)
+    final iconData = eventIcons[iconIndex % eventIcons.length];
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(4, 0, 4, 12), // Horizontal space for shadow + Bottom space
@@ -114,7 +149,7 @@ class PosterCard extends StatelessWidget {
                               shape: BoxShape.circle,
                             ),
                             child: Icon(
-                              pTheme.icon,
+                              iconData,
                               color: fgColor,
                               size: 20,
                             ),

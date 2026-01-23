@@ -92,6 +92,7 @@ class _TodoTabState extends ConsumerState<TodoTab> {
                   focusNode: _focusNode,
                   decoration: InputDecoration(
                     hintText: '할 일 추가...',
+                    hintStyle: TextStyle(color: theme.colorScheme.outline),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -106,7 +107,10 @@ class _TodoTabState extends ConsumerState<TodoTab> {
               const SizedBox(width: 8),
               IconButton.filled(
                 onPressed: _addTodo,
-                icon: const Icon(Icons.add),
+                icon: const Icon(Icons.add_rounded),
+                style: IconButton.styleFrom(
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
               ),
             ],
           ),
@@ -120,15 +124,15 @@ class _TodoTabState extends ConsumerState<TodoTab> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(
-                        Icons.checklist,
-                        size: 64,
-                        color: theme.colorScheme.outline,
+                        Icons.playlist_add_check_rounded,
+                        size: 48,
+                        color: theme.colorScheme.outline.withOpacity(0.5),
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 12),
                       Text(
                         '할 일을 추가해보세요',
-                        style: theme.textTheme.bodyLarge?.copyWith(
-                          color: theme.colorScheme.outline,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: theme.colorScheme.outline.withOpacity(0.5),
                         ),
                       ),
                     ],

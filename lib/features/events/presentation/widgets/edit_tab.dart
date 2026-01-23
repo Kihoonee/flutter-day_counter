@@ -18,11 +18,11 @@ class EditTab extends ConsumerStatefulWidget {
 
 class _EditTabState extends ConsumerState<EditTab> {
   late TextEditingController _title;
-  late DateTime _base;
   late DateTime _target;
   late bool _includeToday;
   late bool _excludeWeekends;
   late int _themeIndex;
+  late int _iconIndex;
 
   bool _initialized = false;
 
@@ -43,11 +43,11 @@ class _EditTabState extends ConsumerState<EditTab> {
     _initialized = true;
 
     _title.text = e.title;
-    _base = e.baseDate;
     _target = e.targetDate;
     _includeToday = e.includeToday;
     _excludeWeekends = e.excludeWeekends;
     _themeIndex = e.themeIndex;
+    _iconIndex = e.iconIndex;
   }
 
   @override
@@ -60,30 +60,69 @@ class _EditTabState extends ConsumerState<EditTab> {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // 제목 입력
+          // 1. 이벤트 제목 입력
           TextField(
             controller: _title,
-            decoration: const InputDecoration(
-              labelText: '이벤트 제목',
+            style: theme.textTheme.headlineSmall?.copyWith(
+              fontWeight: FontWeight.normal,
+            ),
+            decoration: InputDecoration(
+              labelText: '어떤 날인가요?',
+              hintText: '이벤트 제목을 입력하세요',
+              labelStyle: TextStyle(color: theme.colorScheme.onSurfaceVariant),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
+              filled: true,
+              fillColor: theme.colorScheme.surfaceContainerHighest.withOpacity(0.3),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             ),
             onChanged: (_) => setState(() {}),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 24),
 
-          // 기준일
-          DateField(
-            label: '기준일',
-            value: _base,
-            onTap: () async {
-              final picked = await pickDate(context, initial: _base);
-              if (picked == null) return;
-              setState(() => _base = picked);
-            },
+          // 2. 아이콘 선택
+          Text(
+            '아이콘',
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+              color: theme.colorScheme.onSurface,
+            ),
           ),
           const SizedBox(height: 12),
+          _IconPicker(
+            selected: _iconIndex,
+            onSelect: (i) => setState(() => _iconIndex = i),
+          ),
+          const SizedBox(height: 24),
 
-          // 목표일
+          // 3. 테마 선택
+          Text(
+            '테마 컬러',
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+              color: theme.colorScheme.onSurface,
+            ),
+          ),
+          const SizedBox(height: 12),
+          _ThemePicker(
+            selected: _themeIndex,
+            onSelect: (i) => setState(() => _themeIndex = i),
+          ),
+          const SizedBox(height: 24),
+
+          // 4. 목표일 선택
+          Text(
+            '날짜',
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+              color: theme.colorScheme.onSurface,
+            ),
+          ),
+          const SizedBox(height: 8),
           DateField(
             label: '목표일',
             value: _target,
@@ -93,30 +132,28 @@ class _EditTabState extends ConsumerState<EditTab> {
               setState(() => _target = picked);
             },
           ),
+          const SizedBox(height: 24),
 
-          const SizedBox(height: 12),
-
-          // 옵션 카드
+          // 5. 옵션 (맨 아래로 이동)
           Card(
+            elevation: 0,
+            color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.3),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             child: Column(
               children: [
                 SwitchListTile(
                   title: Text(
-                    '당일 포함',
-                    style: theme.textTheme.bodyLarge?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
+                    '당일 포함 (1일차 시작)',
+                    style: theme.textTheme.bodyMedium,
                   ),
                   value: _includeToday,
                   onChanged: (v) => setState(() => _includeToday = v),
                 ),
-                const Divider(height: 1),
+                Divider(height: 1, color: theme.colorScheme.outlineVariant.withOpacity(0.5)),
                 SwitchListTile(
                   title: Text(
-                    '주말 제외',
-                    style: theme.textTheme.bodyLarge?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
+                    '주말 제외 (평일만 계산)',
+                    style: theme.textTheme.bodyMedium,
                   ),
                   value: _excludeWeekends,
                   onChanged: (v) => setState(() => _excludeWeekends = v),
@@ -124,14 +161,6 @@ class _EditTabState extends ConsumerState<EditTab> {
               ],
             ),
           ),
-          const SizedBox(height: 12),
-
-          // 테마 선택
-          _ThemePicker(
-            selected: _themeIndex,
-            onSelect: (i) => setState(() => _themeIndex = i),
-          ),
-
           const SizedBox(height: 32),
 
           // 저장 / 삭제 버튼
@@ -165,23 +194,25 @@ class _EditTabState extends ConsumerState<EditTab> {
                     context.go('/events'); // 목록으로 돌아가기
                   },
                   style: TextButton.styleFrom(
-                    foregroundColor: theme.colorScheme.error,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    foregroundColor: theme.colorScheme.onSurface.withOpacity(0.6), // Grey color
+                    padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
-                  child: const Text('삭제'),
+                  child: const Text('이벤트 삭제'),
                 ),
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: 16),
               Expanded(
-                child: ElevatedButton(
+                flex: 2,
+                child: FilledButton(
                   onPressed: () async {
                     final updatedEvent = widget.event.copyWith(
                       title: _title.text.isEmpty ? '이벤트' : _title.text,
-                      baseDate: _base,
+                      baseDate: DateTime.now(), // 기준일은 항상 오늘
                       targetDate: _target,
                       includeToday: _includeToday,
                       excludeWeekends: _excludeWeekends,
                       themeIndex: _themeIndex,
+                      iconIndex: _iconIndex,
                     );
 
                     await ref
@@ -193,18 +224,65 @@ class _EditTabState extends ConsumerState<EditTab> {
                       const SnackBar(content: Text('저장되었습니다.')),
                     );
                   },
-                  style: ElevatedButton.styleFrom(
-                    elevation: 0,
-                    backgroundColor: theme.colorScheme.primaryContainer,
-                    foregroundColor: theme.colorScheme.onPrimaryContainer,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
+                  style: FilledButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
-                  child: const Text('저장'),
+                  child: const Text('변경사항 저장'),
                 ),
               ),
             ],
           ),
+          const SizedBox(height: 24),
         ],
+      ),
+    );
+  }
+}
+
+/// 아이콘 선택 위젯
+class _IconPicker extends StatelessWidget {
+  final int selected;
+  final ValueChanged<int> onSelect;
+
+  const _IconPicker({required this.selected, required this.onSelect});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return SizedBox(
+      height: 60,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: eventIcons.length,
+        separatorBuilder: (_, __) => const SizedBox(width: 12),
+        itemBuilder: (context, i) {
+          final icon = eventIcons[i];
+          final isSelected = i == selected;
+          return GestureDetector(
+            onTap: () => onSelect(i),
+            child: Container(
+              width: 50,
+              decoration: BoxDecoration(
+                color: isSelected 
+                    ? theme.colorScheme.primaryContainer 
+                    : theme.colorScheme.surfaceContainerHighest.withOpacity(0.5),
+                borderRadius: BorderRadius.circular(12),
+                border: isSelected
+                    ? Border.all(color: theme.colorScheme.primary, width: 2)
+                    : null,
+              ),
+              child: Icon(
+                icon,
+                color: isSelected 
+                    ? theme.colorScheme.primary 
+                    : theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+          );
+        },
       ),
     );
   }
@@ -220,59 +298,44 @@ class _ThemePicker extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Row(
-          children: [
-            Text(
-              '테마',
-              style: theme.textTheme.bodyLarge?.copyWith(
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: List.generate(posterThemes.length, (i) {
-                    final c = posterThemes[i].bg;
-                    final isOn = i == selected;
-                    return GestureDetector(
-                      onTap: () => onSelect(i),
-                      child: Container(
-                        margin: const EdgeInsets.only(right: 10),
-                        width: 28,
-                        height: 28,
-                        decoration: BoxDecoration(
-                          color: c,
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: isOn
-                                ? theme.colorScheme.primary
-                                : Colors.transparent,
-                            width: isOn ? 2 : 1,
-                          ),
-                          boxShadow: isOn
-                              ? [
-                                  BoxShadow(
-                                    color: theme.colorScheme.primary
-                                        .withOpacity(0.3),
-                                    blurRadius: 4,
-                                    spreadRadius: 1,
-                                  )
-                                ]
-                              : null,
-                        ),
-                      ),
-                    );
-                  }),
+    return SizedBox(
+      height: 50,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: posterThemes.length,
+        separatorBuilder: (_, __) => const SizedBox(width: 12),
+        itemBuilder: (context, i) {
+          final c = posterThemes[i].bg;
+          final isSelected = i == selected;
+          return GestureDetector(
+            onTap: () => onSelect(i),
+            child: Container(
+              width: 50,
+              decoration: BoxDecoration(
+                color: c,
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: isSelected
+                      ? theme.colorScheme.primary
+                      : Colors.transparent,
+                  width: isSelected ? 3 : 1,
                 ),
+                boxShadow: isSelected
+                    ? [
+                        BoxShadow(
+                          color: theme.colorScheme.primary.withOpacity(0.3),
+                          blurRadius: 4,
+                          spreadRadius: 1,
+                        )
+                      ]
+                    : null,
               ),
+              child: isSelected 
+                  ? Icon(Icons.check, color: posterThemes[i].fg, size: 20) 
+                  : null,
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
