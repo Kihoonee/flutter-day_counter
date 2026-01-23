@@ -113,7 +113,7 @@ class DiaryTab extends ConsumerWidget {
           // 일단은 기존 로직 유지하되 event 인자 사용.
 
           // 새로 읽어오기 (안전장치)
-          final currentEvents = ref.read(eventsProvider).valueOrNull ?? [];
+          final currentEvents = ref.read(eventsProvider).asData?.value ?? [];
           final currentEvent = currentEvents.where((e) => e.id == event.id).firstOrNull;
           if (currentEvent == null) return;
 
@@ -148,7 +148,7 @@ class DiaryTab extends ConsumerWidget {
 
   Future<void> _deleteEntry(WidgetRef ref, Event event, DiaryEntry entry) async {
     // 삭제 시에도 최신 이벤트 기준
-    final currentEvents = ref.read(eventsProvider).valueOrNull ?? [];
+    final currentEvents = ref.read(eventsProvider).asData?.value ?? [];
     final currentEvent = currentEvents.where((e) => e.id == event.id).firstOrNull;
     if (currentEvent == null) return;
 
