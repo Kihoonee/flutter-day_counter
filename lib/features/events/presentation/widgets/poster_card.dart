@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 
 class PosterTheme {
@@ -8,15 +9,18 @@ class PosterTheme {
 }
 
 const posterThemes = <PosterTheme>[
-  PosterTheme(Color(0xFF63B3FF), Color(0xFF0B3B6E), Icons.flight_rounded),
-  PosterTheme(Color(0xFFFF6B6B), Color(0xFF3B0B0B), Icons.cake_rounded),
-  PosterTheme(Color(0xFF7C5CFF), Color(0xFF130B3B), Icons.work_rounded),
-  PosterTheme(Color(0xFFFFD166), Color(0xFF3B2A0B), Icons.celebration_rounded),
-  PosterTheme(
-    Color(0xFF4ECDC4),
-    Color(0xFF0B3B38),
-    Icons.directions_run_rounded,
-  ),
+  PosterTheme(Color(0xFFFFCDD2), Color(0xFF5D1010), Icons.favorite_rounded), // Red
+  PosterTheme(Color(0xFFFFCC80), Color(0xFF5D3000), Icons.cake_rounded),     // Orange
+  PosterTheme(Color(0xFFC8E6C9), Color(0xFF1B5E20), Icons.eco_rounded),      // Green
+  PosterTheme(Color(0xFFB2DFDB), Color(0xFF004D40), Icons.water_drop_rounded), // Teal
+  PosterTheme(Color(0xFFD1C4E9), Color(0xFF311B92), Icons.bedtime_rounded),  // Deep Purple
+  
+  // New Themes
+  PosterTheme(Color(0xFF90CAF9), Color(0xFF0D47A1), Icons.flight_rounded),   // Blue
+  PosterTheme(Color(0xFFF48FB1), Color(0xFF880E4F), Icons.card_giftcard_rounded), // Pink
+  PosterTheme(Color(0xFFFFF59D), Color(0xFFF57F17), Icons.light_mode_rounded), // Yellow
+  PosterTheme(Color(0xFFCFD8DC), Color(0xFF263238), Icons.article_rounded),  // Blue Grey
+  PosterTheme(Color(0xFFBCAAA4), Color(0xFF3E2723), Icons.coffee_rounded),   // Brown
 ];
 
 class PosterCard extends StatelessWidget {
@@ -37,126 +41,207 @@ class PosterCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = posterThemes[themeIndex % posterThemes.length];
+    final theme = Theme.of(context);
+    
+    // Select theme based on index (Safe lookup)
+    final pTheme = posterThemes[themeIndex % posterThemes.length];
+    final fgColor = pTheme.fg;
 
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(26),
-      child: Container(
-        padding: const EdgeInsets.all(18),
-        decoration: BoxDecoration(
-          color: t.bg,
-          borderRadius: BorderRadius.circular(26),
-          boxShadow: const [
-            BoxShadow(
-              blurRadius: 22,
-              offset: Offset(0, 14),
-              color: Color(0x1A000000),
-            ),
-          ],
-        ),
-        child: Stack(
-          children: [
-            // "cut-paper" 느낌의 간단 도형
-            Positioned(
-              right: -30,
-              top: 44,
-              child: Transform.rotate(
-                angle: 0.18,
-                child: Container(
-                  width: 160,
-                  height: 90,
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.85),
-                    borderRadius: BorderRadius.circular(18),
-                  ),
-                ),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(4, 0, 4, 12), // Horizontal space for shadow + Bottom space
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(24),
+        child: Container(
+          decoration: BoxDecoration(
+            color: pTheme.bg, // Main Pastel Background
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: [
+              BoxShadow(
+                color: pTheme.fg.withOpacity(0.3), // Stronger, visible colored shadow
+                blurRadius: 6, // Tighter
+                offset: const Offset(0, 4), // Lower but shorter
               ),
-            ),
-            Positioned(
-              left: 12,
-              top: 64,
-              child: Transform.rotate(
-                angle: -0.15,
-                child: Container(
-                  width: 160,
-                  height: 90,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFFF1B8).withOpacity(0.9),
-                    borderRadius: BorderRadius.circular(18),
-                  ),
-                ),
-              ),
-            ),
-
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            ],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(24),
+            child: Stack(
               children: [
-                Row(
-                  children: [
-                    Container(
-                      width: 14,
-                      height: 14,
-                      decoration: BoxDecoration(
-                        color: t.fg.withOpacity(0.9),
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Text(
-                        title,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w800,
-                          color: t.fg,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Icon(t.icon, color: Colors.white, size: 22),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  dateLine,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: t.fg.withOpacity(0.9),
-                    fontWeight: FontWeight.w600,
+                // Background Pattern (White Wavy Gradient + Droplets)
+                Positioned.fill(
+                  child: CustomPaint(
+                    painter: _PatternPainter(Colors.white, themeIndex),
                   ),
                 ),
-                const Spacer(),
-                FittedBox(
-                  fit: BoxFit.scaleDown,
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    dText,
-                    style: const TextStyle(
-                      fontSize: 44,
-                      color: Colors.white,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: -0.8,
-                      height: 1.1,
-                    ),
-                  ),
-                ),
-                const Text(
-                  'days',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.white,
-                    fontWeight: FontWeight.w700,
-                    height: 1.1,
+
+                // Content
+                Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  title,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: theme.textTheme.titleLarge?.copyWith(
+                                    fontWeight: FontWeight.w700,
+                                    color: fgColor, // Contrast Text
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  dateLine,
+                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                    color: fgColor.withOpacity(0.8),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.4), // Brighter overlay
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              pTheme.icon,
+                              color: fgColor,
+                              size: 20,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const Spacer(),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.baseline,
+                        textBaseline: TextBaseline.alphabetic,
+                        children: [
+                          Text(
+                            dText,
+                            style: theme.textTheme.displayLarge?.copyWith(
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: -1.0,
+                              color: fgColor, // Highlight D-Day text
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 2),
+                            child: Text(
+                              'days',
+                              style: theme.textTheme.bodyLarge?.copyWith(
+                                color: fgColor.withOpacity(0.9),
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
-          ],
+          ),
         ),
       ),
     );
+  }
+}
+
+class _PatternPainter extends CustomPainter {
+  final Color overlayColor;
+  final int seed;
+
+  _PatternPainter(this.overlayColor, this.seed);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    _drawWavyGradient(canvas, size);
+    _drawDroplets(canvas, size);
+  }
+
+  void _drawWavyGradient(Canvas canvas, Size size) {
+    final random = Random(seed);
+    
+    final paint = Paint()
+      ..style = PaintingStyle.fill
+      ..shader = LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [
+          overlayColor.withOpacity(0.0),
+          overlayColor.withOpacity(0.35),
+        ],
+      ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
+
+    final path = Path();
+    
+    // Randomize start height (0.5 to 0.6)
+    final startY = size.height * (0.5 + random.nextDouble() * 0.1);
+    path.moveTo(0, startY);
+
+    // Randomize control point (X: 0.3-0.7, Y: 0.1-0.4)
+    final controlX = size.width * (0.3 + random.nextDouble() * 0.4);
+    final controlY = size.height * (0.1 + random.nextDouble() * 0.3);
+
+    // Randomize end point (0.55 to 0.7)
+    final endY = size.height * (0.55 + random.nextDouble() * 0.15);
+
+    path.quadraticBezierTo(controlX, controlY, size.width, endY);
+    
+    path.lineTo(size.width, size.height);
+    path.lineTo(0, size.height);
+    path.close();
+
+    canvas.drawPath(path, paint);
+  }
+
+  void _drawDroplets(Canvas canvas, Size size) {
+    final random = Random(seed); 
+    final paint = Paint()
+      ..style = PaintingStyle.fill;
+
+    // Draw 6-10 droplets
+    final count = 6 + random.nextInt(5);
+
+    // Consume randoms used in weave generation to keep sync if we cared, 
+    // but independent Random(seed) instance is safer if order matters. 
+    // Actually we re-instantiated Random(seed) so it's fresh sequence. 
+    // To mix them, we should burn the first few randoms used by wave or just share the instance.
+    // Let's burn the numbers used in wave to ensure droplets are distinct from wave logic? 
+    // No need, they are just random numbers.
+    
+    // Note: We need to ensure Droplets are drawn "around" the wave area generally.
+    // Since wave is random, we can't easily bound perfectly without passing the path.
+    // But generalized bottom-half random is fine for this aesthetic.
+    
+    // Burn the 4 doubles used in _drawWavyGradient to shift the sequence
+    random.nextDouble(); random.nextDouble(); random.nextDouble(); random.nextDouble(); 
+
+    for (int i = 0; i < count; i++) {
+      final dx = random.nextDouble() * size.width;
+      final dy = size.height * 0.4 + random.nextDouble() * (size.height * 0.6);
+      final radius = 5.0 + random.nextDouble() * 10.0;
+      
+      paint.color = overlayColor.withOpacity(0.15 + random.nextDouble() * 0.3);
+      
+      canvas.drawCircle(Offset(dx, dy), radius, paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _PatternPainter oldDelegate) {
+    return oldDelegate.overlayColor != overlayColor || oldDelegate.seed != seed;
   }
 }

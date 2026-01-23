@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../core/widgets/custom_calendar.dart';
+
 class DateField extends StatelessWidget {
   final String label;
   final DateTime value;
@@ -78,18 +80,10 @@ Future<DateTime?> pickDate(
   DateTime? firstDate,
   DateTime? lastDate,
 }) {
-  return showDatePicker(
-    context: context,
+  return showCustomCalendar(
+    context,
     initialDate: initial,
-    firstDate: firstDate ?? DateTime(2000, 1, 1),
-    lastDate: lastDate ?? DateTime(2100, 12, 31),
-    builder: (context, child) {
-      return Theme(
-        data: Theme.of(context).copyWith(
-          colorScheme: Theme.of(context).colorScheme,
-        ),
-        child: child!,
-      );
-    },
+    firstDate: firstDate,
+    lastDate: lastDate,
   );
 }

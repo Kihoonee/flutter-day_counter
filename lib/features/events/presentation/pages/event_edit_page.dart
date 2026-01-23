@@ -180,7 +180,7 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
                       children: [
                         if (widget.eventId != null) ...[
                           Expanded(
-                            child: OutlinedButton(
+                            child: TextButton(
                               onPressed: () async {
                                 final ok = await showDialog<bool>(
                                   context: context,
@@ -208,11 +208,8 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
                                 if (!mounted) return;
                                 context.pop();
                               },
-                              style: OutlinedButton.styleFrom(
-                                backgroundColor: theme.colorScheme.surface,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
+                              style: TextButton.styleFrom(
+                                foregroundColor: theme.colorScheme.error, // Red text
                                 padding: const EdgeInsets.symmetric(vertical: 14),
                               ),
                               child: const Text('삭제'),
@@ -220,22 +217,23 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
                           ),
                           const SizedBox(width: 10),
                         ],
-                                                  Expanded(
-                                                  child: ElevatedButton(
-                                                    onPressed: () async {
-                                                      print('UI: Save button clicked'); // Debug Log
-                                                      final id = widget.eventId ?? const Uuid().v4();
-                                                      final e = Event(
-                                                        id: id,
-                                                        title: _title.text.isEmpty ? '이벤트' : _title.text,
-                                                        baseDate: _base,
-                                                        targetDate: _target,
-                                                        includeToday: _includeToday,
-                                                        excludeWeekends: _excludeWeekends,
-                                                        themeIndex: _themeIndex,
-                                                      );
-                                                      print('UI: Calling upsert for event ${e.id}'); // Debug Log
-                                                      await ref.read(eventsProvider.notifier).upsert(e);                              if (!mounted) return;
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () async {
+                              print('UI: Save button clicked'); // Debug Log
+                              final id = widget.eventId ?? const Uuid().v4();
+                              final e = Event(
+                                id: id,
+                                title: _title.text.isEmpty ? '이벤트' : _title.text,
+                                baseDate: _base,
+                                targetDate: _target,
+                                includeToday: _includeToday,
+                                excludeWeekends: _excludeWeekends,
+                                themeIndex: _themeIndex,
+                              );
+                              print('UI: Calling upsert for event ${e.id}'); // Debug Log
+                              await ref.read(eventsProvider.notifier).upsert(e);
+                              if (!mounted) return;
                               
                               final state = ref.read(eventsProvider);
                               if (state.hasError) {
@@ -249,6 +247,12 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
                                 context.pop();
                               }
                             },
+                            style: ElevatedButton.styleFrom(
+                              elevation: 0, // Flat look
+                              backgroundColor: theme.colorScheme.primaryContainer,
+                              foregroundColor: theme.colorScheme.onPrimaryContainer,
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                            ),
                             child: const Text('저장'),
                           ),
                         ),

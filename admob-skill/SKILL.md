@@ -26,7 +26,7 @@ dependencies:
         <!-- AdMob App ID -->
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-XXXXXXXXXXXXXXXX~YYYYYYYYYY"/>
+            android:value="ca-app-pub-3940256099942544~3347511713"/> <!-- 테스트용 샘플 ID -->
     </application>
 </manifest>
 ```
@@ -34,7 +34,7 @@ dependencies:
 **iOS** (`ios/Runner/Info.plist`):
 ```xml
 <key>GADApplicationIdentifier</key>
-<string>ca-app-pub-XXXXXXXXXXXXXXXX~YYYYYYYYYY</string>
+<string>ca-app-pub-3940256099942544~1458002511</string> <!-- 테스트용 샘플 ID -->
 <key>SKAdNetworkItems</key>
 <array>
   <dict>

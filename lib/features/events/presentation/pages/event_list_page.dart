@@ -13,8 +13,8 @@ class EventListPage extends ConsumerWidget {
 
   String _dText(int diff) {
     if (diff == 0) return 'D-Day';
-    if (diff > 0) return 'D-$diff';
-    return 'D+${diff.abs()}';
+    if (diff > 0) return '-$diff';
+    return '+${diff.abs()}';
   }
 
   @override
@@ -22,73 +22,102 @@ class EventListPage extends ConsumerWidget {
     final state = ref.watch(eventsProvider);
 
     return Scaffold(
+      extendBodyBehindAppBar: true, // Allow body to scroll behind AppBar
       appBar: AppBar(
-        title: const Text('Events'),
-        actions: [
-          IconButton(
-            onPressed: () => context.push('/edit', extra: null),
-            icon: const Icon(Icons.add_circle_outline_rounded),
-            tooltip: 'Add',
+        title: const Text('Day Counter'),
+        centerTitle: true,
+        backgroundColor: Colors.transparent, // Completely transparent
+        elevation: 0,
+        // flexibleSpace: ClipRect( // Optional: Blur effect if needed later
+        //   child: BackdropFilter(
+        //     filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        //     child: Container(color: Colors.transparent),
+        //   ),
+        // ),
+      ),
+      body: Stack(
+        children: [
+          // Main Content
+          Column(
+            children: [
+              Expanded(
+                child: state.when(
+                  loading: () => const Center(child: CircularProgressIndicator()),
+                  error: (e, _) => Center(child: Text('에러: $e')),
+                  data: (List<Event> events) {
+                    if (events.isEmpty) {
+                      return Padding(
+                        padding: EdgeInsets.only(
+                          top: MediaQuery.of(context).padding.top + kToolbarHeight + 20,
+                        ),
+                        child: _Empty(
+                          onCreate: () => context.push('/edit', extra: null),
+                        ),
+                      );
+                    }
+
+                    return ListView.separated(
+                      // Add top padding to start list below AppBar initially
+                      padding: EdgeInsets.only(
+                        top: MediaQuery.of(context).padding.top + kToolbarHeight + 10,
+                        bottom: 20,
+                        left: 16,
+                        right: 16,
+                      ),
+                      itemCount: events.length,
+                      separatorBuilder: (_, __) => const SizedBox(height: 16),
+                      itemBuilder: (context, i) {
+                        final e = events[i];
+                        final diff = DateCalc.diffDays(
+                          base: e.baseDate,
+                          target: e.targetDate,
+                          includeToday: e.includeToday,
+                          excludeWeekends: e.excludeWeekends,
+                        );
+
+                        final dateLine = DateFormat(
+                          'yyyy.MM.dd',
+                        ).format(e.targetDate);
+
+                        return SizedBox(
+                          height: 180,
+                          child: PosterCard(
+                            title: e.title,
+                            dateLine: dateLine,
+                            dText: _dText(diff),
+                            themeIndex: e.themeIndex,
+                            onTap: () => context.push('/edit', extra: e.id),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
+              ),
+              // Banner Slot Fixed at Bottom
+              const SafeArea(
+                top: false,
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  child: _BannerSlot(),
+                ),
+              ),
+            ],
+          ),
+
+          // Floating Action Button (Manually positioned to avoid Banner)
+          Positioned(
+            bottom: 120, // Check: Increased to avoid Banner overlap
+            right: 16,
+            child: FloatingActionButton(
+              onPressed: () => context.push('/edit', extra: null),
+              shape: const CircleBorder(), // Explicitly circular
+              child: const Icon(Icons.add),
+            ),
           ),
         ],
       ),
-      body: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 600),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              children: [
-                Expanded(
-                  child: state.when(
-                    loading: () => const Center(child: CircularProgressIndicator()),
-                    error: (e, _) => Center(child: Text('에러: $e')),
-                    data: (List<Event> events) {
-                      print('EventListPage UI: Received ${events.length} events');
-                      if (events.isEmpty) {
-                        return _Empty(
-                          onCreate: () => context.push('/edit', extra: null),
-                        );
-                      }
-
-                      return ListView.separated(
-                        itemCount: events.length,
-                        separatorBuilder: (_, __) => const SizedBox(height: 12),
-                        itemBuilder: (context, i) {
-                          final e = events[i];
-                          final diff = DateCalc.diffDays(
-                            base: e.baseDate,
-                            target: e.targetDate,
-                            includeToday: e.includeToday,
-                            excludeWeekends: e.excludeWeekends,
-                          );
-
-                          final dateLine = DateFormat(
-                            'yyyy.MM.dd',
-                          ).format(e.targetDate);
-
-                          return SizedBox(
-                            height: 170,
-                            child: PosterCard(
-                              title: e.title,
-                              dateLine: dateLine,
-                              dText: _dText(diff),
-                              themeIndex: e.themeIndex,
-                              onTap: () => context.push('/edit', extra: e.id),
-                            ),
-                          );
-                        },
-                      );
-                    },
-                  ),
-                ),
-                const SizedBox(height: 10),
-                const _BannerSlot(),
-              ],
-            ),
-          ),
-        ),
-      ),
+      // No Scaffold FAB since we positioned it manually
     );
   }
 }
