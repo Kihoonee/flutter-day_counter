@@ -82,47 +82,53 @@ class _EditTabState extends ConsumerState<EditTab> {
             ),
             onChanged: (_) => setState(() {}),
           ),
-          const SizedBox(height: 24),
-
-          // 2. 아이콘 선택
-          Text(
-            '아이콘',
-            style: theme.textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w600,
-              color: theme.colorScheme.onSurface,
+          // 2. 아이콘 & 테마 선택 (콤팩트하게 통합)
+          Card(
+            elevation: 0,
+            color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.3),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        '아이콘',
+                        style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _IconPicker(
+                          selected: _iconIndex,
+                          onSelect: (i) => setState(() => _iconIndex = i),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const Divider(height: 24),
+                  Row(
+                    children: [
+                      Text(
+                        '테마',
+                        style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+                      ),
+                      const SizedBox(width: 24),
+                      Expanded(
+                        child: _ThemePicker(
+                          selected: _themeIndex,
+                          onSelect: (i) => setState(() => _themeIndex = i),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
-          const SizedBox(height: 12),
-          _IconPicker(
-            selected: _iconIndex,
-            onSelect: (i) => setState(() => _iconIndex = i),
-          ),
-          const SizedBox(height: 24),
-
-          // 3. 테마 선택
-          Text(
-            '테마 컬러',
-            style: theme.textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w600,
-              color: theme.colorScheme.onSurface,
-            ),
-          ),
-          const SizedBox(height: 12),
-          _ThemePicker(
-            selected: _themeIndex,
-            onSelect: (i) => setState(() => _themeIndex = i),
-          ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 16),
 
           // 4. 목표일 선택
-          Text(
-            '날짜',
-            style: theme.textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w600,
-              color: theme.colorScheme.onSurface,
-            ),
-          ),
-          const SizedBox(height: 8),
           DateField(
             label: '목표일',
             value: _target,
@@ -132,7 +138,7 @@ class _EditTabState extends ConsumerState<EditTab> {
               setState(() => _target = picked);
             },
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 16),
 
           // 5. 옵션 (맨 아래로 이동)
           Card(
@@ -253,7 +259,7 @@ class _IconPicker extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return SizedBox(
-      height: 60,
+      height: 40,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: eventIcons.length,
@@ -264,18 +270,20 @@ class _IconPicker extends StatelessWidget {
           return GestureDetector(
             onTap: () => onSelect(i),
             child: Container(
-              width: 50,
+              width: 40,
               decoration: BoxDecoration(
                 color: isSelected 
-                    ? theme.colorScheme.primaryContainer 
-                    : theme.colorScheme.surfaceContainerHighest.withOpacity(0.5),
-                borderRadius: BorderRadius.circular(12),
-                border: isSelected
-                    ? Border.all(color: theme.colorScheme.primary, width: 2)
-                    : null,
+                    ? theme.colorScheme.primary.withOpacity(0.1) 
+                    : Colors.transparent,
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: isSelected ? theme.colorScheme.primary : theme.colorScheme.outlineVariant.withOpacity(0.5),
+                  width: isSelected ? 2 : 1,
+                ),
               ),
               child: Icon(
                 icon,
+                size: 20,
                 color: isSelected 
                     ? theme.colorScheme.primary 
                     : theme.colorScheme.onSurfaceVariant,
@@ -299,7 +307,7 @@ class _ThemePicker extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return SizedBox(
-      height: 50,
+      height: 32,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: posterThemes.length,
@@ -310,20 +318,20 @@ class _ThemePicker extends StatelessWidget {
           return GestureDetector(
             onTap: () => onSelect(i),
             child: Container(
-              width: 50,
+              width: 32,
               decoration: BoxDecoration(
                 color: c,
                 shape: BoxShape.circle,
                 border: Border.all(
                   color: isSelected
                       ? theme.colorScheme.primary
-                      : Colors.transparent,
-                  width: isSelected ? 3 : 1,
+                      : theme.colorScheme.outlineVariant.withOpacity(0.3),
+                  width: isSelected ? 2 : 1,
                 ),
                 boxShadow: isSelected
                     ? [
                         BoxShadow(
-                          color: theme.colorScheme.primary.withOpacity(0.3),
+                          color: theme.colorScheme.primary.withOpacity(0.2),
                           blurRadius: 4,
                           spreadRadius: 1,
                         )
@@ -331,7 +339,7 @@ class _ThemePicker extends StatelessWidget {
                     : null,
               ),
               child: isSelected 
-                  ? Icon(Icons.check, color: posterThemes[i].fg, size: 20) 
+                  ? Icon(Icons.check, color: posterThemes[i].fg, size: 16) 
                   : null,
             ),
           );
