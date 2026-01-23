@@ -141,39 +141,45 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
                       color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.3),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       child: Padding(
-                        padding: const EdgeInsets.all(12),
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                         child: Column(
                           children: [
-                            Row(
-                              children: [
-                                Text(
-                                  '아이콘',
-                                  style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: _IconPicker(
-                                    selected: _iconIndex,
-                                    onSelect: (i) => setState(() => _iconIndex = i),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              child: Row(
+                                children: [
+                                  Text(
+                                    '아이콘',
+                                    style: theme.textTheme.bodyMedium, // Bold 제거
                                   ),
-                                ),
-                              ],
+                                  const SizedBox(width: 16),
+                                  Expanded(
+                                    child: _IconPicker(
+                                      selected: _iconIndex,
+                                      onSelect: (i) => setState(() => _iconIndex = i),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
-                            const Divider(height: 24),
-                            Row(
-                              children: [
-                                Text(
-                                  '테마',
-                                  style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
-                                ),
-                                const SizedBox(width: 24),
-                                Expanded(
-                                  child: _ThemePicker(
-                                    selected: _themeIndex,
-                                    onSelect: (i) => setState(() => _themeIndex = i),
+                            Divider(height: 1, color: theme.colorScheme.outlineVariant.withOpacity(0.5)),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              child: Row(
+                                children: [
+                                  Text(
+                                    '테마',
+                                    style: theme.textTheme.bodyMedium, // Bold 제거
                                   ),
-                                ),
-                              ],
+                                  const SizedBox(width: 28),
+                                  Expanded(
+                                    child: _ThemePicker(
+                                      selected: _themeIndex,
+                                      onSelect: (i) => setState(() => _themeIndex = i),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ],
                         ),

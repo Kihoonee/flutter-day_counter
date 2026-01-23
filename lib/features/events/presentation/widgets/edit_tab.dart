@@ -88,39 +88,45 @@ class _EditTabState extends ConsumerState<EditTab> {
             color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.3),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             child: Padding(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8), // 패딩 조정
               child: Column(
                 children: [
-                  Row(
-                    children: [
-                      Text(
-                        '아이콘',
-                        style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: _IconPicker(
-                          selected: _iconIndex,
-                          onSelect: (i) => setState(() => _iconIndex = i),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    child: Row(
+                      children: [
+                        Text(
+                          '아이콘',
+                          style: theme.textTheme.bodyMedium, // Bold 제거
                         ),
-                      ),
-                    ],
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: _IconPicker(
+                            selected: _iconIndex,
+                            onSelect: (i) => setState(() => _iconIndex = i),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                  const Divider(height: 24),
-                  Row(
-                    children: [
-                      Text(
-                        '테마',
-                        style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
-                      ),
-                      const SizedBox(width: 24),
-                      Expanded(
-                        child: _ThemePicker(
-                          selected: _themeIndex,
-                          onSelect: (i) => setState(() => _themeIndex = i),
+                  Divider(height: 1, color: theme.colorScheme.outlineVariant.withOpacity(0.5)), // 구분선 통일
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    child: Row(
+                      children: [
+                        Text(
+                          '테마',
+                          style: theme.textTheme.bodyMedium, // Bold 제거
                         ),
-                      ),
-                    ],
+                        const SizedBox(width: 28), // 아이콘 텍스트 길이 차이 고려
+                        Expanded(
+                          child: _ThemePicker(
+                            selected: _themeIndex,
+                            onSelect: (i) => setState(() => _themeIndex = i),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -128,7 +134,12 @@ class _EditTabState extends ConsumerState<EditTab> {
           ),
           const SizedBox(height: 16),
 
-          // 4. 목표일 선택
+          // 4. 목표일 선택: DateField 내부 스타일 수정 필요 -> 여기서는 DateField 호출부만 있는데, DateField 내부 구현을 봐야 함.
+          // DateField 위젯은 내부 텍스트 스타일을 사용하므로, 만약 Bold가 적용되어 있다면 DateField를 수정해야 함.
+          // 일단 여기서는 DateField 호출 코드는 그대로 두고, DateField 파일도 수정해야 할 수 있음.
+          // 하지만 사용자가 "목표일에 날짜 폰트 볼드 빼줘"라고 했으니 DateField 내부를 수정해야 함.
+          // 우선 여기서는 삭제 버튼 수정을 진행.
+          
           DateField(
             label: '목표일',
             value: _target,
@@ -200,7 +211,7 @@ class _EditTabState extends ConsumerState<EditTab> {
                     context.go('/events'); // 목록으로 돌아가기
                   },
                   style: TextButton.styleFrom(
-                    foregroundColor: theme.colorScheme.onSurface.withOpacity(0.6), // Grey color
+                    foregroundColor: theme.colorScheme.error, // Error color로 변경
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
                   child: const Text('이벤트 삭제'),

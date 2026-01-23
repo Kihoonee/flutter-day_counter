@@ -37,16 +37,13 @@ class DateField extends StatelessWidget {
                   children: [
                     Text(
                       label,
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
+                      style: theme.textTheme.bodyMedium, // Bold 제거 (Normal)
                     ),
                     const SizedBox(height: 6),
                     Text(
                       text,
                       style: theme.textTheme.bodyLarge?.copyWith(
-                        fontWeight: FontWeight.w700,
-                        color: theme.colorScheme.onSurface,
+                        color: theme.colorScheme.onSurface, // Bold 제거
                       ),
                     ),
                     if (helper != null) ...[
