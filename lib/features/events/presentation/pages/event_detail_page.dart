@@ -124,7 +124,7 @@ class _EventDetailPageState extends ConsumerState<EventDetailPage>
                     controller: _tabController,
                     children: [
                       TodoTab(event: event),
-                      DiaryTab(event: event),
+                      DiaryTab(eventId: event.id),
                       EditTab(event: event),
                     ],
                   ),
