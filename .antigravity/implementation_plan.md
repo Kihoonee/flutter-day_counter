@@ -1,53 +1,59 @@
-# 이벤트 상세 화면 구현 계획
+# 개선 사항 반영 계획 (UI/UX Refinement)
 
-## 목표 설명
-"MyDays" 앱의 UX를 벤치마킹하여 새로운 "이벤트 상세(Event Detail)" 화면을 구현합니다.
-기존에는 카드를 탭하면 바로 수정 페이지로 이동했지만, 변경 후에는 상세 조회 페이지로 이동합니다. 상세 페이지 상단에는 디데이 카드가, 하단에는 할 일(To-Do) 리스트와 다이어리(Diary) 탭이 위치합니다.
+사용자가 요청한 `add2.md`의 UI/UX 개선 사항을 반영하기 위한 계획입니다.
 
-## 변경 제안
+## User Review Required
+> [!IMPORTANT]
+> **데이터 구조 변경**: 이벤트 아이콘을 테마와 분리하여 독립적으로 선택할 수 있도록 `Event` 엔티티에 `iconIndex` 필드를 추가합니다. 기존 데이터는 기본값(0)으로 설정됩니다.
 
-### 도메인 레이어 (Domain Layer)
-#### [MODIFY] [event.dart](file:///Users/kihoonee/flutter/day_counter/lib/features/events/domain/event.dart)
-- `List<TodoItem> todos` 필드 추가
-- `List<DiaryEntry> diaryEntries` 필드 추가
-- `TodoItem` 및 `DiaryEntry` 데이터 클래스 정의 (Freezed 활용)
+## Proposed Changes
 
-### 데이터 레이어 (Data Layer)
-- `build_runner` 실행을 통해 JSON 직렬화 및 불변 객체 코드 재생성 (`event.g.dart`, `event.freezed.dart`)
+### 1 데이터 모델 (`domain/event.dart`)
+#### [MODIFY] `Event` 엔티티
+- `iconIndex` 필드 추가 (아이콘 선택용, Default: 0)
+- `build_runner` 실행하여 직렬화 코드 업데이트
 
-### 프레젠테이션 레이어 (Presentation Layer)
-#### [NEW] [event_detail_page.dart](file:///Users/kihoonee/flutter/day_counter/lib/features/events/presentation/pages/event_detail_page.dart)
-- `Event` 객체(또는 ID)를 인자로 받는 새로운 상세 페이지
-- 구조:
-    - **AppBar**: 투명 처리, 뒤로가기 버튼
-    - **Header**: 기존 `PosterCard` 재사용 (상단 배치)
-    - **Body**: `TabBar` (To-Do / Diary) 및 `TabBarView`
-    - **FAB**: 탭에 따라 할 일 추가 또는 일기 쓰기 동작
+### 2. 공통 리소스 (`presentation/widgets/poster_card.dart` 등)
+- `posterThemes` 확장 (5개 추가)
+- `eventIcons` 상수 정의 (10개 이상 아이콘 리스트)
+- `PosterCard`: 테마의 아이콘 대신 `event.iconIndex`에 해당하는 아이콘 표시
 
-#### [NEW] [todo_tab.dart](file:///Users/kihoonee/flutter/day_counter/lib/features/events/presentation/widgets/todo_tab.dart)
-- 체크박스가 있는 할 일 목록 `ListView`
-- 완료/미완료 토글 기능
-- 항목 삭제 기능
+### 3. 수정 탭 (`presentation/widgets/edit_tab.dart`)
+#### [MODIFY] UI 레이아웃 및 스타일
+- **레이아웃 재배치**: 제목 -> [아이콘 선택] -> [테마 선택] -> 목표일 -> [옵션(스위치)]
+- **기준일 항목 제거**: 항상 오늘을 기준으로 함 (내부 로직 수정)
+- **스타일 개선**:
+  - 삭제 버튼: 회색(Grey) 계열, 다크모드 대응
+  - 폰트: Bold -> Normal, 통일성 있는 스타일 적용
+  - 제목 입력 필드: 더 크고 명확하게 스타일링
 
-#### [NEW] [diary_tab.dart](file:///Users/kihoonee/flutter/day_counter/lib/features/events/presentation/widgets/diary_tab.dart)
-- 날짜별 일기 목록 `ListView`
-- 일기 작성 및 수정 다이얼로그 또는 페이지 연결
+### 4. 다이어리 탭 (`presentation/widgets/diary_tab.dart`)
+#### [MODIFY] UI/UX 개선
+- **작성/수정 다이얼로그**:
+  - `showDatePicker` 대신 커스텀 `CalendarDatePicker` 사용 (크기 조절 및 디자인 통일)
+  - UI 디자인 개선 (MyDays 스타일 참고)
+- **리스트 아이템**:
+  - `PopupMenuButton` 제거
+  - 수정: 연필 아이콘 버튼 (카드 내 배치)
+  - 삭제: `Dismissible` (스와이프) 적용
+- **빈 상태(Empty State)**:
+  - 폰트 사이즈 축소, Gray 컬러 적용
+  - 아이콘 교체 (더 세련된 디자인)
+- **작성 버튼 (FAB)**:
+  - 메인 화면의 `+` 버튼과 동일한 스타일 및 위치 적용
 
-#### [MODIFY] [event_list_page.dart](file:///Users/kihoonee/flutter/day_counter/lib/features/events/presentation/pages/event_list_page.dart)
-- 리스트 아이템 탭(`onTap`) 시 `/edit`이 아닌 `/detail`로 이동하도록 라우팅 변경
+### 5. 할 일 탭 (`presentation/widgets/todo_tab.dart`)
+#### [MODIFY] 스타일 개선
+- **빈 상태**: 폰트 사이즈/컬러 조정, 아이콘 교체
+- **입력 필드**: 힌트 텍스트 스타일(Gray) 조정
 
-#### [MODIFY] [router.dart](file:///Users/kihoonee/flutter/day_counter/lib/core/router/router.dart)
-- 새로운 상세 페이지(`/detail`) 경로 추가
+## Verification Plan
+### Automated Tests
+- `flutter analyze`
+- `build_runner` 실행 확인
 
-## 검증 계획
-
-### 수동 검증
-1.  **화면 이동**:
-    -   홈 화면에서 이벤트 카드를 탭했을 때 상세 페이지로 올바르게 이동하는지 확인.
-2.  **To-Do 기능**:
-    -   "To-Do" 탭에서 할 일을 추가하고, 체크박스를 눌러 상태가 변경되는지 확인.
-    -   앱 재실행 후에도 데이터가 유지되는지 확인.
-3.  **Diary 기능**:
-    -   "Diary" 탭에서 일기를 작성하고 목록에 표시되는지 확인.
-4.  **기존 기능 확인**:
-    -   상세 페이지에서 "수정" 버튼(또는 메뉴)을 통해 기존 수정 페이지로 이동 가능한지 확인.
+### Manual Verification
+- **수정 탭**: 아이콘/테마 선택 동작, 기준일 제거 확인, 스타일 확인
+- **다이어리 탭**: 작성 다이얼로그 디자인(달력 크기), 스와이프 삭제, 연필 아이콘 수정 동작
+- **할 일 탭**: 스타일 적용 확인
+- **데이터 저장**: 아이콘 선택 정보가 앱 재시작 후에도 유지되는지 확인

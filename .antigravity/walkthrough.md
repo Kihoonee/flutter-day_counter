@@ -1,82 +1,39 @@
-# Flutter Pro 템플릿 적용 완료
+# UI/UX 개선 및 상세 기능 구현 완료
 
-## 세션 요약 (2026-01-22)
+## 개요
+사용자의 피드백(`add2.md` 및 구두 요청)을 반영하여 이벤트 상세 화면의 **다이어리**와 **수정** 탭을 대대적으로 개선했습니다.
 
-### ✅ 완료된 작업
+## 주요 변경 사항
 
-1. **Flutter Pro 템플릿 적용**
-   - `admob-skill/`, `skill-creator/`, `directives/`, `scripts/`, `.agent/` 복사
-   - `pubspec.yaml`에 패키지 추가 (Riverpod Generator, Dio, Firebase, AdMob)
-   - `lib/core/network/dio_provider.dart` 생성
+### 1. 다이어리 화면 (`DiaryTab`) - **New!**
+- **UX 개선**:
+  - 작성 다이얼로그에서 **달력 위젯을 숨기고**, "2026.01.24 (토) ▼" 형태의 버튼을 눌러 날짜를 선택하도록 변경하여 화면 공간을 효율적으로 사용합니다.
+  - 리스트 갱신 문제를 해결하기 위해 `eventsProvider`를 직접 구독하도록 구조를 개선했습니다.
+- **스타일 개선**:
+  - 카드 **테두리를 제거**하고 플랫한 디자인으로 변경했습니다.
+  - 불필요한 달력 아이콘을 제거하고 날짜 텍스트에 포인트를 주었습니다.
+  - 작성 버튼(FAB)의 그림자를 줄여 전체적인 디자인과 조화를 이룹니다.
 
-2. **문서 한국어화**
-   - `FLUTTER_GUIDELINES.md` 한글 번역
-   - `GEMINI.md` 3-Layer 아키텍처 가이드라인으로 업데이트
+### 2. 수정 화면 (`EditTab` & `EventEditPage`)
+- **아이콘 분리**: 테마 색상과 별도로 **20개의 아이콘** 중 하나를 선택할 수 있습니다.
+- **기준일 제거**: 이벤트 기준일(`baseDate`)을 선택하는 기능을 제거하고 항상 **오늘**을 기준으로 계산하도록 변경했습니다.
+- **레이아웃 & 스타일 (최종 개선)**:
+  - **배경색 통일**: 모든 입력 항목을 Card로 감싸고 일관된 배경색을 적용했습니다.
+  - **테두리 제거**: 아이콘/테마 선택기의 불필요한 테두리를 제거하여 깔끔하게 만들었습니다.
+  - **간격 조정**: 제목 필드와 하단 섹션 사이의 간격을 넓혔습니다.
+  - **폰트/색상**: 목표일 날짜 폰트의 Bold를 제거하고, 삭제 버튼에 **빨간색(Error Color)**을 적용하여 시인성을 높였습니다.
 
-3. **Git 저장소 설정**
-   - `git init` 및 첫 커밋
-   - `origin` 설정: `https://github.com/Kihoonee/flutter-day_counter.git`
-   - `main` 브랜치로 push 완료
-
-4. **iOS 빌드 설정**
-   - `ios/Podfile` iOS deployment target 14.0 → 15.0 업데이트 (Firebase 요구사항)
-   - iPhone 15 Pro 시뮬레이터에서 앱 실행 성공 (2026-01-22 재검증 완료)
-
-5. **릴리즈 빌드 크래시 해결 (2026-01-22)**
-   - **증상**: 릴리즈 모드로 실행 시 앱이 바로 종료됨
-   - **원인**: Firebase 설정 파일(`google-services.json`, `GoogleService-Info.plist`) 및 초기화 코드 누락
-   - **해결**:
-     - `flutterfire configure` 실행하여 프로젝트 연결 및 파일 생성
-     - `lib/main.dart`에 `Firebase.initializeApp()` 추가
-     - `ios/Runner.xcodeproj` 설정 자동 업데이트 (gem `xcodeproj` 설치)
-
-6. **시뮬레이터 실행 크래시 해결 (2026-01-22)**
-   - **증상**: 앱 실행 직후 종료 (Splash 화면 후 꺼짐)
-   - **원인**: `google_mobile_ads` 패키지 사용 시 필수인 AdMob App ID 설정 누락
-   - **해결**:
-     - `ios/Runner/Info.plist`: `GADApplicationIdentifier` 키 추가
-     - `android/app/src/main/AndroidManifest.xml`: `com.google.android.gms.ads.APPLICATION_ID` 메타데이터 추가
-     - (테스트용 샘플 ID 사용)
-     - `objective_c.dylib` 로드 에러 발생하여 `flutter clean` 및 `pod install --repo-update`로 해결
-
-7.  **UI 리디자인 (2026-01-23)**
-    *   **스타일 변경**: Glassmorphism/Gradient 제거 → **Clean Minimalist (Off-white/Dark-grey)** 스타일로 전면 교체
-    *   **테마 적용**: 달력 디자인과 동일한 톤앤매너 (Solid Color, Soft Shadow, Orange/Coral Accent)
-    *   **커스텀 달력**:
-        *   `CustomCalendar` 위젯 구현 및 적용
-        *   **연도 선택 기능 추가**: 헤더 클릭 시 연도 그리드로 전환하여 빠른 연도 변경 지원
-        *   **UX 개선**: 연도 선택 화면 진입 시 **현재 선택된 연도가 중앙에 오도록 자동 스크롤** 기능 구현
-    *   **PosterCard**:
-        *   깔끔한 카드 디자인으로 변경 및 가독성 개선
-        *   **솔리드 파스텔 배경 w/ 화이트 오버레이**:
-            *   **Random Wild Wave**: 카드마다 물결의 곡률과 모양이 랜덤하게 생성되어 고유한 디자인 제공
-            *   **Clean D-Day Text**: "D" 접두사를 제거하고 숫자 부호만 표시 (예: +23, -10)하여 미니멀한 디자인 강화
-            *   **Tight Shadow**: 그림자 퍼짐을 줄이고 하단으로 집중시켜 깔끔하고 선명한 입체감 구현
-       - **Expanded Themes**: 파스텔 테마 5종 추가 (Blue, Pink, Yellow, BlueGrey, Brown)하여 총 10종 지원 (Medium Pastel)
-       - **Clean Edit UI**: 삭제/저장 버튼의 테두리를 제거하고 플랫한 디자인으로 변경하여 깔끔함 강조
-       - **Transparent Header**: `extendBodyBehindAppBar`를 적용하여 리스트가 상단 App Bar 영역 뒤로 스크롤되도록 시각적 개방감 확보
-       - **Custom FAB**: 광고 영역과 겹치지 않도록 추가(+) 버튼 위치를 조정(`bottom: 120`)하고 원형 디자인 유지
-       - **Shadow Clipping Fix**: 리스트 화면에서 그림자가 잘리는 현상을 방지하기 위해 카드 하단/좌우에 `Padding` 추가
-       - **물방울 효과 강화**: 물방울의 크기와 분포 범위를 확대하여 더욱 드라마틱한 연출
-
-8.  **Physical Device Deployment (2026-01-23)**
-    *   **Target**: Kihoonee iPhone (iOS 17+)
-    *   **Build Mode**: Release
-    *   **Signing**: Automatic Signing (Team: G3578Y7NMA)
-    *   **Status**: Running...
+### 3. 공통 컴포넌트
+- **PosterCard**: 파스텔 톤 테마 5종 추가(총 15종) 및 아이콘 20종 적용.
 
 ---
 
-## 다음 단계
+## 데이터 모델 변경
+- **Event 엔티티**: `iconIndex` 필드 추가.
+- **DiaryEntry**: `eventId` 기반 조회 로직 적용을 위한 구조적 개선.
 
-
-1. **AdMob 설정** - `admob-skill/` 폴더의 가이드 참고
-2. **AdMob 설정** - `admob-skill/` 폴더의 가이드 참고
-3. **웹 빌드 수정** - `database_service.dart`의 `dart:io` 사용을 조건부 import로 변경 필요
-
----
-
-## 알려진 이슈
-
-- **Chrome 빌드 실패**: `database_service.dart`에서 `dart:io`와 `Platform` 직접 사용으로 웹 호환성 문제
-  - 해결: 기존 `db_factory.dart`, `db_path.dart` 조건부 export 패턴 활용 필요
+## 확인 방법
+1. **Hot Restart (R)** 필수.
+2. **다이어리 작성**: `/detail` -> 다이어리 탭에서 `+` 버튼을 눌러보세요. 달력이 숨겨진 깔끔한 다이얼로그를 확인할 수 있습니다.
+3. **작성 후 확인**: 여러 날짜의 다이어리를 작성해도 리스트에 정상적으로 모두 표시되는지 확인하세요.
+4. **리스트 디자인**: 테두리 없이 깔끔해진 카드 디자인을 확인하세요.
