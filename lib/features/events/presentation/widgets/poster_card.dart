@@ -116,7 +116,7 @@ class PosterCard extends StatelessWidget {
                 ),
 
                 Padding(
-                  padding: const EdgeInsets.all(24),
+                  padding: const EdgeInsets.all(16), // Reduced from 24
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -151,7 +151,7 @@ class PosterCard extends StatelessWidget {
                             ),
                           ),
                           Container(
-                            padding: const EdgeInsets.all(12), // Larger padding
+                            padding: const EdgeInsets.all(10), // Reduced from 12
                             decoration: BoxDecoration(
                               color: Colors.white.withOpacity(0.3),
                               shape: BoxShape.circle,
@@ -164,7 +164,7 @@ class PosterCard extends StatelessWidget {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 24), // Increased spacing
+                      const SizedBox(height: 16), // Reduced from 24
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.baseline,
                         textBaseline: TextBaseline.alphabetic,

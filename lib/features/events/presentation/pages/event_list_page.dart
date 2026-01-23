@@ -96,7 +96,7 @@ class EventListPage extends ConsumerWidget {
                           key: Key(e.id), // 필수: 고유 키
                           padding: const EdgeInsets.only(bottom: 10), // 간격 줄임 (16 -> 10)
                           child: SizedBox(
-                            height: 180,
+                            height: 200,
                             child: PosterCard(
                               title: e.title,
                               dateLine: dateLine,
