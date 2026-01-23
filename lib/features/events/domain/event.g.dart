@@ -14,6 +14,16 @@ _Event _$EventFromJson(Map<String, dynamic> json) => _Event(
   includeToday: json['includeToday'] as bool? ?? false,
   excludeWeekends: json['excludeWeekends'] as bool? ?? false,
   themeIndex: (json['themeIndex'] as num?)?.toInt() ?? 0,
+  todos:
+      (json['todos'] as List<dynamic>?)
+          ?.map((e) => TodoItem.fromJson(e as Map<String, dynamic>))
+          .toList() ??
+      const [],
+  diaryEntries:
+      (json['diaryEntries'] as List<dynamic>?)
+          ?.map((e) => DiaryEntry.fromJson(e as Map<String, dynamic>))
+          .toList() ??
+      const [],
 );
 
 Map<String, dynamic> _$EventToJson(_Event instance) => <String, dynamic>{
@@ -24,4 +34,6 @@ Map<String, dynamic> _$EventToJson(_Event instance) => <String, dynamic>{
   'includeToday': instance.includeToday,
   'excludeWeekends': instance.excludeWeekends,
   'themeIndex': instance.themeIndex,
+  'todos': instance.todos.map((e) => e.toJson()).toList(),
+  'diaryEntries': instance.diaryEntries.map((e) => e.toJson()).toList(),
 };

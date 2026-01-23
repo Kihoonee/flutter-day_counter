@@ -75,10 +75,10 @@ class PosterCard extends StatelessWidget {
                   ),
                 ),
 
-                // Content
                 Padding(
                   padding: const EdgeInsets.all(24),
                   child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
@@ -121,14 +121,14 @@ class PosterCard extends StatelessWidget {
                           ),
                         ],
                       ),
-                      const Spacer(),
+                      const SizedBox(height: 12),
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.baseline,
                         textBaseline: TextBaseline.alphabetic,
                         children: [
                           Text(
                             dText,
-                            style: theme.textTheme.displayLarge?.copyWith(
+                            style: theme.textTheme.displayMedium?.copyWith(
                               fontWeight: FontWeight.w800,
                               letterSpacing: -1.0,
                               color: fgColor, // Highlight D-Day text

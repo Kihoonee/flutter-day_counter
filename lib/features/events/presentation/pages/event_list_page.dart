@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../core/utils/date_calc.dart';
+import '../../../../core/widgets/banner_ad_widget.dart';
 import '../../application/event_controller.dart';
 import '../../domain/event.dart';
 import '../widgets/poster_card.dart';
@@ -86,7 +87,7 @@ class EventListPage extends ConsumerWidget {
                             dateLine: dateLine,
                             dText: _dText(diff),
                             themeIndex: e.themeIndex,
-                            onTap: () => context.push('/edit', extra: e.id),
+                            onTap: () => context.push('/detail', extra: e.id),
                           ),
                         );
                       },
@@ -165,22 +166,6 @@ class _BannerSlot extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Container(
-      height: 60,
-      width: double.infinity,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Text(
-        'Banner Ad Slot (하단 고정)',
-        style: theme.textTheme.bodyMedium?.copyWith(
-          fontWeight: FontWeight.w700,
-          color: theme.colorScheme.onSurfaceVariant,
-        ),
-      ),
-    );
+    return const BannerAdWidget();
   }
 }

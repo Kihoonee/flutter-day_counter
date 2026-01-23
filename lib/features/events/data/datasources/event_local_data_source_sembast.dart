@@ -59,7 +59,9 @@ class EventLocalDataSourceSembast implements EventLocalDataSource {
   Future<void> upsertEvent(Event event) async {
     print('EventLocalDataSourceSembast: Upserting event ${event.id}...');
     try {
-      await _store.record(event.id).put(database, event.toJson());
+      final json = event.toJson();
+      print('DEBUG: event.toJson() result: $json');
+      await _store.record(event.id).put(database, json);
       print('EventLocalDataSourceSembast: Upsert successful.');
     } catch (e) {
       print('EventLocalDataSourceSembast Error in upsertEvent: $e');

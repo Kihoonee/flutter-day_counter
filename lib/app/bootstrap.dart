@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sembast/sembast.dart';
 import '../core/storage/database_service.dart';
@@ -34,6 +35,9 @@ class _AppBootstrapState extends State<AppBootstrap> {
       print('AppBootstrap: Starting initialization...');
       
       // Initialize sequentially to isolate potential errors
+      print('AppBootstrap: Init Locale Data...');
+      await initializeDateFormatting();
+
       print('AppBootstrap: Init SharedPreferences...');
       final prefs = await SharedPreferences.getInstance();
       
