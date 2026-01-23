@@ -84,7 +84,6 @@ class PosterCard extends StatelessWidget {
 
     // Determine if Future or Past based on dText
     // 보통 'D-DAY', 'D-5' (미래), 'D+3' (과거)
-    final isFuture = dText.contains('-');
     final isDDay = dText == 'D-Day';
     final isPast = dText.contains('+');
 
@@ -135,14 +134,16 @@ class PosterCard extends StatelessWidget {
                                   overflow: TextOverflow.ellipsis,
                                   style: theme.textTheme.titleLarge?.copyWith(
                                     fontWeight: FontWeight.w700,
-                                    color: fgColor, // Contrast Text
+                                    fontSize: 22, // Fixed larger size
+                                    color: fgColor, 
                                   ),
                                 ),
-                                const SizedBox(height: 6), // 간격 조금 늘림
+                                const SizedBox(height: 8), 
                                 Text(
                                   dateLine,
-                                  style: theme.textTheme.titleMedium?.copyWith( // 폰트 사이즈 키움 (bodyMedium -> titleMedium)
-                                    color: fgColor.withOpacity(0.9),
+                                  style: theme.textTheme.titleMedium?.copyWith(
+                                    fontSize: 16, // Explicit size
+                                    color: fgColor.withOpacity(0.85),
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
@@ -150,46 +151,67 @@ class PosterCard extends StatelessWidget {
                             ),
                           ),
                           Container(
-                            padding: const EdgeInsets.all(10),
+                            padding: const EdgeInsets.all(12), // Larger padding
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.4), // Brighter overlay
+                              color: Colors.white.withOpacity(0.3),
                               shape: BoxShape.circle,
                             ),
                             child: Icon(
                               iconData,
                               color: fgColor,
-                              size: 24, // 아이콘 사이즈 살짝 키움
+                              size: 26, 
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 16), // 간격 늘림 (D-Day 위치 하향)
+                      const SizedBox(height: 24), // Increased spacing
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.baseline,
                         textBaseline: TextBaseline.alphabetic,
                         children: [
                           Text(
                             dText,
-                            style: theme.textTheme.headlineLarge?.copyWith( // 폰트 사이즈 줄임 (displayMedium -> headlineLarge)
+                            style: theme.textTheme.displaySmall?.copyWith( // Use displaySmall (smaller than displayMedium but big enough)
+                              fontSize: 36, // Specific visual weight
                               fontWeight: FontWeight.w900,
-                              letterSpacing: -1.0,
+                              letterSpacing: -0.5,
                               color: isPast 
-                                  ? fgColor.withOpacity(0.6) // 과거 흐리게
+                                  ? fgColor.withOpacity(0.5) // Past: Dimmed more
                                   : fgColor, 
                             ),
                           ),
                           const SizedBox(width: 8),
-                          if (!isDDay) // D-Day 아닐 때만 days 표시
+                          if (!isDDay)
                             Padding(
-                              padding: const EdgeInsets.only(bottom: 4),
+                              padding: const EdgeInsets.only(bottom: 6),
                               child: Text(
                                 'days',
                                 style: theme.textTheme.titleMedium?.copyWith(
-                                  color: fgColor.withOpacity(isPast ? 0.6 : 0.9),
+                                  color: fgColor.withOpacity(isPast ? 0.5 : 0.8),
                                   fontWeight: FontWeight.w600,
+                                  fontSize: 16,
                                 ),
                               ),
                             ),
+                          if (isPast) // Add visual tag for past
+                             Padding(
+                               padding: const EdgeInsets.only(left: 8, bottom: 6),
+                               child: Container(
+                                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                 decoration: BoxDecoration(
+                                   color: fgColor.withOpacity(0.1),
+                                   borderRadius: BorderRadius.circular(12),
+                                 ),
+                                 child: Text(
+                                   'PAST',
+                                   style: TextStyle(
+                                     color: fgColor.withOpacity(0.6),
+                                     fontSize: 10,
+                                     fontWeight: FontWeight.bold,
+                                   ),
+                                 ),
+                               ),
+                             ),
                         ],
                       ),
                     ],
@@ -225,27 +247,28 @@ class _PatternPainter extends CustomPainter {
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
         colors: [
-          overlayColor.withOpacity(0.0),
-          overlayColor.withOpacity(0.35),
+          overlayColor.withOpacity(0.0), // Fully transparent top
+          overlayColor.withOpacity(0.4), // Stronger bottom
         ],
       ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
 
     final path = Path();
     
-    // Very Dramatic Wave Logic
-    // Start Y: 0.3 ~ 0.7
-    final startY = size.height * (0.3 + random.nextDouble() * 0.4);
+    // S-Curve Wave Logic
+    final startY = size.height * (0.4 + random.nextDouble() * 0.2); // 40~60%
     path.moveTo(0, startY);
 
-    // Control Point: X(0.2~0.8), Y(-0.3 ~ 1.3) -> Range covers outside for deep curve
-    final controlX = size.width * (0.2 + random.nextDouble() * 0.6);
-    // Y values can go beyond bounds to create sharp curves
-    final controlY = size.height * (-0.2 + random.nextDouble() * 1.4);
+    // First Control Point (Upwards/Downwards)
+    final cp1x = size.width * (0.25 + random.nextDouble() * 0.1); 
+    final cp1y = size.height * (random.nextDouble() * 0.5); // Top half
 
-    // End Y: 0.3 ~ 0.8
-    final endY = size.height * (0.3 + random.nextDouble() * 0.5);
+    // Second Control Point (Opposite)
+    final cp2x = size.width * (0.65 + random.nextDouble() * 0.1);
+    final cp2y = size.height * (0.5 + random.nextDouble() * 0.5); // Bottom half
 
-    path.quadraticBezierTo(controlX, controlY, size.width, endY);
+    final endY = size.height * (0.4 + random.nextDouble() * 0.3);
+
+    path.cubicTo(cp1x, cp1y, cp2x, cp2y, size.width, endY);
     
     path.lineTo(size.width, size.height);
     path.lineTo(0, size.height);
@@ -259,18 +282,17 @@ class _PatternPainter extends CustomPainter {
     final paint = Paint()
       ..style = PaintingStyle.fill;
 
-    // Draw 6-10 droplets
-    final count = 6 + random.nextInt(5);
+    // Draw fewer, subtle droplets
+    final count = 5 + random.nextInt(4);
     
-    // Burn randoms
-    random.nextDouble(); random.nextDouble(); random.nextDouble(); random.nextDouble(); 
+    random.nextDouble(); random.nextDouble(); // Burn
 
     for (int i = 0; i < count; i++) {
       final dx = random.nextDouble() * size.width;
-      final dy = size.height * 0.2 + random.nextDouble() * (size.height * 0.8);
-      final radius = 4.0 + random.nextDouble() * 8.0;
+      final dy = size.height * 0.3 + random.nextDouble() * (size.height * 0.7);
+      final radius = 3.0 + random.nextDouble() * 6.0;
       
-      paint.color = overlayColor.withOpacity(0.1 + random.nextDouble() * 0.3);
+      paint.color = overlayColor.withOpacity(0.1 + random.nextDouble() * 0.2);
       
       canvas.drawCircle(Offset(dx, dy), radius, paint);
     }

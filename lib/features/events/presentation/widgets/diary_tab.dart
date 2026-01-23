@@ -37,15 +37,23 @@ class DiaryTab extends ConsumerWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(
-                          Icons.edit_note_rounded,
-                          size: 48,
-                          color: theme.colorScheme.outline.withOpacity(0.5),
+                          Icons.history_edu_rounded,
+                          size: 64,
+                          color: theme.colorScheme.outlineVariant.withOpacity(0.5),
                         ),
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 20),
                         Text(
-                          '소중한 기억을 기록해보세요',
+                          '아직 기록된 추억이 없어요',
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          '첫 번째 이야기를 남겨보세요',
                           style: theme.textTheme.bodyMedium?.copyWith(
-                            color: theme.colorScheme.outline.withOpacity(0.5),
+                            color: theme.colorScheme.onSurfaceVariant.withOpacity(0.7),
                           ),
                         ),
                       ],
@@ -62,14 +70,14 @@ class DiaryTab extends ConsumerWidget {
                         onDismissed: (_) => _deleteEntry(ref, event, entry),
                         background: Container(
                           alignment: Alignment.centerRight,
-                          padding: const EdgeInsets.only(right: 16),
+                          padding: const EdgeInsets.only(right: 20),
                           margin: const EdgeInsets.only(bottom: 12),
                           decoration: BoxDecoration(
                             color: theme.colorScheme.errorContainer,
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(16),
                           ),
                           child: Icon(
-                            Icons.delete_outline_rounded,
+                            Icons.delete_forever_rounded, // 더 명확한 아이콘
                             color: theme.colorScheme.onErrorContainer,
                           ),
                         ),
@@ -88,7 +96,7 @@ class DiaryTab extends ConsumerWidget {
               child: FloatingActionButton(
                 onPressed: () => _showDiaryDialog(context, ref, event),
                 shape: const CircleBorder(),
-                elevation: 2, // 쉐도우 감소
+                elevation: 4, 
                 backgroundColor: theme.colorScheme.primaryContainer,
                 foregroundColor: theme.colorScheme.onPrimaryContainer,
                 child: const Icon(Icons.edit_rounded),
@@ -193,11 +201,11 @@ class _DiaryDialogState extends State<_DiaryDialog> {
     final dateStr = DateFormat('yyyy.MM.dd (E)', 'ko').format(_selectedDate);
     
     return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)), // M3 Standard
       backgroundColor: theme.colorScheme.surface,
-      surfaceTintColor: Colors.transparent, // 틴트 제거
+      insetPadding: const EdgeInsets.all(20), // More width
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -207,9 +215,10 @@ class _DiaryDialogState extends State<_DiaryDialog> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  widget.initialEntry == null ? '기록하기' : '수정하기',
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
+                  widget.initialEntry == null ? '오늘을 기록해요' : '기록 수정',
+                  style: theme.textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 20,
                   ),
                 ),
                 InkWell(
@@ -221,21 +230,21 @@ class _DiaryDialogState extends State<_DiaryDialog> {
                   },
                   borderRadius: BorderRadius.circular(8),
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
                           dateStr,
-                          style: theme.textTheme.bodyMedium?.copyWith(
+                          style: theme.textTheme.labelLarge?.copyWith(
                             color: theme.colorScheme.primary,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                         const SizedBox(width: 4),
                         Icon(
-                          Icons.arrow_drop_down_rounded,
-                          size: 18,
+                          Icons.calendar_today_rounded,
+                          size: 14,
                           color: theme.colorScheme.primary,
                         ),
                       ],
@@ -244,24 +253,25 @@ class _DiaryDialogState extends State<_DiaryDialog> {
                 ),
               ],
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
 
-            // 내용 입력
-            TextField(
-              controller: _controller,
-              maxLines: 8,
-              minLines: 4,
-              style: theme.textTheme.bodyMedium?.copyWith(height: 1.5),
-              decoration: InputDecoration(
-                hintText: '오늘 어떤 일이 있었나요?',
-                hintStyle: TextStyle(color: theme.colorScheme.outline.withOpacity(0.7)),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  borderSide: BorderSide.none,
+            // 내용 입력 (Cleaner Look)
+            Container(
+              decoration: BoxDecoration(
+                color: theme.colorScheme.surfaceContainerLow,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: TextField(
+                controller: _controller,
+                maxLines: 8,
+                minLines: 4,
+                style: theme.textTheme.bodyLarge?.copyWith(height: 1.5),
+                decoration: InputDecoration(
+                  hintText: '소중한 기억을 남겨주세요...',
+                  hintStyle: TextStyle(color: theme.colorScheme.outline.withOpacity(0.5)),
+                  border: InputBorder.none,
+                  contentPadding: const EdgeInsets.all(16),
                 ),
-                filled: true,
-                fillColor: theme.colorScheme.surfaceContainerHighest.withOpacity(0.3),
-                contentPadding: const EdgeInsets.all(16),
               ),
             ),
             const SizedBox(height: 24),

@@ -205,10 +205,10 @@ class _EditTabState extends ConsumerState<EditTab> {
                         .read(eventsProvider.notifier)
                         .remove(widget.event.id);
                     if (!mounted) return;
-                    context.go('/events'); // 목록으로 돌아가기
+                    context.go('/events');
                   },
                   style: TextButton.styleFrom(
-                    foregroundColor: theme.colorScheme.error, // Error color로 변경
+                    foregroundColor: theme.colorScheme.onSurface.withOpacity(0.4), // Changed to Grey
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
                   child: const Text('이벤트 삭제'),

@@ -29,7 +29,7 @@ class _AppBootstrapState extends State<AppBootstrap> {
 
   Future<void> _init() async {
     // Give a larger breathing room for the Flutter engine and native launch screen to settle
-    await Future.delayed(const Duration(milliseconds: 500));
+    await Future<void>.delayed(const Duration(milliseconds: 500));
 
     try {
       print('AppBootstrap: Starting initialization...');
@@ -119,7 +119,7 @@ class _AppBootstrapState extends State<AppBootstrap> {
     return ProviderScope(
       overrides: [
         sharedPreferencesProvider.overrideWithValue(_sharedPreferences!),
-        databaseProvider.overrideWithValue(_database!),
+        databaseProvider.overrideWithValue(AsyncData(_database!)),
       ],
       child: const App(),
     );

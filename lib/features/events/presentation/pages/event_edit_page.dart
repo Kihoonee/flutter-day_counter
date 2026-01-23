@@ -233,14 +233,9 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
                         onPressed: () async {
                           final id = widget.eventId ?? const Uuid().v4();
                           // 기존 이벤트가 있으면 할일/다이어리는 유지해야 함
-                          List<dynamic> todos = [];
-                          List<dynamic> diaryEntries = [];
+                          var todos = existing?.todos ?? [];
+                          var diaryEntries = existing?.diaryEntries ?? [];
                           
-                          if (existing != null) {
-                            todos = existing.todos;
-                            diaryEntries = existing.diaryEntries;
-                          }
-
                           final e = Event(
                             id: id,
                             title: _title.text.isEmpty ? '이벤트' : _title.text,
@@ -250,8 +245,8 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
                             excludeWeekends: _excludeWeekends,
                             themeIndex: _themeIndex,
                             iconIndex: _iconIndex,
-                            todos: (todos as List).cast(), // Safe casting
-                            diaryEntries: (diaryEntries as List).cast(),
+                            todos: todos,
+                            diaryEntries: diaryEntries,
                           );
 
                           await ref.read(eventsProvider.notifier).upsert(e);

@@ -92,13 +92,16 @@ class _TodoTabState extends ConsumerState<TodoTab> {
                   focusNode: _focusNode,
                   decoration: InputDecoration(
                     hintText: '할 일 추가...',
-                    hintStyle: TextStyle(color: theme.colorScheme.outline),
+                    hintStyle: TextStyle(color: theme.colorScheme.outline.withOpacity(0.5)),
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide.none,
                     ),
+                    filled: true,
+                    fillColor: theme.colorScheme.surfaceContainerLow,
                     contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
+                      horizontal: 20,
+                      vertical: 14,
                     ),
                   ),
                   onSubmitted: (_) => _addTodo(),
@@ -109,7 +112,8 @@ class _TodoTabState extends ConsumerState<TodoTab> {
                 onPressed: _addTodo,
                 icon: const Icon(Icons.add_rounded),
                 style: IconButton.styleFrom(
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  padding: const EdgeInsets.all(14),
                 ),
               ),
             ],
@@ -124,15 +128,23 @@ class _TodoTabState extends ConsumerState<TodoTab> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(
-                        Icons.playlist_add_check_rounded,
-                        size: 48,
-                        color: theme.colorScheme.outline.withOpacity(0.5),
+                        Icons.checklist_rounded,
+                        size: 64,
+                        color: theme.colorScheme.outlineVariant.withOpacity(0.5),
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 20),
                       Text(
                         '할 일을 추가해보세요',
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        '작은 목표부터 시작해볼까요?',
                         style: theme.textTheme.bodyMedium?.copyWith(
-                          color: theme.colorScheme.outline.withOpacity(0.5),
+                          color: theme.colorScheme.onSurfaceVariant.withOpacity(0.7),
                         ),
                       ),
                     ],
@@ -149,14 +161,21 @@ class _TodoTabState extends ConsumerState<TodoTab> {
                       onDismissed: (_) => _removeTodo(todo),
                       background: Container(
                         alignment: Alignment.centerRight,
-                        padding: const EdgeInsets.only(right: 16),
-                        color: theme.colorScheme.errorContainer,
+                        padding: const EdgeInsets.only(right: 20),
+                        margin: const EdgeInsets.only(bottom: 8),
+                        decoration: BoxDecoration(
+                           color: theme.colorScheme.errorContainer,
+                           borderRadius: BorderRadius.circular(16),
+                        ),
                         child: Icon(
-                          Icons.delete,
+                          Icons.delete_rounded,
                           color: theme.colorScheme.onErrorContainer,
                         ),
                       ),
                       child: Card(
+                        elevation: 0,
+                        color: theme.colorScheme.surfaceContainerLow.withOpacity(0.5),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                         margin: const EdgeInsets.only(bottom: 8),
                         child: CheckboxListTile(
                           value: todo.isCompleted,
@@ -169,10 +188,11 @@ class _TodoTabState extends ConsumerState<TodoTab> {
                                   : null,
                               color: todo.isCompleted
                                   ? theme.colorScheme.outline
-                                  : null,
+                                  : theme.colorScheme.onSurface,
                             ),
                           ),
                           controlAffinity: ListTileControlAffinity.leading,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                         ),
                       ),
                     );
