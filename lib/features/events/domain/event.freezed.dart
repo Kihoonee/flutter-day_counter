@@ -23,7 +23,9 @@ mixin _$Event {
  int get themeIndex;// 아이콘(0~n)
  int get iconIndex;// 투두 리스트
  List<TodoItem> get todos;// 다이어리
- List<DiaryEntry> get diaryEntries;
+// 다이어리
+ List<DiaryEntry> get diaryEntries;// 정렬 순서 (오름차순)
+ int get sortOrder;
 /// Create a copy of Event
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -36,16 +38,16 @@ $EventCopyWith<Event> get copyWith => _$EventCopyWithImpl<Event>(this as Event, 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Event&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.baseDate, baseDate) || other.baseDate == baseDate)&&(identical(other.targetDate, targetDate) || other.targetDate == targetDate)&&(identical(other.includeToday, includeToday) || other.includeToday == includeToday)&&(identical(other.excludeWeekends, excludeWeekends) || other.excludeWeekends == excludeWeekends)&&(identical(other.themeIndex, themeIndex) || other.themeIndex == themeIndex)&&(identical(other.iconIndex, iconIndex) || other.iconIndex == iconIndex)&&const DeepCollectionEquality().equals(other.todos, todos)&&const DeepCollectionEquality().equals(other.diaryEntries, diaryEntries));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Event&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.baseDate, baseDate) || other.baseDate == baseDate)&&(identical(other.targetDate, targetDate) || other.targetDate == targetDate)&&(identical(other.includeToday, includeToday) || other.includeToday == includeToday)&&(identical(other.excludeWeekends, excludeWeekends) || other.excludeWeekends == excludeWeekends)&&(identical(other.themeIndex, themeIndex) || other.themeIndex == themeIndex)&&(identical(other.iconIndex, iconIndex) || other.iconIndex == iconIndex)&&const DeepCollectionEquality().equals(other.todos, todos)&&const DeepCollectionEquality().equals(other.diaryEntries, diaryEntries)&&(identical(other.sortOrder, sortOrder) || other.sortOrder == sortOrder));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,title,baseDate,targetDate,includeToday,excludeWeekends,themeIndex,iconIndex,const DeepCollectionEquality().hash(todos),const DeepCollectionEquality().hash(diaryEntries));
+int get hashCode => Object.hash(runtimeType,id,title,baseDate,targetDate,includeToday,excludeWeekends,themeIndex,iconIndex,const DeepCollectionEquality().hash(todos),const DeepCollectionEquality().hash(diaryEntries),sortOrder);
 
 @override
 String toString() {
-  return 'Event(id: $id, title: $title, baseDate: $baseDate, targetDate: $targetDate, includeToday: $includeToday, excludeWeekends: $excludeWeekends, themeIndex: $themeIndex, iconIndex: $iconIndex, todos: $todos, diaryEntries: $diaryEntries)';
+  return 'Event(id: $id, title: $title, baseDate: $baseDate, targetDate: $targetDate, includeToday: $includeToday, excludeWeekends: $excludeWeekends, themeIndex: $themeIndex, iconIndex: $iconIndex, todos: $todos, diaryEntries: $diaryEntries, sortOrder: $sortOrder)';
 }
 
 
@@ -56,7 +58,7 @@ abstract mixin class $EventCopyWith<$Res>  {
   factory $EventCopyWith(Event value, $Res Function(Event) _then) = _$EventCopyWithImpl;
 @useResult
 $Res call({
- String id, String title, DateTime baseDate, DateTime targetDate, bool includeToday, bool excludeWeekends, int themeIndex, int iconIndex, List<TodoItem> todos, List<DiaryEntry> diaryEntries
+ String id, String title, DateTime baseDate, DateTime targetDate, bool includeToday, bool excludeWeekends, int themeIndex, int iconIndex, List<TodoItem> todos, List<DiaryEntry> diaryEntries, int sortOrder
 });
 
 
@@ -73,7 +75,7 @@ class _$EventCopyWithImpl<$Res>
 
 /// Create a copy of Event
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? title = null,Object? baseDate = null,Object? targetDate = null,Object? includeToday = null,Object? excludeWeekends = null,Object? themeIndex = null,Object? iconIndex = null,Object? todos = null,Object? diaryEntries = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? title = null,Object? baseDate = null,Object? targetDate = null,Object? includeToday = null,Object? excludeWeekends = null,Object? themeIndex = null,Object? iconIndex = null,Object? todos = null,Object? diaryEntries = null,Object? sortOrder = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
@@ -85,7 +87,8 @@ as bool,themeIndex: null == themeIndex ? _self.themeIndex : themeIndex // ignore
 as int,iconIndex: null == iconIndex ? _self.iconIndex : iconIndex // ignore: cast_nullable_to_non_nullable
 as int,todos: null == todos ? _self.todos : todos // ignore: cast_nullable_to_non_nullable
 as List<TodoItem>,diaryEntries: null == diaryEntries ? _self.diaryEntries : diaryEntries // ignore: cast_nullable_to_non_nullable
-as List<DiaryEntry>,
+as List<DiaryEntry>,sortOrder: null == sortOrder ? _self.sortOrder : sortOrder // ignore: cast_nullable_to_non_nullable
+as int,
   ));
 }
 
@@ -170,10 +173,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String title,  DateTime baseDate,  DateTime targetDate,  bool includeToday,  bool excludeWeekends,  int themeIndex,  int iconIndex,  List<TodoItem> todos,  List<DiaryEntry> diaryEntries)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String title,  DateTime baseDate,  DateTime targetDate,  bool includeToday,  bool excludeWeekends,  int themeIndex,  int iconIndex,  List<TodoItem> todos,  List<DiaryEntry> diaryEntries,  int sortOrder)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Event() when $default != null:
-return $default(_that.id,_that.title,_that.baseDate,_that.targetDate,_that.includeToday,_that.excludeWeekends,_that.themeIndex,_that.iconIndex,_that.todos,_that.diaryEntries);case _:
+return $default(_that.id,_that.title,_that.baseDate,_that.targetDate,_that.includeToday,_that.excludeWeekends,_that.themeIndex,_that.iconIndex,_that.todos,_that.diaryEntries,_that.sortOrder);case _:
   return orElse();
 
 }
@@ -191,10 +194,10 @@ return $default(_that.id,_that.title,_that.baseDate,_that.targetDate,_that.inclu
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String title,  DateTime baseDate,  DateTime targetDate,  bool includeToday,  bool excludeWeekends,  int themeIndex,  int iconIndex,  List<TodoItem> todos,  List<DiaryEntry> diaryEntries)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String title,  DateTime baseDate,  DateTime targetDate,  bool includeToday,  bool excludeWeekends,  int themeIndex,  int iconIndex,  List<TodoItem> todos,  List<DiaryEntry> diaryEntries,  int sortOrder)  $default,) {final _that = this;
 switch (_that) {
 case _Event():
-return $default(_that.id,_that.title,_that.baseDate,_that.targetDate,_that.includeToday,_that.excludeWeekends,_that.themeIndex,_that.iconIndex,_that.todos,_that.diaryEntries);case _:
+return $default(_that.id,_that.title,_that.baseDate,_that.targetDate,_that.includeToday,_that.excludeWeekends,_that.themeIndex,_that.iconIndex,_that.todos,_that.diaryEntries,_that.sortOrder);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -211,10 +214,10 @@ return $default(_that.id,_that.title,_that.baseDate,_that.targetDate,_that.inclu
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String title,  DateTime baseDate,  DateTime targetDate,  bool includeToday,  bool excludeWeekends,  int themeIndex,  int iconIndex,  List<TodoItem> todos,  List<DiaryEntry> diaryEntries)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String title,  DateTime baseDate,  DateTime targetDate,  bool includeToday,  bool excludeWeekends,  int themeIndex,  int iconIndex,  List<TodoItem> todos,  List<DiaryEntry> diaryEntries,  int sortOrder)?  $default,) {final _that = this;
 switch (_that) {
 case _Event() when $default != null:
-return $default(_that.id,_that.title,_that.baseDate,_that.targetDate,_that.includeToday,_that.excludeWeekends,_that.themeIndex,_that.iconIndex,_that.todos,_that.diaryEntries);case _:
+return $default(_that.id,_that.title,_that.baseDate,_that.targetDate,_that.includeToday,_that.excludeWeekends,_that.themeIndex,_that.iconIndex,_that.todos,_that.diaryEntries,_that.sortOrder);case _:
   return null;
 
 }
@@ -226,7 +229,7 @@ return $default(_that.id,_that.title,_that.baseDate,_that.targetDate,_that.inclu
 @JsonSerializable()
 
 class _Event implements Event {
-  const _Event({required this.id, required this.title, required this.baseDate, required this.targetDate, this.includeToday = false, this.excludeWeekends = false, this.themeIndex = 0, this.iconIndex = 0, final  List<TodoItem> todos = const [], final  List<DiaryEntry> diaryEntries = const []}): _todos = todos,_diaryEntries = diaryEntries;
+  const _Event({required this.id, required this.title, required this.baseDate, required this.targetDate, this.includeToday = false, this.excludeWeekends = false, this.themeIndex = 0, this.iconIndex = 0, final  List<TodoItem> todos = const [], final  List<DiaryEntry> diaryEntries = const [], this.sortOrder = 0}): _todos = todos,_diaryEntries = diaryEntries;
   factory _Event.fromJson(Map<String, dynamic> json) => _$EventFromJson(json);
 
 @override final  String id;
@@ -253,7 +256,9 @@ class _Event implements Event {
 }
 
 // 다이어리
+// 다이어리
  final  List<DiaryEntry> _diaryEntries;
+// 다이어리
 // 다이어리
 @override@JsonKey() List<DiaryEntry> get diaryEntries {
   if (_diaryEntries is EqualUnmodifiableListView) return _diaryEntries;
@@ -261,6 +266,8 @@ class _Event implements Event {
   return EqualUnmodifiableListView(_diaryEntries);
 }
 
+// 정렬 순서 (오름차순)
+@override@JsonKey() final  int sortOrder;
 
 /// Create a copy of Event
 /// with the given fields replaced by the non-null parameter values.
@@ -275,16 +282,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Event&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.baseDate, baseDate) || other.baseDate == baseDate)&&(identical(other.targetDate, targetDate) || other.targetDate == targetDate)&&(identical(other.includeToday, includeToday) || other.includeToday == includeToday)&&(identical(other.excludeWeekends, excludeWeekends) || other.excludeWeekends == excludeWeekends)&&(identical(other.themeIndex, themeIndex) || other.themeIndex == themeIndex)&&(identical(other.iconIndex, iconIndex) || other.iconIndex == iconIndex)&&const DeepCollectionEquality().equals(other._todos, _todos)&&const DeepCollectionEquality().equals(other._diaryEntries, _diaryEntries));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Event&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.baseDate, baseDate) || other.baseDate == baseDate)&&(identical(other.targetDate, targetDate) || other.targetDate == targetDate)&&(identical(other.includeToday, includeToday) || other.includeToday == includeToday)&&(identical(other.excludeWeekends, excludeWeekends) || other.excludeWeekends == excludeWeekends)&&(identical(other.themeIndex, themeIndex) || other.themeIndex == themeIndex)&&(identical(other.iconIndex, iconIndex) || other.iconIndex == iconIndex)&&const DeepCollectionEquality().equals(other._todos, _todos)&&const DeepCollectionEquality().equals(other._diaryEntries, _diaryEntries)&&(identical(other.sortOrder, sortOrder) || other.sortOrder == sortOrder));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,title,baseDate,targetDate,includeToday,excludeWeekends,themeIndex,iconIndex,const DeepCollectionEquality().hash(_todos),const DeepCollectionEquality().hash(_diaryEntries));
+int get hashCode => Object.hash(runtimeType,id,title,baseDate,targetDate,includeToday,excludeWeekends,themeIndex,iconIndex,const DeepCollectionEquality().hash(_todos),const DeepCollectionEquality().hash(_diaryEntries),sortOrder);
 
 @override
 String toString() {
-  return 'Event(id: $id, title: $title, baseDate: $baseDate, targetDate: $targetDate, includeToday: $includeToday, excludeWeekends: $excludeWeekends, themeIndex: $themeIndex, iconIndex: $iconIndex, todos: $todos, diaryEntries: $diaryEntries)';
+  return 'Event(id: $id, title: $title, baseDate: $baseDate, targetDate: $targetDate, includeToday: $includeToday, excludeWeekends: $excludeWeekends, themeIndex: $themeIndex, iconIndex: $iconIndex, todos: $todos, diaryEntries: $diaryEntries, sortOrder: $sortOrder)';
 }
 
 
@@ -295,7 +302,7 @@ abstract mixin class _$EventCopyWith<$Res> implements $EventCopyWith<$Res> {
   factory _$EventCopyWith(_Event value, $Res Function(_Event) _then) = __$EventCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String title, DateTime baseDate, DateTime targetDate, bool includeToday, bool excludeWeekends, int themeIndex, int iconIndex, List<TodoItem> todos, List<DiaryEntry> diaryEntries
+ String id, String title, DateTime baseDate, DateTime targetDate, bool includeToday, bool excludeWeekends, int themeIndex, int iconIndex, List<TodoItem> todos, List<DiaryEntry> diaryEntries, int sortOrder
 });
 
 
@@ -312,7 +319,7 @@ class __$EventCopyWithImpl<$Res>
 
 /// Create a copy of Event
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? title = null,Object? baseDate = null,Object? targetDate = null,Object? includeToday = null,Object? excludeWeekends = null,Object? themeIndex = null,Object? iconIndex = null,Object? todos = null,Object? diaryEntries = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? title = null,Object? baseDate = null,Object? targetDate = null,Object? includeToday = null,Object? excludeWeekends = null,Object? themeIndex = null,Object? iconIndex = null,Object? todos = null,Object? diaryEntries = null,Object? sortOrder = null,}) {
   return _then(_Event(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
@@ -324,7 +331,8 @@ as bool,themeIndex: null == themeIndex ? _self.themeIndex : themeIndex // ignore
 as int,iconIndex: null == iconIndex ? _self.iconIndex : iconIndex // ignore: cast_nullable_to_non_nullable
 as int,todos: null == todos ? _self._todos : todos // ignore: cast_nullable_to_non_nullable
 as List<TodoItem>,diaryEntries: null == diaryEntries ? _self._diaryEntries : diaryEntries // ignore: cast_nullable_to_non_nullable
-as List<DiaryEntry>,
+as List<DiaryEntry>,sortOrder: null == sortOrder ? _self.sortOrder : sortOrder // ignore: cast_nullable_to_non_nullable
+as int,
   ));
 }
 

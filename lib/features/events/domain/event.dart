@@ -34,7 +34,11 @@ abstract class Event with _$Event {
     @Default([]) List<TodoItem> todos,
 
     // 다이어리
+    // 다이어리
     @Default([]) List<DiaryEntry> diaryEntries,
+
+    // 정렬 순서 (오름차순)
+    @Default(0) int sortOrder,
 
   }) = _Event;
 

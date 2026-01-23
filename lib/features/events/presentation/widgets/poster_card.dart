@@ -82,6 +82,12 @@ class PosterCard extends StatelessWidget {
     // Select icon based on index (Safe lookup)
     final iconData = eventIcons[iconIndex % eventIcons.length];
 
+    // Determine if Future or Past based on dText
+    // 보통 'D-DAY', 'D-5' (미래), 'D+3' (과거)
+    final isFuture = dText.contains('-');
+    final isDDay = dText == 'D-Day';
+    final isPast = dText.contains('+');
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(4, 0, 4, 12), // Horizontal space for shadow + Bottom space
       child: InkWell(
@@ -132,11 +138,12 @@ class PosterCard extends StatelessWidget {
                                     color: fgColor, // Contrast Text
                                   ),
                                 ),
-                                const SizedBox(height: 4),
+                                const SizedBox(height: 6), // 간격 조금 늘림
                                 Text(
                                   dateLine,
-                                  style: theme.textTheme.bodyMedium?.copyWith(
-                                    color: fgColor.withOpacity(0.8),
+                                  style: theme.textTheme.titleMedium?.copyWith( // 폰트 사이즈 키움 (bodyMedium -> titleMedium)
+                                    color: fgColor.withOpacity(0.9),
+                                    fontWeight: FontWeight.w600,
                                   ),
                                 ),
                               ],
@@ -151,35 +158,38 @@ class PosterCard extends StatelessWidget {
                             child: Icon(
                               iconData,
                               color: fgColor,
-                              size: 20,
+                              size: 24, // 아이콘 사이즈 살짝 키움
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 16), // 간격 늘림 (D-Day 위치 하향)
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.baseline,
                         textBaseline: TextBaseline.alphabetic,
                         children: [
                           Text(
                             dText,
-                            style: theme.textTheme.displayMedium?.copyWith(
-                              fontWeight: FontWeight.w800,
+                            style: theme.textTheme.headlineLarge?.copyWith( // 폰트 사이즈 줄임 (displayMedium -> headlineLarge)
+                              fontWeight: FontWeight.w900,
                               letterSpacing: -1.0,
-                              color: fgColor, // Highlight D-Day text
+                              color: isPast 
+                                  ? fgColor.withOpacity(0.6) // 과거 흐리게
+                                  : fgColor, 
                             ),
                           ),
                           const SizedBox(width: 8),
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 2),
-                            child: Text(
-                              'days',
-                              style: theme.textTheme.bodyLarge?.copyWith(
-                                color: fgColor.withOpacity(0.9),
-                                fontWeight: FontWeight.w600,
+                          if (!isDDay) // D-Day 아닐 때만 days 표시
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 4),
+                              child: Text(
+                                'days',
+                                style: theme.textTheme.titleMedium?.copyWith(
+                                  color: fgColor.withOpacity(isPast ? 0.6 : 0.9),
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
                             ),
-                          ),
                         ],
                       ),
                     ],
@@ -222,16 +232,18 @@ class _PatternPainter extends CustomPainter {
 
     final path = Path();
     
-    // Randomize start height (0.5 to 0.6)
-    final startY = size.height * (0.5 + random.nextDouble() * 0.1);
+    // Very Dramatic Wave Logic
+    // Start Y: 0.3 ~ 0.7
+    final startY = size.height * (0.3 + random.nextDouble() * 0.4);
     path.moveTo(0, startY);
 
-    // Randomize control point (X: 0.3-0.7, Y: 0.1-0.4)
-    final controlX = size.width * (0.3 + random.nextDouble() * 0.4);
-    final controlY = size.height * (0.1 + random.nextDouble() * 0.3);
+    // Control Point: X(0.2~0.8), Y(-0.3 ~ 1.3) -> Range covers outside for deep curve
+    final controlX = size.width * (0.2 + random.nextDouble() * 0.6);
+    // Y values can go beyond bounds to create sharp curves
+    final controlY = size.height * (-0.2 + random.nextDouble() * 1.4);
 
-    // Randomize end point (0.55 to 0.7)
-    final endY = size.height * (0.55 + random.nextDouble() * 0.15);
+    // End Y: 0.3 ~ 0.8
+    final endY = size.height * (0.3 + random.nextDouble() * 0.5);
 
     path.quadraticBezierTo(controlX, controlY, size.width, endY);
     
@@ -249,27 +261,16 @@ class _PatternPainter extends CustomPainter {
 
     // Draw 6-10 droplets
     final count = 6 + random.nextInt(5);
-
-    // Consume randoms used in weave generation to keep sync if we cared, 
-    // but independent Random(seed) instance is safer if order matters. 
-    // Actually we re-instantiated Random(seed) so it's fresh sequence. 
-    // To mix them, we should burn the first few randoms used by wave or just share the instance.
-    // Let's burn the numbers used in wave to ensure droplets are distinct from wave logic? 
-    // No need, they are just random numbers.
     
-    // Note: We need to ensure Droplets are drawn "around" the wave area generally.
-    // Since wave is random, we can't easily bound perfectly without passing the path.
-    // But generalized bottom-half random is fine for this aesthetic.
-    
-    // Burn the 4 doubles used in _drawWavyGradient to shift the sequence
+    // Burn randoms
     random.nextDouble(); random.nextDouble(); random.nextDouble(); random.nextDouble(); 
 
     for (int i = 0; i < count; i++) {
       final dx = random.nextDouble() * size.width;
-      final dy = size.height * 0.4 + random.nextDouble() * (size.height * 0.6);
-      final radius = 5.0 + random.nextDouble() * 10.0;
+      final dy = size.height * 0.2 + random.nextDouble() * (size.height * 0.8);
+      final radius = 4.0 + random.nextDouble() * 8.0;
       
-      paint.color = overlayColor.withOpacity(0.15 + random.nextDouble() * 0.3);
+      paint.color = overlayColor.withOpacity(0.1 + random.nextDouble() * 0.3);
       
       canvas.drawCircle(Offset(dx, dy), radius, paint);
     }

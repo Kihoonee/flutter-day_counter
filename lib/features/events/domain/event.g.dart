@@ -25,6 +25,7 @@ _Event _$EventFromJson(Map<String, dynamic> json) => _Event(
           ?.map((e) => DiaryEntry.fromJson(e as Map<String, dynamic>))
           .toList() ??
       const [],
+  sortOrder: (json['sortOrder'] as num?)?.toInt() ?? 0,
 );
 
 Map<String, dynamic> _$EventToJson(_Event instance) => <String, dynamic>{
@@ -38,4 +39,5 @@ Map<String, dynamic> _$EventToJson(_Event instance) => <String, dynamic>{
   'iconIndex': instance.iconIndex,
   'todos': instance.todos.map((e) => e.toJson()).toList(),
   'diaryEntries': instance.diaryEntries.map((e) => e.toJson()).toList(),
+  'sortOrder': instance.sortOrder,
 };

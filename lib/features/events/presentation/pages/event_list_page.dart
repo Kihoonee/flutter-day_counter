@@ -25,16 +25,16 @@ class EventListPage extends ConsumerWidget {
     return Scaffold(
       extendBodyBehindAppBar: true, // Allow body to scroll behind AppBar
       appBar: AppBar(
-        title: const Text('Day Counter'),
+        title: Text(
+          'Days+',
+          style: theme.textTheme.headlineSmall?.copyWith(
+            fontWeight: FontWeight.w900,
+            letterSpacing: -0.5,
+          ),
+        ),
         centerTitle: true,
         backgroundColor: Colors.transparent, // Completely transparent
         elevation: 0,
-        // flexibleSpace: ClipRect( // Optional: Blur effect if needed later
-        //   child: BackdropFilter(
-        //     filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-        //     child: Container(color: Colors.transparent),
-        //   ),
-        // ),
       ),
       body: Stack(
         children: [
@@ -57,16 +57,27 @@ class EventListPage extends ConsumerWidget {
                       );
                     }
 
-                    return ListView.separated(
-                      // Add top padding to start list below AppBar initially
+                    // 드래그 앤 드롭을 위한 ReorderableListView
+                    return ReorderableListView.builder(
                       padding: EdgeInsets.only(
                         top: MediaQuery.of(context).padding.top + kToolbarHeight + 10,
-                        bottom: 20,
+                        bottom: 80, // FAB Space
                         left: 16,
                         right: 16,
                       ),
                       itemCount: events.length,
-                      separatorBuilder: (_, __) => const SizedBox(height: 16),
+                      onReorder: (oldIndex, newIndex) {
+                        ref.read(eventsProvider.notifier).reorder(oldIndex, newIndex);
+                      },
+                      proxyDecorator: (child, index, animation) {
+                        // 드래그 중인 아이템 스타일 (약간의 그림자 추가 등)
+                        return Material(
+                          color: Colors.transparent,
+                          shadowColor: Colors.black.withOpacity(0.2),
+                          elevation: 10,
+                          child: child,
+                        );
+                      },
                       itemBuilder: (context, i) {
                         final e = events[i];
                         final diff = DateCalc.diffDays(
@@ -80,15 +91,19 @@ class EventListPage extends ConsumerWidget {
                           'yyyy.MM.dd',
                         ).format(e.targetDate);
 
-                        return SizedBox(
-                          height: 180,
-                          child: PosterCard(
-                            title: e.title,
-                            dateLine: dateLine,
-                            dText: _dText(diff),
-                            themeIndex: e.themeIndex,
-                            iconIndex: e.iconIndex,
-                            onTap: () => context.push('/detail', extra: e.id),
+                        return Padding(
+                          key: Key(e.id), // 필수: 고유 키
+                          padding: const EdgeInsets.only(bottom: 10), // 간격 줄임 (16 -> 10)
+                          child: SizedBox(
+                            height: 180,
+                            child: PosterCard(
+                              title: e.title,
+                              dateLine: dateLine,
+                              dText: _dText(diff),
+                              themeIndex: e.themeIndex,
+                              iconIndex: e.iconIndex,
+                              onTap: () => context.push('/detail', extra: e.id),
+                            ),
                           ),
                         );
                       },
