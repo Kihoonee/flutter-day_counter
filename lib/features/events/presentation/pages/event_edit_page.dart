@@ -102,7 +102,7 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
                   children: [
                     // 미리보기 카드
                     SizedBox(
-                      height: 180, // 220 -> 180 축소
+                      height: 180,
                       child: PosterCard(
                         title: _title.text.isEmpty ? '이벤트' : _title.text,
                         dateLine: DateFormat('yyyy.MM.dd').format(_target),
@@ -113,33 +113,32 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
                     ),
                     const SizedBox(height: 24),
 
-                    // 1. 이벤트 제목 입력
-                    TextField(
-                      controller: _title,
-                      style: theme.textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.normal,
-                      ),
-                      decoration: InputDecoration(
-                        labelText: '어떤 날인가요?',
-                        hintText: '이벤트 제목을 입력하세요',
-                        labelStyle: TextStyle(color: theme.colorScheme.onSurfaceVariant),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide.none,
-                        ),
-                        filled: true,
-                        fillColor: theme.colorScheme.surfaceContainerHighest.withOpacity(0.3),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                      ),
-                      onChanged: (_) => setState(() {}),
-                    ),
-                    const SizedBox(height: 16),
-
-                    // 2. 아이콘 & 테마 선택 (콤팩트하게 통합)
+                    // 1. 이벤트 제목 입력 (Card로 감싸서 통일)
                     Card(
                       elevation: 0,
-                      color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.3),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      margin: EdgeInsets.zero,
+                      child: TextField(
+                        controller: _title,
+                        style: theme.textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.normal,
+                        ),
+                        decoration: InputDecoration(
+                          labelText: '어떤 날인가요?',
+                          hintText: '이벤트 제목을 입력하세요',
+                          labelStyle: TextStyle(color: theme.colorScheme.onSurfaceVariant),
+                          border: InputBorder.none, // Card 내부이므로 테두리 제거
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                        ),
+                        onChanged: (_) => setState(() {}),
+                      ),
+                    ),
+                    const SizedBox(height: 24), // 간격 유지
+
+                    // 2. 아이콘 & 테마 선택
+                    Card(
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)), // 기본 Card 컬러
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                         child: Column(
@@ -150,7 +149,7 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
                                 children: [
                                   Text(
                                     '아이콘',
-                                    style: theme.textTheme.bodyMedium, // Bold 제거
+                                    style: theme.textTheme.bodyMedium,
                                   ),
                                   const SizedBox(width: 16),
                                   Expanded(
@@ -162,14 +161,14 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
                                 ],
                               ),
                             ),
-                            Divider(height: 1, color: theme.colorScheme.outlineVariant.withOpacity(0.5)),
+                            Divider(height: 1, color: theme.colorScheme.outlineVariant.withOpacity(0.2)),
                             Padding(
                               padding: const EdgeInsets.symmetric(vertical: 8),
                               child: Row(
                                 children: [
                                   Text(
                                     '테마',
-                                    style: theme.textTheme.bodyMedium, // Bold 제거
+                                    style: theme.textTheme.bodyMedium,
                                   ),
                                   const SizedBox(width: 28),
                                   Expanded(
@@ -199,11 +198,10 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
                     ),
                     const SizedBox(height: 16),
 
-                    // 5. 옵션 (맨 아래로 이동)
+                    // 5. 옵션
                     Card(
                       elevation: 0,
-                      color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.3),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)), // 기본 Card 컬러
                       child: Column(
                         children: [
                           SwitchListTile(
@@ -214,7 +212,7 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
                             value: _includeToday,
                             onChanged: (v) => setState(() => _includeToday = v),
                           ),
-                          Divider(height: 1, color: theme.colorScheme.outlineVariant.withOpacity(0.5)),
+                          Divider(height: 1, color: theme.colorScheme.outlineVariant.withOpacity(0.2)),
                           SwitchListTile(
                             title: Text(
                               '주말 제외 (평일만 계산)',
@@ -321,10 +319,7 @@ class _IconPicker extends StatelessWidget {
                     ? theme.colorScheme.primary.withOpacity(0.1) 
                     : Colors.transparent,
                 shape: BoxShape.circle,
-                border: Border.all(
-                  color: isSelected ? theme.colorScheme.primary : theme.colorScheme.outlineVariant.withOpacity(0.5),
-                  width: isSelected ? 2 : 1,
-                ),
+                // Border 제거
               ),
               child: Icon(
                 icon,
@@ -366,12 +361,7 @@ class _ThemePicker extends StatelessWidget {
               decoration: BoxDecoration(
                 color: c,
                 shape: BoxShape.circle,
-                border: Border.all(
-                  color: isSelected
-                      ? theme.colorScheme.primary
-                      : theme.colorScheme.outlineVariant.withOpacity(0.3),
-                  width: isSelected ? 2 : 1,
-                ),
+                // Border 제거
                 boxShadow: isSelected
                     ? [
                         BoxShadow(

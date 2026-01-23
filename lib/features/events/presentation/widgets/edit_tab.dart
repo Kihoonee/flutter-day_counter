@@ -62,33 +62,35 @@ class _EditTabState extends ConsumerState<EditTab> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // 1. 이벤트 제목 입력
-          TextField(
-            controller: _title,
-            style: theme.textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.normal,
-            ),
-            decoration: InputDecoration(
-              labelText: '어떤 날인가요?',
-              hintText: '이벤트 제목을 입력하세요',
-              labelStyle: TextStyle(color: theme.colorScheme.onSurfaceVariant),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide.none,
-              ),
-              filled: true,
-              fillColor: theme.colorScheme.surfaceContainerHighest.withOpacity(0.3),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-            ),
-            onChanged: (_) => setState(() {}),
-          ),
-          // 2. 아이콘 & 테마 선택 (콤팩트하게 통합)
+          // 1. 이벤트 제목 입력 (Card로 감싸서 통일)
           Card(
             elevation: 0,
-            color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.3),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)), // DateField와 동일
+            margin: EdgeInsets.zero,
+            child: TextField(
+              controller: _title,
+              style: theme.textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.normal,
+              ),
+              decoration: InputDecoration(
+                labelText: '어떤 날인가요?',
+                hintText: '이벤트 제목을 입력하세요',
+                labelStyle: TextStyle(color: theme.colorScheme.onSurfaceVariant),
+                border: InputBorder.none, // Card 내부이므로 테두리 제거
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+              ),
+              onChanged: (_) => setState(() {}),
+            ),
+          ),
+          const SizedBox(height: 24), // 간격 확보
+
+          // 2. 아이콘 & 테마 선택
+          Card(
+            elevation: 0,
+            // color 제거 -> 기본 Card 컬러 사용
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8), // 패딩 조정
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Column(
                 children: [
                   Padding(
@@ -97,7 +99,7 @@ class _EditTabState extends ConsumerState<EditTab> {
                       children: [
                         Text(
                           '아이콘',
-                          style: theme.textTheme.bodyMedium, // Bold 제거
+                          style: theme.textTheme.bodyMedium,
                         ),
                         const SizedBox(width: 16),
                         Expanded(
@@ -109,16 +111,16 @@ class _EditTabState extends ConsumerState<EditTab> {
                       ],
                     ),
                   ),
-                  Divider(height: 1, color: theme.colorScheme.outlineVariant.withOpacity(0.5)), // 구분선 통일
+                  Divider(height: 1, color: theme.colorScheme.outlineVariant.withOpacity(0.2)), // 구분선 더 연하게
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     child: Row(
                       children: [
                         Text(
                           '테마',
-                          style: theme.textTheme.bodyMedium, // Bold 제거
+                          style: theme.textTheme.bodyMedium,
                         ),
-                        const SizedBox(width: 28), // 아이콘 텍스트 길이 차이 고려
+                        const SizedBox(width: 28),
                         Expanded(
                           child: _ThemePicker(
                             selected: _themeIndex,
@@ -134,12 +136,7 @@ class _EditTabState extends ConsumerState<EditTab> {
           ),
           const SizedBox(height: 16),
 
-          // 4. 목표일 선택: DateField 내부 스타일 수정 필요 -> 여기서는 DateField 호출부만 있는데, DateField 내부 구현을 봐야 함.
-          // DateField 위젯은 내부 텍스트 스타일을 사용하므로, 만약 Bold가 적용되어 있다면 DateField를 수정해야 함.
-          // 일단 여기서는 DateField 호출 코드는 그대로 두고, DateField 파일도 수정해야 할 수 있음.
-          // 하지만 사용자가 "목표일에 날짜 폰트 볼드 빼줘"라고 했으니 DateField 내부를 수정해야 함.
-          // 우선 여기서는 삭제 버튼 수정을 진행.
-          
+          // 4. 목표일 선택
           DateField(
             label: '목표일',
             value: _target,
@@ -151,11 +148,11 @@ class _EditTabState extends ConsumerState<EditTab> {
           ),
           const SizedBox(height: 16),
 
-          // 5. 옵션 (맨 아래로 이동)
+          // 5. 옵션
           Card(
             elevation: 0,
-            color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.3),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            // color 제거 -> 기본 Card 컬러 사용
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             child: Column(
               children: [
                 SwitchListTile(
@@ -166,7 +163,7 @@ class _EditTabState extends ConsumerState<EditTab> {
                   value: _includeToday,
                   onChanged: (v) => setState(() => _includeToday = v),
                 ),
-                Divider(height: 1, color: theme.colorScheme.outlineVariant.withOpacity(0.5)),
+                Divider(height: 1, color: theme.colorScheme.outlineVariant.withOpacity(0.2)),
                 SwitchListTile(
                   title: Text(
                     '주말 제외 (평일만 계산)',
@@ -287,10 +284,7 @@ class _IconPicker extends StatelessWidget {
                     ? theme.colorScheme.primary.withOpacity(0.1) 
                     : Colors.transparent,
                 shape: BoxShape.circle,
-                border: Border.all(
-                  color: isSelected ? theme.colorScheme.primary : theme.colorScheme.outlineVariant.withOpacity(0.5),
-                  width: isSelected ? 2 : 1,
-                ),
+                // Border 제거
               ),
               child: Icon(
                 icon,
@@ -333,12 +327,7 @@ class _ThemePicker extends StatelessWidget {
               decoration: BoxDecoration(
                 color: c,
                 shape: BoxShape.circle,
-                border: Border.all(
-                  color: isSelected
-                      ? theme.colorScheme.primary
-                      : theme.colorScheme.outlineVariant.withOpacity(0.3),
-                  width: isSelected ? 2 : 1,
-                ),
+                // Border 제거
                 boxShadow: isSelected
                     ? [
                         BoxShadow(
