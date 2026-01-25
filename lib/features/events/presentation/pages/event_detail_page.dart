@@ -23,6 +23,9 @@ class EventDetailPage extends ConsumerStatefulWidget {
 class _EventDetailPageState extends ConsumerState<EventDetailPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  // Live Preview State (null means use event data)
+  int? _previewThemeIndex;
+  int? _previewIconIndex;
 
   @override
   void initState() {
@@ -38,8 +41,8 @@ class _EventDetailPageState extends ConsumerState<EventDetailPage>
 
   String _dText(int diff) {
     if (diff == 0) return 'D-Day';
-    if (diff > 0) return 'D-$diff';
-    return 'D+${diff.abs()}';
+    if (diff > 0) return 'D -$diff';
+    return 'D +${diff.abs()}';
   }
 
   @override
@@ -77,67 +80,77 @@ class _EventDetailPageState extends ConsumerState<EventDetailPage>
         return Scaffold(
           body: NestedScrollView(
             headerSliverBuilder: (context, innerBoxIsScrolled) => [
-              SliverAppBar(
-                pinned: true,
-                expandedHeight: 280,
-                backgroundColor: theme.scaffoldBackgroundColor,
-                flexibleSpace: FlexibleSpaceBar(
-                  background: Padding(
-                    padding: EdgeInsets.only(
-                      top: MediaQuery.of(context).padding.top + kToolbarHeight,
-                      left: 16,
-                      right: 16,
-                      bottom: 16,
-                    ),
-                    child: PosterCard(
-                      title: event.title,
-                      dateLine: dateLine,
-                      dText: _dText(diff),
-                      themeIndex: event.themeIndex,
-                      iconIndex: event.iconIndex,
-                    ),
-                  ),
-                ),
-              ),
-              SliverPersistentHeader(
-                pinned: true,
-                delegate: _TabBarDelegate(
-                  tabBar: TabBar(
-                    controller: _tabController,
-                    labelColor: theme.colorScheme.primary,
-                    unselectedLabelColor: theme.colorScheme.onSurfaceVariant,
-                    indicatorColor: theme.colorScheme.primary,
-                    tabs: const [
-                      Tab(text: '할 일'),
-                      Tab(text: '다이어리'),
-                      Tab(text: '수정'),
-                    ],
-                  ),
+              SliverOverlapAbsorber(
+                handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
+                sliver: SliverAppBar(
+                  pinned: true,
+                  expandedHeight: 330, // Increased to accommodate bottom TabBar
+                  forceElevated: innerBoxIsScrolled,
                   backgroundColor: theme.scaffoldBackgroundColor,
+                  flexibleSpace: FlexibleSpaceBar(
+                    background: Padding(
+                      padding: EdgeInsets.only(
+                        top: MediaQuery.of(context).padding.top + kToolbarHeight,
+                        left: 16,
+                        right: 16,
+                        bottom: 48 + 16, // TabBar height + padding
+                      ),
+                      child: Center( 
+                        child: SizedBox(
+                          height: 200, 
+                          child: PosterCard(
+                            title: event.title,
+                            dateLine: dateLine,
+                            dText: _dText(diff),
+                            themeIndex: _previewThemeIndex ?? event.themeIndex,
+                            iconIndex: _previewIconIndex ?? event.iconIndex,
+                            todoCount: event.todos.length,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  bottom: PreferredSize(
+                     preferredSize: const Size.fromHeight(48), // TabBar Height
+                     child: Container(
+                       color: theme.scaffoldBackgroundColor,
+                       child: TabBar(
+                        controller: _tabController,
+                        labelColor: theme.colorScheme.primary,
+                        unselectedLabelColor: theme.colorScheme.onSurfaceVariant,
+                        indicatorColor: theme.colorScheme.primary,
+                        tabs: const [
+                          Tab(text: '할 일'),
+                          Tab(text: '한줄메모'),
+                          Tab(text: '수정'),
+                        ],
+                      ),
+                     ),
+                  ),
                 ),
               ),
             ],
-            body: Column(
-              children: [
-                Expanded(
-                  child: TabBarView(
-                    controller: _tabController,
-                    children: [
-                      TodoTab(event: event),
-                      DiaryTab(eventId: event.id),
-                      EditTab(event: event),
-                    ],
-                  ),
-                ),
-                // 배너 광고 슬롯
-                const SafeArea(
-                  top: false,
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                    child: BannerAdWidget(),
-                  ),
-                ),
-              ],
+            body: Builder(
+              builder: (BuildContext context) {
+                return TabBarView(
+                  controller: _tabController,
+                  children: [
+                    TodoTab(event: event),
+                    DiaryTab(eventId: event.id),
+                    EditTab(
+                      event: event,
+                      onIconChanged: (i) => setState(() => _previewIconIndex = i),
+                      onThemeChanged: (i) => setState(() => _previewThemeIndex = i),
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
+          bottomNavigationBar: const SafeArea(
+            child: SizedBox(
+               height: 60,
+               child: BannerAdWidget(),
             ),
           ),
         );
@@ -146,34 +159,4 @@ class _EventDetailPageState extends ConsumerState<EventDetailPage>
   }
 }
 
-/// TabBar를 SliverPersistentHeader에서 사용하기 위한 Delegate
-class _TabBarDelegate extends SliverPersistentHeaderDelegate {
-  final TabBar tabBar;
-  final Color backgroundColor;
 
-  _TabBarDelegate({
-    required this.tabBar,
-    required this.backgroundColor,
-  });
-
-  @override
-  double get minExtent => tabBar.preferredSize.height;
-
-  @override
-  double get maxExtent => tabBar.preferredSize.height;
-
-  @override
-  Widget build(
-      BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return Container(
-      color: backgroundColor,
-      child: tabBar,
-    );
-  }
-
-  @override
-  bool shouldRebuild(covariant _TabBarDelegate oldDelegate) {
-    return tabBar != oldDelegate.tabBar ||
-        backgroundColor != oldDelegate.backgroundColor;
-  }
-}

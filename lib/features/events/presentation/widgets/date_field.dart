@@ -28,7 +28,7 @@ class DateField extends StatelessWidget {
       child: Card(
         margin: EdgeInsets.zero,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20), // Matched padding with Title Input
           child: Row(
             children: [
               Expanded(
@@ -37,13 +37,17 @@ class DateField extends StatelessWidget {
                   children: [
                     Text(
                       label,
-                      style: theme.textTheme.bodyMedium, // Bold 제거 (Normal)
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.hintColor, // Gray
+                      ),
                     ),
-                    const SizedBox(height: 6),
+                    const SizedBox(height: 8), // Increased gap
                     Text(
                       text,
                       style: theme.textTheme.bodyLarge?.copyWith(
-                        color: theme.colorScheme.onSurface, // Bold 제거
+                        color: theme.hintColor, // Gray as requested
+                        fontSize: 18,
+                        fontWeight: FontWeight.normal,
                       ),
                     ),
                     if (helper != null) ...[
@@ -58,11 +62,7 @@ class DateField extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(width: 12),
-              Icon(
-                Icons.calendar_today_rounded,
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
+              // Removed Calendar Icon as requested ("위치도 맘에 안들어" -> Removing creates simplest UI)
             ],
           ),
         ),

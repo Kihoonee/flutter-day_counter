@@ -1,5 +1,8 @@
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../../../../core/services/notification_service.dart';
+import '../../../../core/services/widget_service.dart';
 import '../../../../core/storage/database_provider.dart'; // Correct import
 import '../data/datasources/event_local_data_source_sembast.dart';
 import '../data/repositories/event_repository_impl.dart';
@@ -25,7 +28,24 @@ class EventsController extends AsyncNotifier<List<Event>> {
     final result = await repo.fetchAll();
     return result.fold(
       (failure) => throw Exception(failure),
-      (events) {
+      (events) async {
+        // 최초 실행 시 기본 이벤트 생성
+        if (events.isEmpty) {
+          final isFirstLaunch = await _checkAndSetFirstLaunch();
+          if (isFirstLaunch) {
+            final now = DateTime.now();
+            final defaultEvent = Event(
+              id: 'days-plus-start-${now.millisecondsSinceEpoch}',
+              title: 'Days+ 시작',
+              baseDate: DateTime(now.year, now.month, now.day),
+              targetDate: DateTime(now.year, now.month, now.day),
+              themeIndex: 0,
+              iconIndex: 16, // 별 아이콘
+            );
+            await repo.upsert(defaultEvent);
+            return [defaultEvent];
+          }
+        }
         // 정렬: sortOrder 오름차순
         final sorted = [...events]..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
         return sorted;
@@ -33,15 +53,25 @@ class EventsController extends AsyncNotifier<List<Event>> {
     );
   }
 
+  Future<bool> _checkAndSetFirstLaunch() async {
+    final prefs = await SharedPreferences.getInstance();
+    final isFirstLaunch = prefs.getBool('first_launch') ?? true;
+    if (isFirstLaunch) {
+      await prefs.setBool('first_launch', false);
+    }
+    return isFirstLaunch;
+  }
   Future<void> upsert(Event e) async {
-    // state = const AsyncValue.loading(); // 로딩 상태로 변경하면 화면 깜빡임 발생 가능. 낙관적 업데이트 권장.
-    // 여기서는 간단히 invalidate만 함.
     try {
       final repo = await _repo;
       final result = await repo.upsert(e);
       result.fold(
         (failure) => state = AsyncValue.error(failure, StackTrace.current),
-        (_) => ref.invalidateSelf(),
+        (_) async {
+          await NotificationService().scheduleEvent(e);
+          await _updateWidget(); // Update Widget
+          ref.invalidateSelf();
+        },
       );
     } catch (e, st) {
       state = AsyncValue.error(e, st);
@@ -55,7 +85,11 @@ class EventsController extends AsyncNotifier<List<Event>> {
       final result = await repo.remove(id);
       result.fold(
         (failure) => state = AsyncValue.error(failure, StackTrace.current),
-        (_) => ref.invalidateSelf(),
+        (_) async {
+          await NotificationService().cancelEvent(id);
+          await _updateWidget(); // Update Widget
+          ref.invalidateSelf();
+        },
       );
     } catch (e, st) {
       state = AsyncValue.error(e, st);
@@ -85,6 +119,8 @@ class EventsController extends AsyncNotifier<List<Event>> {
           await repo.upsert(updated);
         }
       }
+      await _updateWidget(); // Update Widget (Top item might have changed)
+      
       // 3. 최종 동기화 (선택적)
       // 이미 낙관적 업데이트 했으므로 invalidate 안 해도 되지만, 
       // DB와 일치성 보장을 위해 invalidate. 
@@ -94,5 +130,21 @@ class EventsController extends AsyncNotifier<List<Event>> {
       state = AsyncValue.error(e, st);
       ref.invalidateSelf(); // 에러 시 롤백
     }
+  }
+
+  Future<void> _updateWidget() async {
+    try {
+      final repo = await _repo;
+      final result = await repo.fetchAll();
+      result.fold(
+        (l) => null, // Ignore error
+        (events) {
+           // Get top event (sortOrder 0 or first)
+           final sorted = [...events]..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
+           final top = sorted.firstOrNull;
+           WidgetService().updateWidget(top);
+        },
+      );
+    } catch (_) {}
   }
 }

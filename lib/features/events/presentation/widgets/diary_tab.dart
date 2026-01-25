@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
+import 'package:hugeicons/hugeicons.dart';
 
 import '../../application/event_controller.dart';
 import '../../domain/diary_entry.dart';
@@ -31,63 +32,82 @@ class DiaryTab extends ConsumerWidget {
         return Stack(
           children: [
             // 메인 리스트
-            entries.isEmpty
-                ? Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.history_edu_rounded,
-                          size: 64,
-                          color: theme.colorScheme.outlineVariant.withOpacity(0.5),
-                        ),
-                        const SizedBox(height: 20),
-                        Text(
-                          '아직 기록된 추억이 없어요',
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            color: theme.colorScheme.onSurfaceVariant,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          '첫 번째 이야기를 남겨보세요',
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: theme.colorScheme.onSurfaceVariant.withOpacity(0.7),
-                          ),
-                        ),
-                      ],
+            Builder(
+              builder: (context) {
+                return CustomScrollView(
+                  slivers: [
+                    SliverOverlapInjector(
+                      handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
                     ),
-                  )
-                : ListView.builder(
-                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 80), // FAB 공간 확보
-                    itemCount: entries.length,
-                    itemBuilder: (context, index) {
-                      final entry = entries[index];
-                      return Dismissible(
-                        key: Key(entry.id),
-                        direction: DismissDirection.endToStart,
-                        onDismissed: (_) => _deleteEntry(ref, event, entry),
-                        background: Container(
-                          alignment: Alignment.centerRight,
-                          padding: const EdgeInsets.only(right: 20),
-                          margin: const EdgeInsets.only(bottom: 12),
-                          decoration: BoxDecoration(
-                            color: theme.colorScheme.errorContainer,
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: Icon(
-                            Icons.delete_forever_rounded, // 더 명확한 아이콘
-                            color: theme.colorScheme.onErrorContainer,
+                    if (entries.isEmpty)
+                      SliverFillRemaining(
+                        hasScrollBody: false,
+                        child: Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              HugeIcon(
+                                icon: HugeIcons.strokeRoundedNotebook,
+                                size: 48, 
+                                color: theme.colorScheme.outlineVariant.withOpacity(0.5),
+                              ),
+                              const SizedBox(height: 20),
+                              Text(
+                                '아직 기록된 추억이 없어요',
+                                style: theme.textTheme.titleMedium?.copyWith(
+                                  color: theme.colorScheme.onSurfaceVariant,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                '첫 번째 이야기를 남겨보세요',
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  color: theme.colorScheme.onSurfaceVariant.withOpacity(0.7),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        child: _DiaryCard(
-                          entry: entry,
-                          onEdit: () => _showDiaryDialog(context, ref, event, entry: entry),
+                      )
+                    else
+                      SliverPadding(
+                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 80),
+                        sliver: SliverList(
+                          delegate: SliverChildBuilderDelegate(
+                            (context, index) {
+                              final entry = entries[index];
+                              return Dismissible(
+                                key: Key(entry.id),
+                                direction: DismissDirection.endToStart,
+                                onDismissed: (_) => _deleteEntry(ref, event, entry),
+                                background: Container(
+                                  alignment: Alignment.centerRight,
+                                  padding: const EdgeInsets.only(right: 20),
+                                  margin: const EdgeInsets.only(bottom: 12),
+                                  decoration: BoxDecoration(
+                                    color: theme.colorScheme.errorContainer,
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  child: HugeIcon(
+                                    icon: HugeIcons.strokeRoundedDelete02,
+                                    color: theme.colorScheme.onErrorContainer,
+                                  ),
+                                ),
+                                child: _DiaryCard(
+                                  entry: entry,
+                                  onEdit: () => _showDiaryDialog(context, ref, event, entry: entry),
+                                ),
+                              );
+                            },
+                            childCount: entries.length,
+                          ),
                         ),
-                      );
-                    },
-                  ),
+                      ),
+                  ],
+                );
+              }
+            ),
 
             // 작성 버튼 (FAB 위치 커스텀)
             Positioned(
@@ -96,10 +116,10 @@ class DiaryTab extends ConsumerWidget {
               child: FloatingActionButton(
                 onPressed: () => _showDiaryDialog(context, ref, event),
                 shape: const CircleBorder(),
-                elevation: 4, 
-                backgroundColor: theme.colorScheme.primaryContainer,
-                foregroundColor: theme.colorScheme.onPrimaryContainer,
-                child: const Icon(Icons.edit_rounded),
+                elevation: 4,
+                backgroundColor: theme.colorScheme.primary, // Brand Color
+                foregroundColor: theme.colorScheme.onPrimary,
+                child: const HugeIcon(icon: HugeIcons.strokeRoundedPencilEdit01, color: Colors.white), 
               ),
             ),
           ],
@@ -242,8 +262,8 @@ class _DiaryDialogState extends State<_DiaryDialog> {
                           ),
                         ),
                         const SizedBox(width: 4),
-                        Icon(
-                          Icons.calendar_today_rounded,
+                        HugeIcon(
+                          icon: HugeIcons.strokeRoundedCalendar03,
                           size: 14,
                           color: theme.colorScheme.primary,
                         ),
@@ -361,8 +381,8 @@ class _DiaryCard extends StatelessWidget {
                     ),
                     // 수정 아이콘은 유지할지? 카드 전체 탭으로 대체 가능하면 삭제.
                     // 명시적인 것이 좋으므로 작게 유지.
-                    Icon(
-                      Icons.edit_rounded,
+                    HugeIcon(
+                      icon: HugeIcons.strokeRoundedPencilEdit02,
                       size: 16,
                       color: theme.colorScheme.outline.withOpacity(0.5),
                     ),

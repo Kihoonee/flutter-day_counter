@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
+import 'package:hugeicons/hugeicons.dart';
 
 import '../../../../core/utils/date_calc.dart';
 import '../../../../core/widgets/banner_ad_widget.dart';
@@ -37,8 +38,8 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
 
   String _dText(int diff) {
     if (diff == 0) return 'D-Day';
-    if (diff > 0) return 'D-$diff';
-    return 'D+${diff.abs()}';
+    if (diff > 0) return 'D -$diff';
+    return 'D +${diff.abs()}';
   }
 
   void _initFrom(Event? e) {
@@ -102,7 +103,7 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
                   children: [
                     // 미리보기 카드
                     SizedBox(
-                      height: 180,
+                      height: 200, // Increased to Prevent overflow
                       child: PosterCard(
                         title: _title.text.isEmpty ? '이벤트' : _title.text,
                         dateLine: DateFormat('yyyy.MM.dd').format(_target),
@@ -120,15 +121,19 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
                       margin: EdgeInsets.zero,
                       child: TextField(
                         controller: _title,
-                        style: theme.textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.normal,
-                        ),
+                        style: theme.textTheme.titleMedium, 
                         decoration: InputDecoration(
                           labelText: '어떤 날인가요?',
                           hintText: '이벤트 제목을 입력하세요',
-                          labelStyle: TextStyle(color: theme.colorScheme.onSurfaceVariant),
-                          border: InputBorder.none, // Card 내부이므로 테두리 제거
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                          labelStyle: TextStyle(color: theme.hintColor), // Gray color
+                          hintStyle: TextStyle(
+                            color: theme.hintColor.withOpacity(0.5), 
+                            fontSize: 16, // Smaller font size
+                          ),
+                          border: InputBorder.none,
+                          // Increased vertical padding to lower the input text relative to label
+                          contentPadding: const EdgeInsets.only(left: 16, right: 16, top: 24, bottom: 16),
+                          floatingLabelBehavior: FloatingLabelBehavior.always, // Ensure label stays up
                         ),
                         onChanged: (_) => setState(() {}),
                       ),
@@ -140,18 +145,22 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
                       elevation: 0,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)), // 기본 Card 컬러
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12), // Adjusted padding
                         child: Column(
                           children: [
                             Padding(
                               padding: const EdgeInsets.symmetric(vertical: 8),
                               child: Row(
                                 children: [
-                                  Text(
-                                    '아이콘',
-                                    style: theme.textTheme.bodyMedium,
+                                  SizedBox(
+                                    width: 60, // Fixed width for alignment
+                                    child: Text(
+                                      '아이콘',
+                                      style: theme.textTheme.bodyMedium?.copyWith(
+                                        color: theme.hintColor, // Gray label
+                                      ),
+                                    ),
                                   ),
-                                  const SizedBox(width: 16),
                                   Expanded(
                                     child: _IconPicker(
                                       selected: _iconIndex,
@@ -166,11 +175,15 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
                               padding: const EdgeInsets.symmetric(vertical: 8),
                               child: Row(
                                 children: [
-                                  Text(
-                                    '테마',
-                                    style: theme.textTheme.bodyMedium,
+                                  SizedBox(
+                                    width: 60, // Fixed width for alignment
+                                    child: Text(
+                                      '테마',
+                                      style: theme.textTheme.bodyMedium?.copyWith(
+                                        color: theme.hintColor, // Gray label
+                                      ),
+                                    ),
                                   ),
-                                  const SizedBox(width: 28),
                                   Expanded(
                                     child: _ThemePicker(
                                       selected: _themeIndex,
@@ -308,7 +321,7 @@ class _IconPicker extends StatelessWidget {
           return GestureDetector(
             onTap: () => onSelect(i),
             child: Container(
-              width: 40,
+              width: 28, // Reduced from 40 -> 32 -> 28
               decoration: BoxDecoration(
                 color: isSelected 
                     ? theme.colorScheme.primary.withOpacity(0.1) 
@@ -316,9 +329,9 @@ class _IconPicker extends StatelessWidget {
                 shape: BoxShape.circle,
                 // Border 제거
               ),
-              child: Icon(
-                icon,
-                size: 20,
+              child: HugeIcon(
+                icon: icon,
+                size: 16, // Reduced from 20 -> 18 -> 16
                 color: isSelected 
                     ? theme.colorScheme.primary 
                     : theme.colorScheme.onSurfaceVariant,
@@ -352,7 +365,7 @@ class _ThemePicker extends StatelessWidget {
           return GestureDetector(
             onTap: () => onSelect(i),
             child: Container(
-              width: 32,
+              width: 26, // Reduced from 32 -> 28 -> 26
               decoration: BoxDecoration(
                 color: c,
                 shape: BoxShape.circle,

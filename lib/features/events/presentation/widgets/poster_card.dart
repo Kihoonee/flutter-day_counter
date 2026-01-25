@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:hugeicons/hugeicons.dart';
 
 class PosterTheme {
   final Color bg;
@@ -7,28 +8,28 @@ class PosterTheme {
   const PosterTheme(this.bg, this.fg);
 }
 
-// 아이콘 리스트 (인덱스로 관리)
-const eventIcons = <IconData>[
-  Icons.favorite_rounded,      // 0: 하트
-  Icons.cake_rounded,          // 1: 케이크
-  Icons.eco_rounded,           // 2: 나뭇잎
-  Icons.water_drop_rounded,    // 3: 물방울
-  Icons.bedtime_rounded,       // 4: 달
-  Icons.flight_rounded,        // 5: 비행기
-  Icons.card_giftcard_rounded, // 6: 선물
-  Icons.light_mode_rounded,    // 7: 해
-  Icons.article_rounded,       // 8: 문서
-  Icons.coffee_rounded,        // 9: 커피
-  Icons.pets_rounded,          // 10: 반려동물
-  Icons.school_rounded,        // 11: 학교
-  Icons.fitness_center_rounded,// 12: 운동
-  Icons.music_note_rounded,    // 13: 음악
-  Icons.monetization_on_rounded,// 14: 돈
-  Icons.home_rounded,          // 15: 집
-  Icons.star_rounded,          // 16: 별
-  Icons.work_rounded,          // 17: 일
-  Icons.local_dining_rounded,  // 18: 식사
-  Icons.directions_car_rounded,// 19: 차
+// HugeIcons 리스트 (인덱스로 관리)
+const eventIcons = <dynamic>[
+  HugeIcons.strokeRoundedFavourite,      // 0: 하트
+  HugeIcons.strokeRoundedBirthdayCake,    // 1: 케이크
+  HugeIcons.strokeRoundedNaturalFood,     // 2: 나뭇잎/자연
+  HugeIcons.strokeRoundedDroplet,         // 3: 물방울
+  HugeIcons.strokeRoundedMoon02,          // 4: 달
+  HugeIcons.strokeRoundedAirplane01,      // 5: 비행기
+  HugeIcons.strokeRoundedGift,            // 6: 선물
+  HugeIcons.strokeRoundedSun01,           // 7: 해
+  HugeIcons.strokeRoundedNote01,          // 8: 문서/노트
+  HugeIcons.strokeRoundedCoffee01,        // 9: 커피
+  HugeIcons.strokeRoundedUser,            // 10: 반려동물
+  HugeIcons.strokeRoundedBook01,          // 11: 학교
+  HugeIcons.strokeRoundedDumbbell01,      // 12: 운동
+  HugeIcons.strokeRoundedMusicNote01,     // 13: 음악
+  HugeIcons.strokeRoundedMoney03,         // 14: 돈
+  HugeIcons.strokeRoundedHome01,          // 15: 집
+  HugeIcons.strokeRoundedStar,            // 16: 별
+  HugeIcons.strokeRoundedBriefcase01,     // 17: 업무
+  HugeIcons.strokeRoundedDish01,          // 18: 식사
+  HugeIcons.strokeRoundedCar01,           // 19: 차
 ];
 
 const posterThemes = <PosterTheme>[
@@ -59,6 +60,7 @@ class PosterCard extends StatelessWidget {
   final String dText;
   final int themeIndex;
   final int iconIndex;
+  final int todoCount;
   final VoidCallback? onTap;
 
   const PosterCard({
@@ -68,6 +70,7 @@ class PosterCard extends StatelessWidget {
     required this.dText,
     required this.themeIndex,
     this.iconIndex = 0,
+    this.todoCount = 0,
     this.onTap,
   });
 
@@ -116,9 +119,9 @@ class PosterCard extends StatelessWidget {
                 ),
 
                 Padding(
-                  padding: const EdgeInsets.all(16), // Reduced from 24
+                  padding: const EdgeInsets.all(20),
                   child: Column(
-                    mainAxisSize: MainAxisSize.min,
+                    mainAxisSize: MainAxisSize.max, 
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
@@ -134,84 +137,94 @@ class PosterCard extends StatelessWidget {
                                   overflow: TextOverflow.ellipsis,
                                   style: theme.textTheme.titleLarge?.copyWith(
                                     fontWeight: FontWeight.w700,
-                                    fontSize: 22, // Fixed larger size
+                                    fontSize: 22, 
                                     color: fgColor, 
                                   ),
                                 ),
                                 const SizedBox(height: 8), 
-                                Text(
-                                  dateLine,
-                                  style: theme.textTheme.titleMedium?.copyWith(
-                                    fontSize: 16, // Explicit size
-                                    color: fgColor.withOpacity(0.85),
-                                    fontWeight: FontWeight.w600,
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 4), 
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        dateLine,
+                                        style: theme.textTheme.titleMedium?.copyWith(
+                                          fontSize: 16, 
+                                          color: fgColor.withOpacity(0.85),
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                      if (todoCount > 0) ...[
+                                        const SizedBox(height: 12),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                          decoration: BoxDecoration(
+                                            color: fgColor.withOpacity(0.15),
+                                            borderRadius: BorderRadius.circular(12),
+                                          ),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              HugeIcon(
+                                                icon: HugeIcons.strokeRoundedTask01,
+                                                color: fgColor.withOpacity(0.8),
+                                                size: 14,
+                                              ),
+                                              const SizedBox(width: 4),
+                                              Text(
+                                                '$todoCount',
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: fgColor.withOpacity(0.8),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ],
                                   ),
                                 ),
                               ],
                             ),
                           ),
                           Container(
-                            padding: const EdgeInsets.all(10), // Reduced from 12
+                            padding: const EdgeInsets.all(10),
                             decoration: BoxDecoration(
                               color: Colors.white.withOpacity(0.3),
                               shape: BoxShape.circle,
                             ),
-                            child: Icon(
-                              iconData,
+                            child: HugeIcon(
+                              icon: iconData,
                               color: fgColor,
                               size: 26, 
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 16), // Reduced from 24
+                      
+                      const Spacer(),
+
+                      // Bottom Row: D-Day Count (right)
                       Row(
-                        crossAxisAlignment: CrossAxisAlignment.baseline,
-                        textBaseline: TextBaseline.alphabetic,
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
+                          // D-Day text (right aligned)
                           Text(
                             dText,
-                            style: theme.textTheme.displaySmall?.copyWith( // Use displaySmall (smaller than displayMedium but big enough)
-                              fontSize: 36, // Specific visual weight
-                              fontWeight: FontWeight.w900,
-                              letterSpacing: -0.5,
+                            style: theme.textTheme.displaySmall?.copyWith( 
+                              fontSize: 48, 
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: -1.5,
+                              height: 1.0,
                               color: isPast 
-                                  ? fgColor.withOpacity(0.5) // Past: Dimmed more
+                                  ? fgColor.withOpacity(0.6) 
                                   : fgColor, 
                             ),
                           ),
-                          const SizedBox(width: 8),
-                          if (!isDDay)
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 6),
-                              child: Text(
-                                'days',
-                                style: theme.textTheme.titleMedium?.copyWith(
-                                  color: fgColor.withOpacity(isPast ? 0.5 : 0.8),
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 16,
-                                ),
-                              ),
-                            ),
-                          if (isPast) // Add visual tag for past
-                             Padding(
-                               padding: const EdgeInsets.only(left: 8, bottom: 6),
-                               child: Container(
-                                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                                 decoration: BoxDecoration(
-                                   color: fgColor.withOpacity(0.1),
-                                   borderRadius: BorderRadius.circular(12),
-                                 ),
-                                 child: Text(
-                                   'PAST',
-                                   style: TextStyle(
-                                     color: fgColor.withOpacity(0.6),
-                                     fontSize: 10,
-                                     fontWeight: FontWeight.bold,
-                                   ),
-                                 ),
-                               ),
-                             ),
                         ],
                       ),
                     ],

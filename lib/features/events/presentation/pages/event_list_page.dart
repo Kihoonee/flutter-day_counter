@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:hugeicons/hugeicons.dart';
 
 import '../../../../core/utils/date_calc.dart';
 import '../../../../core/widgets/banner_ad_widget.dart';
@@ -14,8 +15,8 @@ class EventListPage extends ConsumerWidget {
 
   String _dText(int diff) {
     if (diff == 0) return 'D-Day';
-    if (diff > 0) return '-$diff';
-    return '+${diff.abs()}';
+    if (diff > 0) return 'D -$diff';
+    return 'D +${diff.abs()}';
   }
 
   @override
@@ -71,11 +72,21 @@ class EventListPage extends ConsumerWidget {
                         ref.read(eventsProvider.notifier).reorder(oldIndex, newIndex);
                       },
                       proxyDecorator: (child, index, animation) {
-                        // 드래그 중인 아이템 스타일 (약간의 그림자 추가 등)
-                        return Material(
-                          color: Colors.transparent,
-                          shadowColor: Colors.black.withOpacity(0.2),
-                          elevation: 10,
+                        return AnimatedBuilder(
+                          animation: animation,
+                          builder: (context, child) {
+                            final double animValue = Curves.easeInOut.transform(animation.value);
+                            final double scale = 1.0 + (0.05 * animValue); // Scale up to 1.05x
+                            return Transform.scale(
+                              scale: scale,
+                              child: Material(
+                                color: Colors.transparent,
+                                shadowColor: Colors.black.withOpacity(0.3),
+                                elevation: 12, // Increased elevation
+                                child: child,
+                              ),
+                            );
+                          },
                           child: child,
                         );
                       },
@@ -94,16 +105,19 @@ class EventListPage extends ConsumerWidget {
 
                         return Padding(
                           key: Key(e.id), // 필수: 고유 키
-                          padding: const EdgeInsets.only(bottom: 10), // 간격 줄임 (16 -> 10)
-                          child: SizedBox(
-                            height: 200,
-                            child: PosterCard(
-                              title: e.title,
-                              dateLine: dateLine,
-                              dText: _dText(diff),
-                              themeIndex: e.themeIndex,
-                              iconIndex: e.iconIndex,
-                              onTap: () => context.push('/detail', extra: e.id),
+                          padding: const EdgeInsets.only(bottom: 8), 
+                          child: Center(
+                            child: SizedBox(
+                              height: 200,
+                              child: PosterCard(
+                                title: e.title,
+                                dateLine: dateLine,
+                                dText: _dText(diff),
+                                themeIndex: e.themeIndex,
+                                iconIndex: e.iconIndex,
+                                todoCount: e.todos.length,
+                                onTap: () => context.push('/detail', extra: e.id),
+                              ),
                             ),
                           ),
                         );
@@ -129,8 +143,11 @@ class EventListPage extends ConsumerWidget {
             right: 16,
             child: FloatingActionButton(
               onPressed: () => context.push('/edit', extra: null),
-              shape: const CircleBorder(), // Explicitly circular
-              child: const Icon(Icons.add),
+              shape: const CircleBorder(),
+              backgroundColor: theme.colorScheme.primary, // Brand Color
+              foregroundColor: theme.colorScheme.onPrimary, // White (usually)
+              elevation: 4,
+              child: const HugeIcon(icon: HugeIcons.strokeRoundedAdd01, color: Colors.white),
             ),
           ),
         ],
@@ -148,30 +165,28 @@ class _Empty extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Center(
-      child: Card(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                '저장된 이벤트가 없습니다.',
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w800,
-                ),
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              '아직 등록된 D-Day가 없어요',
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w800,
               ),
-              const SizedBox(height: 8),
-              Text(
-                '오른쪽 위 + 버튼으로 추가해보세요.',
-                style: theme.textTheme.bodyMedium,
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: onCreate,
-                child: const Text('새 이벤트 만들기'),
-              ),
-            ],
-          ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              '첫 번째 D-Day를 추가해보세요!',
+              style: theme.textTheme.bodyMedium,
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: onCreate,
+              child: const Text('새 이벤트 만들기'),
+            ),
+          ],
         ),
       ),
     );

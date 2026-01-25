@@ -6,6 +6,7 @@ import 'package:sembast/sembast.dart';
 import '../core/storage/database_service.dart';
 import '../core/storage/database_provider.dart';
 import '../core/storage/shared_prefs_provider.dart';
+import '../core/services/notification_service.dart';
 import 'app.dart';
 
 class AppBootstrap extends StatefulWidget {
@@ -43,6 +44,9 @@ class _AppBootstrapState extends State<AppBootstrap> {
       
       print('AppBootstrap: Init Database...');
       final db = await DatabaseService().database;
+
+      print('AppBootstrap: Init Notifications...');
+      await NotificationService().init();
       
       print('AppBootstrap: Initialization successful.');
 
