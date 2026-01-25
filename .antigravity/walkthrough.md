@@ -1,39 +1,31 @@
-# UI/UX 개선 및 상세 기능 구현 최종 완료
+# DayCounter Widget Implementation & Release Build
 
-## 개요
-사용자의 피드백(`add2.md`)을 최종 반영하여 앱의 전반적인 디자인 품질을 한 단계 더 끌어올렸습니다. 특히 **메인 카드 디자인**과 **다이어리/할 일의 시각적 요소**들을 정교하게 다듬었습니다.
+## Changes
+### iOS Widget Implementation
+- **DayCounterWidget**: Implemented a HomeScreen widget using `WidgetKit` and `SwiftUI`.
+- **Design**: Replicated the `PosterCard` design with dynamic background/foreground colors.
+- **Sizes**: Supported both `.systemSmall` and `.systemMedium` families.
+- **App Group**: Configured `group.day_counter` for data synchronization between the main App and Widget.
+- **WidgetService**: Updated `WidgetService.dart` to save event data (title, d-day, date, colors) to `UserDefaults` via `home_widget` plugin.
 
-## 주요 변경 사항
+### Feature Improvements
+- **Event Detail Page**: Fixed `NestedScrollView` scroll behavior to prevent header collapse issues.
+- **Todo List**: Added creation date display to todo items.
 
-### 1. 메인 카드 (`PosterCard`) 디자인 고도화
-- **S-커브(Cubic Bezier) 웨이브**: 기존의 단순한 곡선을 세련된 S자 형태의 물결 무늬로 변경하여 역동적이고 프리미엄한 디자인을 구현했습니다.
-- **D-Day 시각화 개선**:
-  - 지나간 날짜(`D+`)에는 카드에 **"PAST" 태그**를 추가하고 텍스트를 반투명하게 처리하여 직관적 구분을 강화했습니다.
-  - 가독성을 위해 제목(22pt), 날짜(16pt), D-Day 숫자(36pt)의 폰트 크기를 최적화하고 간격을 조정했습니다.
-  - 배경 물방울 패턴을 더 은은하게 조정하여 메인 텍스트가 돋보이게 했습니다.
+### Build & Release
+- **Android**:
+    - Updated `build.gradle.kts` to support Java 8 desugaring (library version 2.1.4).
+    - Built Release APK: `build/app/outputs/flutter-apk/app-release.apk`
+- **iOS**:
+    - Built Release App: `build/ios/iphoneos/Runner.app`
+    - Verified installation on physical iPhone via `flutter run` and Xcode.
 
-### 2. 다이어리 탭 (`DiaryTab`) 디자인 폴리싱
-- **다이얼로그 쇄신**: Material 3 가이드라인을 준수하여 28pt의 라운드 코너와 더 넓은 입력 영역을 적용했습니다. "오늘을 기록해요"와 같은 친근한 문구와 캘린더 아이콘 버튼을 통해 날짜 선택 경험을 개선했습니다.
-- **Empty State 개선**: 감성적인 아이콘(`history_edu`)과 세련된 안내 문구로 비어있는 상태의 밋밋함을 보완했습니다.
-- **삭제 경험**: 스와이프 삭제 시 나타나는 배경과 아이콘을 더 명확하게 변경했습니다.
+## Verification Results
+### Automated Tests
+- `flutter run` on physical iPhone verified successful launch and database loading.
+- `flutter build apk --release` passed.
+- `flutter build ios --release` passed.
 
-### 3. 할 일 탭 (`TodoTab`) 스타일 통일
-- **입력 폼 디자인**: 테두리를 없애고 부드러운 배경색을 넣은 입력 필드를 적용하여 최신 앱 트렌드에 맞췄습니다.
-- **리스트 플랫화**: 투두 카드의 그림자를 제거하고 전체 배경과 어울리는 플랫한 디자인을 적용했습니다.
-
-### 4. 수정 화면 (`EditTab` & `EventEditPage`)
-- **삭제 버튼**: 지나친 강조를 피하기 위해 빨간색에서 세련된 **그레이(Grey) 톤**으로 변경했습니다. 다크모드에서도 자연스럽게 어우러집니다.
-- **폰트 최적화**: 모든 섹션의 폰트를 **Normal** 가중치로 통일하여 깔끔하고 정돈된 느낌을 주었습니다.
-- **레이아웃 순서**: 제목 -> 아이콘 -> 테마 -> 목표일 -> 옵션 순으로 재정렬하여 논리적 흐름을 개선했습니다.
-
----
-
-## 기술적 개선
-- **에러 수정**: `EventListPage`의 린트 에러 및 `bootstrap.dart`의 `databaseProvider` 오버라이드 타입 문제를 해결했습니다.
-- **코드 품질**: 미사용 변수 정리 및 `deprecated` 경고를 최소화했습니다.
-
-## 확인 방법
-1. **Hot Restart (R)** 실행.
-2. **이벤트 목록**: 새로워진 S자 물결 무늬와 과거 날짜의 "PAST" 태그를 확인하세요.
-3. **상세 화면**: 다이어리와 할 일의 입력 폼, 리스트 디자인이 얼마나 깔끔해졌는지 확인하세요.
-4. **수정 탭**: 하단 삭제 버튼의 색상과 폰트의 정갈함을 느껴보세요.
+### Manual Verification
+- Confirmed Widget UI matches the in-app design.
+- Confirmed Widget updates when events are modified (implied by service logic).
