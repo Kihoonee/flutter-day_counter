@@ -42,7 +42,6 @@ class NotificationService {
 
     await flutterLocalNotificationsPlugin.initialize(
       initializationSettings,
-      // onDidReceiveNotificationResponse: (details) { ... } // Handle tap
     );
 
     _isInitialized = true;
@@ -51,19 +50,13 @@ class NotificationService {
   Future<void> scheduleEvent(Event event) async {
     if (!_isInitialized) await init();
 
-    // Cancel existing to avoid duplicates (Rescheduling)
     await cancelEvent(event.id);
 
     final now = tz.TZDateTime.now(tz.local);
-    // Force target to be in local timezone, removing time component for consistent day calculation
     final target = tz.TZDateTime.from(event.targetDate, tz.local);
-    // Reset time to 09:00 AM for notifications (or consistent time)
     final targetDay9AM = tz.TZDateTime(tz.local, target.year, target.month, target.day, 9, 0, 0);
 
     if (targetDay9AM.isAfter(now)) {
-      // --- FUTURE EVENT ---
-      
-      // 1. D-Day Notification
       await _schedule(
         id: _generateId(event.id, 'dday'),
         title: '${event.title} D-Day!',
@@ -71,7 +64,6 @@ class NotificationService {
         scheduledDate: targetDay9AM,
       );
 
-      // 2. D-1 Notification
       final dMinus1 = targetDay9AM.subtract(const Duration(days: 1));
       if (dMinus1.isAfter(now)) {
         await _schedule(
@@ -81,27 +73,14 @@ class NotificationService {
           scheduledDate: dMinus1,
         );
       }
-
     } else {
-      // --- PAST EVENT (Anniversary) ---
-      // Calculate next 100th day milestone
-      // diffDays = now - target
-      // milestone = Ceil(diffDays / 100) * 100
-      
       final diff = now.difference(targetDay9AM).inDays;
-      // Start checking from next 100
       int nextMilestone = ((diff / 100).ceil()) * 100;
-      if (nextMilestone == diff) nextMilestone += 100; // If exact today? maybe skip or next.
+      if (nextMilestone == diff) nextMilestone += 100;
       if (nextMilestone <= 0) nextMilestone = 100;
 
       final nextDate = targetDay9AM.add(Duration(days: nextMilestone));
       
-      // Safety check: is it in future? (Considering time)
-      if (nextDate.isBefore(now)) {
-         // Should not happen with logic above unless same day passed 9AM
-         // Add 100 more
-      }
-
       await _schedule(
         id: _generateId(event.id, 'anniv'),
         title: '${event.title} +$nextMilestone일',
@@ -117,38 +96,37 @@ class NotificationService {
     required String body,
     required tz.TZDateTime scheduledDate,
   }) async {
-    await flutterLocalNotificationsPlugin.zonedSchedule(
-      id,
-      title,
-      body,
-      scheduledDate,
-      const NotificationDetails(
-        android: AndroidNotificationDetails(
-          'event_channel',
-          'Events',
-          channelDescription: 'Event D-Day Notifications',
-          importance: Importance.max,
-          priority: Priority.high,
+    try {
+      await flutterLocalNotificationsPlugin.zonedSchedule(
+        id,
+        title,
+        body,
+        scheduledDate,
+        const NotificationDetails(
+          android: AndroidNotificationDetails(
+            'event_channel',
+            'Events',
+            channelDescription: 'Event D-Day Notifications',
+            importance: Importance.max,
+            priority: Priority.high,
+          ),
+          iOS: DarwinNotificationDetails(),
         ),
-        iOS: DarwinNotificationDetails(),
-      ),
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-    );
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      );
+    } catch (e) {
+      print('DEBUG: Notification schedule failed: $e');
+    }
   }
 
   Future<void> cancelEvent(String eventId) async {
     if (!_isInitialized) return;
-    // We generated IDs based on hash. Since we have multiple types:
-    // We need to know which ones we scheduled.
-    // Simpler: Just try to cancel all possible types.
     await flutterLocalNotificationsPlugin.cancel(_generateId(eventId, 'dday'));
     await flutterLocalNotificationsPlugin.cancel(_generateId(eventId, 'dminus1'));
     await flutterLocalNotificationsPlugin.cancel(_generateId(eventId, 'anniv'));
   }
 
   int _generateId(String eventId, String type) {
-    // Combine eventId and type to create a somewhat unique int
-    // String.hashCode is convenient.
-    return (eventId + type).hashCode; 
+    return (eventId + type).hashCode & 0x7FFFFFFF; 
   }
 }
