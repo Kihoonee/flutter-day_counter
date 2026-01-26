@@ -1,25 +1,27 @@
-# 2026-01-27 핸드오버 리포트 (실기기 구동 이슈 해결 중)
+# 2026-01-27 핸드오버 리포트 (Mac -> Windows)
 
 ## 1. 현재 상황 (Current Status)
-- **시뮬레이터:** 모든 기능(Days+ 리스트, 이벤트 상세, 수정, 저장, 테마 등) 완벽 작동 확인.
-- **실기기(아이폰):** 실행 즉시 강제 종료 혹은 하얀 화면 현상 발생.
-- **핵심 원인:** 
-    1. **App Group 권한 충돌:** 위젯 연동용 `group.day_counter` 설정이 아이폰의 개발자 인증서 프로필과 맞지 않아 iOS 보안 정책에 의해 차단됨.
-    2. **Native Assets 로드 실패:** 최신 플러터 패키지들의 `objective_c.framework`가 실기기 빌드 시 서명 문제로 로드되지 않음.
+- **이슈:** 실기기(iOS) 실행 시 Flutter 엔진이 초기화되지 않고 **하얀 화면(White Screen)** 에서 멈추는 현상 지속.
+- **테스트 환경:** 외부 플러그인(Firebase, AdMob, HomeWidget)을 모두 제거하고 순수 Flutter UI만 실행했으나 동일 증상 발생. Dart 진입점(`main()`) 이전의 네이티브 초기화 단계에서 멈추는 것으로 추정됨.
 
-## 2. 지금까지 조치한 내용
-- **Dependency Downgrade:** `path_provider`, `google_mobile_ads` 등을 Native Assets 기능이 없는 하위 버전으로 고정 (`pubspec.yaml` 확인).
-- **Entitlements 수정:** `Runner.entitlements`에서 임시로 App Group 권한을 제거하여 실행 시도.
-- **main.dart 최소화:** Firebase/AdMob 초기화를 비동기로 빼서 로딩 행(Hang) 방지.
+## 2. 지금까지 조치한 내용 (Troubleshooting)
+1. **UI 개선 v2 완료:** 
+   - 메인 카드(`PosterCard`) 레이아웃 좌측 정렬, 아이콘 고정, 높이 축소.
+   - 할일 탭(`TodoTab`) 리스트 밀도(Density) 조절.
+   - FAB(`+`) 버튼 Mini 사이즈로 변경.
+2. **Crash 방어:** `path_provider` 다운그레이드 및 `dependency_overrides`로 `native_assets` 크래시 방지.
+3. **White Screen 디버깅:**
+   - `main.dart` 초기화 로직 지연 실행 (`Future.delayed`).
+   - `pubspec.yaml`에서 모든 주요 플러그인 주석 처리 후 재빌드 (`pod install` 완료).
 
-## 3. 내일 이어할 작업 (Todo List)
-- **Xcode 설정 확인:** `Signing & Capabilities` 탭에서 `App Groups`를 실제 사용 가능한 ID로 다시 맞추거나 일시 비활성화.
-- **Crash 로그 분석:** 아이폰 앱이 죽을 때의 시스템 로그를 Xcode 'Devices and Simulators' 창에서 확인하여 정확한 크래시 포인트 식별.
-- **WidgetService 복구:** 앱이 정상적으로 켜지면, 비활성화해둔 `WidgetService`를 다시 연결.
+## 3. 다음 작업 (Next Steps)
+- **Xcode 정밀 진단:** Windows에서는 어렵지만, Mac 환경이 다시 갖춰지면 Xcode에서 직접 실행하여 `Debug Gauge`나 `Instruments`로 어디서 스레드가 멈추는지 확인 필요.
+- **프로젝트 클린 빌드:** `DerivedData` 폴더 수동 삭제 및 `flutter clean` 재수행.
+- **플러그인 복구:** 앱 구동 성공 시, 주석 처리된 `pubspec.yaml`과 `main.dart`의 서비스들 하나씩 복구.
 
 ## 4. 참고 파일
-- `lib/main.dart`: 현재 최소 초기화 상태.
-- `pubspec.yaml`: 버전 핀 고정 및 override 설정됨.
-- `ios/Runner/Runner.entitlements`: 권한 일시 제거됨.
+- `directives/.task/v2/layout.md`: UI 개선 완료 내역.
+- `lib/main.dart`: 현재 디버깅 모드(플러그인 비활성).
+- `pubspec.yaml`: 주요 패키지 주석 처리됨.
 
-오늘의 고생이 내일의 완성으로 이어질 것입니다. 고생하셨습니다!
+고생 많으셨습니다! 출근길 조심하시고 내일 뵙겠습니다. 👋

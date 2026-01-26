@@ -92,146 +92,148 @@ class PosterCard extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(4, 0, 4, 12), // Horizontal space for shadow + Bottom space
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(24),
-        child: Container(
-          decoration: BoxDecoration(
-            color: pTheme.bg, // Main Pastel Background
-            borderRadius: BorderRadius.circular(24),
-            boxShadow: [
-              BoxShadow(
-                color: pTheme.fg.withOpacity(0.3), // Stronger, visible colored shadow
-                blurRadius: 6, // Tighter
-                offset: const Offset(0, 4), // Lower but shorter
+      child: Container(
+        height: double.infinity,
+        decoration: BoxDecoration(
+          color: pTheme.bg, // Main Pastel Background
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+              color: pTheme.fg.withOpacity(0.3), // Stronger, visible colored shadow
+              blurRadius: 6, // Tighter
+              offset: const Offset(0, 4), // Lower but shorter
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(24),
+          child: Stack(
+            children: [
+              // 1. Background Pattern
+              Positioned.fill(
+                child: CustomPaint(
+                  painter: _PatternPainter(Colors.white, themeIndex),
+                ),
               ),
-            ],
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(24),
-            child: Stack(
-              children: [
-                // Background Pattern (White Wavy Gradient + Droplets)
-                Positioned.fill(
-                  child: CustomPaint(
-                    painter: _PatternPainter(Colors.white, themeIndex),
+
+              // 2. Ripple Effect Layer (InkWell should be here to cover everything)
+              Positioned.fill(
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: onTap,
+                    borderRadius: BorderRadius.circular(24),
                   ),
                 ),
+              ),
 
-                Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.max, 
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+              // 3. Content Layout (Padding 20)
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: Stack(
+                  children: [
+                    // Top-Left: Title & Date & Todo Badge
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Title (Width limited to avoid overlapping with icon)
+                        Padding(
+                          padding: const EdgeInsets.only(right: 48.0), // Space for icon
+                          child: Text(
+                            title,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: theme.textTheme.titleLarge?.copyWith(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 22, 
+                              color: fgColor, 
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 4), // Reduced spacing
+                        
+                        // Date Line
+                        Text(
+                          dateLine,
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontSize: 14, // Slightly smaller
+                            color: fgColor.withOpacity(0.85),
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+
+                        // Todo Badge
+                        if (todoCount > 0) ...[
+                          const SizedBox(height: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: fgColor.withOpacity(0.15),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
                               children: [
-                                Text(
-                                  title,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: theme.textTheme.titleLarge?.copyWith(
-                                    fontWeight: FontWeight.w700,
-                                    fontSize: 22, 
-                                    color: fgColor, 
-                                  ),
+                                HugeIcon(
+                                  icon: HugeIcons.strokeRoundedTask01,
+                                  color: fgColor.withOpacity(0.8),
+                                  size: 14,
                                 ),
-                                const SizedBox(height: 8), 
-                                Padding(
-                                  padding: const EdgeInsets.only(left: 4), 
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        dateLine,
-                                        style: theme.textTheme.titleMedium?.copyWith(
-                                          fontSize: 16, 
-                                          color: fgColor.withOpacity(0.85),
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                      if (todoCount > 0) ...[
-                                        const SizedBox(height: 12),
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                          decoration: BoxDecoration(
-                                            color: fgColor.withOpacity(0.15),
-                                            borderRadius: BorderRadius.circular(12),
-                                          ),
-                                          child: Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              HugeIcon(
-                                                icon: HugeIcons.strokeRoundedTask01,
-                                                color: fgColor.withOpacity(0.8),
-                                                size: 14,
-                                              ),
-                                              const SizedBox(width: 4),
-                                              Text(
-                                                '$todoCount',
-                                                style: TextStyle(
-                                                  fontSize: 12,
-                                                  fontWeight: FontWeight.w600,
-                                                  color: fgColor.withOpacity(0.8),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ],
+                                const SizedBox(width: 4),
+                                Text(
+                                  '$todoCount',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color: fgColor.withOpacity(0.8),
                                   ),
                                 ),
                               ],
                             ),
                           ),
-                          Container(
-                            padding: const EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.3),
-                              shape: BoxShape.circle,
-                            ),
-                            child: HugeIcon(
-                              icon: iconData,
-                              color: fgColor,
-                              size: 26, 
-                            ),
-                          ),
                         ],
-                      ),
-                      
-                      const Spacer(),
+                      ],
+                    ),
 
-                      // Bottom Row: D-Day Count (right)
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          // D-Day text (right aligned)
-                          Text(
-                            dText,
-                            style: theme.textTheme.displaySmall?.copyWith( 
-                              fontSize: 48, 
-                              fontWeight: FontWeight.w700,
-                              letterSpacing: -1.5,
-                              height: 1.0,
-                              color: isPast 
-                                  ? fgColor.withOpacity(0.6) 
-                                  : fgColor, 
-                            ),
-                          ),
-                        ],
+                    // Top-Right: Icon (Absolute Position)
+                    Positioned(
+                      top: 0,
+                      right: 0,
+                      child: Container(
+                        padding: const EdgeInsets.all(8), // Smaller padding
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.3),
+                          shape: BoxShape.circle,
+                        ),
+                        child: HugeIcon(
+                          icon: iconData,
+                          color: fgColor,
+                          size: 24, // Slightly smaller
+                        ),
                       ),
-                    ],
-                  ),
+                    ),
+
+                    // Bottom-Right: D-Day Text
+                    Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: Text(
+                        dText,
+                        style: theme.textTheme.displaySmall?.copyWith( 
+                          fontSize: 40, // Reduced font size to avoid overflow
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: -1.0,
+                          height: 1.0,
+                          color: isPast 
+                              ? fgColor.withOpacity(0.6) 
+                              : fgColor, 
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

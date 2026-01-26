@@ -197,6 +197,9 @@ class _TodoTabState extends ConsumerState<TodoTab> {
                           child: CheckboxListTile(
                             value: todo.isCompleted,
                             onChanged: (_) => _toggleTodo(todo),
+                            dense: true, // Reduced height
+                            visualDensity: VisualDensity.compact, // More compact
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
                             title: Text(
                               todo.content,
                               style: TextStyle(

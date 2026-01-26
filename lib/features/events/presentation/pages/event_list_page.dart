@@ -108,7 +108,7 @@ class EventListPage extends ConsumerWidget {
                           padding: const EdgeInsets.only(bottom: 8), 
                           child: Center(
                             child: SizedBox(
-                              height: 200,
+                              height: 170, // Reduced height
                               child: PosterCard(
                                 title: e.title,
                                 dateLine: dateLine,
@@ -142,6 +142,7 @@ class EventListPage extends ConsumerWidget {
             bottom: 120, // Check: Increased to avoid Banner overlap
             right: 16,
             child: FloatingActionButton(
+              mini: true, // Reduced size
               onPressed: () => context.push('/edit', extra: null),
               shape: const CircleBorder(),
               backgroundColor: theme.colorScheme.primary, // Brand Color

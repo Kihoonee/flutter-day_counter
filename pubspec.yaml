@@ -52,15 +52,16 @@ dependencies:
   dio: ^5.4.0
 
   # Monetization & Analytics
-  google_mobile_ads: 5.2.0
-  firebase_core: ^3.4.0
-  firebase_analytics: ^11.2.0
-  firebase_messaging: ^15.0.0
-  firebase_remote_config: ^5.1.0
+  # Monetization & Analytics
+  # google_mobile_ads: 5.2.0
+  # firebase_core: ^3.4.0
+  # firebase_analytics: ^11.2.0
+  # firebase_messaging: ^15.0.0
+  # firebase_remote_config: ^5.1.0
   hugeicons: ^1.1.5
   flutter_local_notifications: ^19.5.0
   timezone: ^0.10.1
-  home_widget: 0.7.0
+  # home_widget: 0.7.0
   flutter_timezone: ^5.0.1
 
 dependency_overrides:
