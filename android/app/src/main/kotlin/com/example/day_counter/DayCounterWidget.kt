@@ -5,6 +5,7 @@ import android.appwidget.AppWidgetProvider
 import android.content.Context
 import android.widget.RemoteViews
 import android.content.SharedPreferences
+import android.graphics.Color
 import com.example.day_counter.R
 
 class DayCounterWidget : AppWidgetProvider() {
@@ -26,9 +27,6 @@ class DayCounterWidget : AppWidgetProvider() {
         // Enter relevant functionality for when the last widget is disabled
     }
 }
-
-import android.graphics.Color
-// ...
 
 internal fun updateAppWidget(
     context: Context,

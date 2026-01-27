@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/widgets/banner_ad_widget.dart';
 import '../../application/selected_event_controller.dart';
 import '../widgets/date_field.dart';
 
@@ -109,11 +110,14 @@ class HomePage extends ConsumerWidget {
                   ),
                 ),
                 const SizedBox(height: 16),
-                const _BannerSlot(),
               ],
             ),
           ),
         ),
+      ),
+      bottomNavigationBar: const SafeArea(
+        top: false,
+        child: _BannerSlot(),
       ),
     );
   }
@@ -124,22 +128,6 @@ class _BannerSlot extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Container(
-      height: 60,
-      width: double.infinity,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Text(
-        'Banner Ad Slot (하단 고정)',
-        style: theme.textTheme.bodyMedium?.copyWith(
-          fontWeight: FontWeight.w700,
-          color: theme.colorScheme.onSurfaceVariant,
-        ),
-      ),
-    );
+    return const BannerAdWidget();
   }
 }

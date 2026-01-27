@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -15,8 +16,8 @@ class EventListPage extends ConsumerWidget {
 
   String _dText(int diff) {
     if (diff == 0) return 'D-Day';
-    if (diff > 0) return 'D -$diff';
-    return 'D +${diff.abs()}';
+    if (diff > 0) return 'D-$diff';
+    return 'D+${diff.abs()}';
   }
 
   @override
@@ -25,135 +26,170 @@ class EventListPage extends ConsumerWidget {
     final state = ref.watch(eventsProvider);
 
     return Scaffold(
-      extendBodyBehindAppBar: true, // Allow body to scroll behind AppBar
+      extendBodyBehindAppBar: true, 
       appBar: AppBar(
         title: Text(
           'Days+',
           style: theme.textTheme.headlineSmall?.copyWith(
-            fontWeight: FontWeight.w900,
-            letterSpacing: -0.5,
+            fontWeight: FontWeight.w800,
+            letterSpacing: -1.0,
+            color: theme.colorScheme.onSurface,
           ),
         ),
         centerTitle: true,
-        backgroundColor: Colors.transparent, // Completely transparent
+        backgroundColor: theme.scaffoldBackgroundColor.withOpacity(0.95), // Fixed subtle bg
         elevation: 0,
+        scrolledUnderElevation: 0,
       ),
       body: Stack(
         children: [
-          // Main Content
-          Column(
-            children: [
-              Expanded(
-                child: state.when(
-                  loading: () => const Center(child: CircularProgressIndicator()),
-                  error: (e, _) => Center(child: Text('에러: $e')),
-                  data: (List<Event> events) {
-                    if (events.isEmpty) {
-                      return Padding(
-                        padding: EdgeInsets.only(
-                          top: MediaQuery.of(context).padding.top + kToolbarHeight + 20,
-                        ),
-                        child: _Empty(
-                          onCreate: () => context.push('/edit', extra: null),
+          // 1. Main Content List
+          state.when(
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (e, _) => Center(child: Text('에러: $e')),
+            data: (List<Event> events) {
+              if (events.isEmpty) {
+                return Padding(
+                  padding: EdgeInsets.only(
+                    top: MediaQuery.of(context).padding.top + kToolbarHeight + 20,
+                  ),
+                  child: _Empty(
+                    onCreate: () => context.push('/edit', extra: null),
+                  ),
+                );
+              }
+
+              return ReorderableListView.builder(
+                padding: EdgeInsets.only(
+                  top: MediaQuery.of(context).padding.top + kToolbarHeight + 20,
+                  bottom: 180, // Space for Bottom Bar
+                  left: 16,
+                  right: 16,
+                ),
+                itemCount: events.length,
+                onReorder: (oldIndex, newIndex) {
+                  ref.read(eventsProvider.notifier).reorder(oldIndex, newIndex);
+                },
+                proxyDecorator: (child, index, animation) {
+                  return AnimatedBuilder(
+                    animation: animation,
+                    builder: (context, child) {
+                      final double animValue = Curves.easeInOut.transform(animation.value);
+                      final double scale = 1.0 + (0.02 * animValue);
+                      return Transform.scale(
+                        scale: scale,
+                        child: Material(
+                          color: Colors.transparent,
+                          shadowColor: Colors.black.withOpacity(0.1),
+                          elevation: 4,
+                          child: child,
                         ),
                       );
-                    }
+                    },
+                    child: child,
+                  );
+                },
+                itemBuilder: (context, i) {
+                  final e = events[i];
+                  final diff = DateCalc.diffDays(
+                    base: DateTime.now(),
+                    target: e.targetDate,
+                    includeToday: e.includeToday,
+                    excludeWeekends: e.excludeWeekends,
+                  );
 
-                    // 드래그 앤 드롭을 위한 ReorderableListView
-                    return ReorderableListView.builder(
-                      padding: EdgeInsets.only(
-                        top: MediaQuery.of(context).padding.top + kToolbarHeight + 10,
-                        bottom: 80, // FAB Space
-                        left: 16,
-                        right: 16,
+                  final dateLine = DateFormat('yyyy.MM.dd').format(e.targetDate);
+
+                  return Padding(
+                    key: Key(e.id),
+                    padding: const EdgeInsets.only(bottom: 8), 
+                    child: SizedBox(
+                      height: 185,
+                      child: PosterCard(
+                        title: e.title,
+                        dateLine: dateLine,
+                        dText: _dText(diff),
+                        themeIndex: e.themeIndex,
+                        iconIndex: e.iconIndex,
+                        todoCount: e.todos.length,
+                        onTap: () => context.push('/detail', extra: e.id),
                       ),
-                      itemCount: events.length,
-                      onReorder: (oldIndex, newIndex) {
-                        ref.read(eventsProvider.notifier).reorder(oldIndex, newIndex);
-                      },
-                      proxyDecorator: (child, index, animation) {
-                        return AnimatedBuilder(
-                          animation: animation,
-                          builder: (context, child) {
-                            final double animValue = Curves.easeInOut.transform(animation.value);
-                            final double scale = 1.0 + (0.05 * animValue); // Scale up to 1.05x
-                            return Transform.scale(
-                              scale: scale,
-                              child: Material(
-                                color: Colors.transparent,
-                                shadowColor: Colors.black.withOpacity(0.3),
-                                elevation: 12, // Increased elevation
-                                child: child,
-                              ),
-                            );
-                          },
-                          child: child,
-                        );
-                      },
-                      itemBuilder: (context, i) {
-                        final e = events[i];
-                        final diff = DateCalc.diffDays(
-                          base: e.baseDate,
-                          target: e.targetDate,
-                          includeToday: e.includeToday,
-                          excludeWeekends: e.excludeWeekends,
-                        );
-
-                        final dateLine = DateFormat(
-                          'yyyy.MM.dd',
-                        ).format(e.targetDate);
-
-                        return Padding(
-                          key: Key(e.id), // 필수: 고유 키
-                          padding: const EdgeInsets.only(bottom: 8), 
-                          child: Center(
-                            child: SizedBox(
-                              height: 170, // Reduced height
-                              child: PosterCard(
-                                title: e.title,
-                                dateLine: dateLine,
-                                dText: _dText(diff),
-                                themeIndex: e.themeIndex,
-                                iconIndex: e.iconIndex,
-                                todoCount: e.todos.length,
-                                onTap: () => context.push('/detail', extra: e.id),
-                              ),
-                            ),
-                          ),
-                        );
-                      },
-                    );
-                  },
-                ),
-              ),
-              // Banner Slot Fixed at Bottom
-              const SafeArea(
-                top: false,
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                  child: _BannerSlot(),
-                ),
-              ),
-            ],
+                    ),
+                  );
+                },
+              );
+            },
           ),
 
-          // Floating Action Button (Manually positioned to avoid Banner)
+          // 2. Minimalist Bottom Action Bar
           Positioned(
-            bottom: 120, // Check: Increased to avoid Banner overlap
-            right: 16,
-            child: FloatingActionButton(
-              mini: true, // Reduced size
-              onPressed: () => context.push('/edit', extra: null),
-              shape: const CircleBorder(),
-              backgroundColor: theme.colorScheme.primary, // Brand Color
-              foregroundColor: theme.colorScheme.onPrimary, // White (usually)
-              elevation: 4,
-              child: const HugeIcon(icon: HugeIcons.strokeRoundedAdd01, color: Colors.white),
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+              decoration: BoxDecoration(
+                color: theme.scaffoldBackgroundColor,
+                border: Border(
+                  top: BorderSide(color: theme.dividerColor.withOpacity(0.05)),
+                ),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Minimal Button Layer
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
+                    child: Material(
+                      color: theme.colorScheme.surfaceVariant.withOpacity(0.5),
+                      borderRadius: BorderRadius.circular(16),
+                      child: InkWell(
+                        onTap: () => context.push('/edit', extra: null),
+                        borderRadius: BorderRadius.circular(16),
+                        child: Container(
+                          height: 52,
+                          alignment: Alignment.center,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              HugeIcon(
+                                icon: HugeIcons.strokeRoundedAdd01,
+                                color: theme.colorScheme.primary,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                '기념일 추가하기',
+                                style: TextStyle(
+                                  color: theme.colorScheme.primary,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700,
+                                  letterSpacing: -0.3,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  // Banner Slot
+                  Container(
+                    color: theme.scaffoldBackgroundColor, // Ensure solid background
+                    width: double.infinity,
+                    child: const SafeArea(
+                      top: false,
+                      child: Padding(
+                        padding: EdgeInsets.fromLTRB(0, 4, 0, 12),
+                        child: _BannerSlot(),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ],
       ),
-      // No Scaffold FAB since we positioned it manually
     );
   }
 }

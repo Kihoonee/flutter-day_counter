@@ -132,13 +132,16 @@ class PosterCard extends StatelessWidget {
                 padding: const EdgeInsets.all(20),
                 child: Stack(
                   children: [
-                    // Top-Left: Title & Date & Todo Badge
+                    // Force Stack to fill available width and height
+                    const SizedBox.expand(),
+
+                    // Top-Left: Title & Date & Todo Badge (Always aligns left)
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Title (Width limited to avoid overlapping with icon)
+                        // Title
                         Padding(
-                          padding: const EdgeInsets.only(right: 48.0), // Space for icon
+                          padding: const EdgeInsets.only(right: 48.0), // Fixed space for icon
                           child: Text(
                             title,
                             maxLines: 1,
@@ -150,13 +153,13 @@ class PosterCard extends StatelessWidget {
                             ),
                           ),
                         ),
-                        const SizedBox(height: 4), // Reduced spacing
+                        const SizedBox(height: 4),
                         
                         // Date Line
                         Text(
                           dateLine,
                           style: theme.textTheme.titleMedium?.copyWith(
-                            fontSize: 14, // Slightly smaller
+                            fontSize: 14,
                             color: fgColor.withOpacity(0.85),
                             fontWeight: FontWeight.w600,
                           ),
@@ -195,12 +198,12 @@ class PosterCard extends StatelessWidget {
                       ],
                     ),
 
-                    // Top-Right: Icon (Absolute Position)
+                    // Top-Right: Icon (Positioned absolutely so it doesn't move)
                     Positioned(
                       top: 0,
                       right: 0,
                       child: Container(
-                        padding: const EdgeInsets.all(8), // Smaller padding
+                        padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
                           color: Colors.white.withOpacity(0.3),
                           shape: BoxShape.circle,
@@ -208,19 +211,20 @@ class PosterCard extends StatelessWidget {
                         child: HugeIcon(
                           icon: iconData,
                           color: fgColor,
-                          size: 24, // Slightly smaller
+                          size: 24,
                         ),
                       ),
                     ),
 
-                    // Bottom-Right: D-Day Text
+                    // Bottom-Right: D-Day Text (Explicitly right-aligned)
                     Positioned(
                       bottom: 0,
                       right: 0,
                       child: Text(
                         dText,
+                        textAlign: TextAlign.right,
                         style: theme.textTheme.displaySmall?.copyWith( 
-                          fontSize: 40, // Reduced font size to avoid overflow
+                          fontSize: 40,
                           fontWeight: FontWeight.w700,
                           letterSpacing: -1.0,
                           height: 1.0,

@@ -38,8 +38,8 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
 
   String _dText(int diff) {
     if (diff == 0) return 'D-Day';
-    if (diff > 0) return 'D -$diff';
-    return 'D +${diff.abs()}';
+    if (diff > 0) return 'D-$diff';
+    return 'D+${diff.abs()}';
   }
 
   void _initFrom(Event? e) {
@@ -288,13 +288,16 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    const _BannerSlot(),
                   ],
                 ),
               );
             },
           ),
         ),
+      ),
+      bottomNavigationBar: const SafeArea(
+        top: false,
+        child: _BannerSlot(),
       ),
     );
   }

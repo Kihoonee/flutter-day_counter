@@ -157,7 +157,7 @@ class _TodoTabState extends ConsumerState<TodoTab> {
                       Text(
                         '할 일을 추가해보세요',
                         style: theme.textTheme.titleMedium?.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant.withOpacity(0.7),
+                          color: theme.colorScheme.outline.withOpacity(0.5), // Softer color as per v1
                           fontWeight: FontWeight.w600,
                         ),
                       ),

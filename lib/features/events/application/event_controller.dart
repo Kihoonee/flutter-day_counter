@@ -48,6 +48,10 @@ class EventsController extends AsyncNotifier<List<Event>> {
         }
         // 정렬: sortOrder 오름차순
         final sorted = [...events]..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
+        
+        // App 시작 시 위젯 명시적 갱신
+        unawaited(_updateWidget()); 
+        
         return sorted;
       },
     );

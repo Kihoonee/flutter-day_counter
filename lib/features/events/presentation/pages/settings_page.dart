@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../../../core/widgets/banner_ad_widget.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -108,12 +109,15 @@ class _SettingsPageState extends State<SettingsPage> {
                         ),
                       ),
                       const SizedBox(height: 16),
-                      const _BannerSlot(),
                     ],
                   ),
                 ),
               ),
             ),
+      bottomNavigationBar: const SafeArea(
+        top: false,
+        child: BannerAdWidget(),
+      ),
     );
   }
 
@@ -153,7 +157,7 @@ class _SettingsPageState extends State<SettingsPage> {
         label,
         style: theme.textTheme.bodyLarge?.copyWith(
           fontWeight: FontWeight.w600,
-          color: enabled ? theme.colorScheme.onSurface : theme.colorScheme.onSurface.withValues(alpha: 0.5),
+          color: enabled ? theme.colorScheme.onSurface : theme.colorScheme.onSurface.withOpacity(0.5),
         ),
       ),
       onTap: enabled ? onTap : null,
@@ -166,22 +170,6 @@ class _BannerSlot extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Container(
-      height: 60,
-      width: double.infinity,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Text(
-        'Banner Ad Slot (하단 고정)',
-        style: theme.textTheme.bodyMedium?.copyWith(
-          fontWeight: FontWeight.w700,
-          color: theme.colorScheme.onSurfaceVariant,
-        ),
-      ),
-    );
+    return const BannerAdWidget();
   }
 }

@@ -41,8 +41,8 @@ class _EventDetailPageState extends ConsumerState<EventDetailPage>
 
   String _dText(int diff) {
     if (diff == 0) return 'D-Day';
-    if (diff > 0) return 'D -$diff';
-    return 'D +${diff.abs()}';
+    if (diff > 0) return 'D-$diff';
+    return 'D+${diff.abs()}';
   }
 
   @override
@@ -69,7 +69,7 @@ class _EventDetailPageState extends ConsumerState<EventDetailPage>
         }
 
         final diff = DateCalc.diffDays(
-          base: event.baseDate,
+          base: DateTime.now(),
           target: event.targetDate,
           includeToday: event.includeToday,
           excludeWeekends: event.excludeWeekends,
@@ -84,41 +84,49 @@ class _EventDetailPageState extends ConsumerState<EventDetailPage>
                 handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
                 sliver: SliverAppBar(
                   pinned: true,
-                  expandedHeight: 330, // Increased to accommodate bottom TabBar
+                  expandedHeight: 320, // Slightly reduced for better balance
                   forceElevated: innerBoxIsScrolled,
                   backgroundColor: theme.scaffoldBackgroundColor,
+                  elevation: 0,
                   flexibleSpace: FlexibleSpaceBar(
-                    background: Padding(
-                      padding: EdgeInsets.only(
-                        top: MediaQuery.of(context).padding.top + kToolbarHeight,
-                        left: 16,
-                        right: 16,
-                        bottom: 48 + 16, // TabBar height + padding
-                      ),
-                      child: Center( 
-                        child: SizedBox(
-                          height: 200, 
-                          child: PosterCard(
-                            title: event.title,
-                            dateLine: dateLine,
-                            dText: _dText(diff),
-                            themeIndex: _previewThemeIndex ?? event.themeIndex,
-                            iconIndex: _previewIconIndex ?? event.iconIndex,
-                            todoCount: event.todos.length,
-                          ),
+                    collapseMode: CollapseMode.pin, // Fixed to prevent squishing
+                    background: SafeArea(
+                      child: Padding(
+                        padding: const EdgeInsets.only(
+                          top: kToolbarHeight,
+                          left: 16,
+                          right: 16,
+                          bottom: 64, // Space for TabBar
+                        ),
+                        child: PosterCard(
+                          title: event.title,
+                          dateLine: dateLine,
+                          dText: _dText(diff),
+                          themeIndex: _previewThemeIndex ?? event.themeIndex,
+                          iconIndex: _previewIconIndex ?? event.iconIndex,
+                          todoCount: event.todos.length,
                         ),
                       ),
                     ),
                   ),
                   bottom: PreferredSize(
-                     preferredSize: const Size.fromHeight(48), // TabBar Height
+                     preferredSize: const Size.fromHeight(48),
                      child: Container(
-                       color: theme.scaffoldBackgroundColor,
+                       decoration: BoxDecoration(
+                         color: theme.scaffoldBackgroundColor,
+                         border: Border(
+                           bottom: BorderSide(
+                             color: theme.colorScheme.outlineVariant.withOpacity(0.3),
+                             width: 0.5,
+                           ),
+                         ),
+                       ),
                        child: TabBar(
                         controller: _tabController,
                         labelColor: theme.colorScheme.primary,
                         unselectedLabelColor: theme.colorScheme.onSurfaceVariant,
                         indicatorColor: theme.colorScheme.primary,
+                        indicatorWeight: 3,
                         tabs: const [
                           Tab(text: '할 일'),
                           Tab(text: '한줄메모'),
