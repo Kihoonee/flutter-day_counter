@@ -54,7 +54,8 @@ class WidgetService {
       // Get Theme Colors
       final pTheme = posterThemes[event.themeIndex % posterThemes.length];
       final bgColorHex = _colorToHex(pTheme.bg);
-      final fgColorHex = _colorToHex(pTheme.fg);
+      // UI Refinement v2/v3: Unified Softer Gray (4A4A4A) to match PosterCard
+      const fgColorHex = '4A4A4A'; 
 
       // Save Data (Keys must match native implementation)
       await HomeWidget.saveWidgetData('widget_title', event.title);

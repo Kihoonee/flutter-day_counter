@@ -80,7 +80,9 @@ class PosterCard extends StatelessWidget {
     
     // Select theme based on index (Safe lookup)
     final pTheme = posterThemes[themeIndex % posterThemes.length];
-    final fgColor = pTheme.fg;
+    
+    // UI Refinement v2: Unified Softer Gray for better readability and minimalist feel
+    const fgColor = Color(0xFF4A4A4A); 
 
     // Select icon based on index (Safe lookup)
     final iconData = eventIcons[iconIndex % eventIcons.length];
@@ -228,9 +230,7 @@ class PosterCard extends StatelessWidget {
                           fontWeight: FontWeight.w700,
                           letterSpacing: -1.0,
                           height: 1.0,
-                          color: isPast 
-                              ? fgColor.withOpacity(0.6) 
-                              : fgColor, 
+                          color: fgColor, 
                         ),
                       ),
                     ),

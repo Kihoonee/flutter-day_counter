@@ -30,7 +30,8 @@ class _EventDetailPageState extends ConsumerState<EventDetailPage>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    // 2 tabs: (Todo OR Memo) + Edit
+    _tabController = TabController(length: 2, vsync: this);
   }
 
   @override
@@ -75,6 +76,7 @@ class _EventDetailPageState extends ConsumerState<EventDetailPage>
           excludeWeekends: event.excludeWeekends,
         );
 
+        final isPast = diff < 0;
         final dateLine = DateFormat('yyyy.MM.dd').format(event.targetDate);
 
         return Scaffold(
@@ -127,10 +129,9 @@ class _EventDetailPageState extends ConsumerState<EventDetailPage>
                         unselectedLabelColor: theme.colorScheme.onSurfaceVariant,
                         indicatorColor: theme.colorScheme.primary,
                         indicatorWeight: 3,
-                        tabs: const [
-                          Tab(text: '할 일'),
-                          Tab(text: '한줄메모'),
-                          Tab(text: '수정'),
+                        tabs: [
+                          Tab(text: isPast ? '한줄메모' : '할 일'),
+                          const Tab(text: '수정'),
                         ],
                       ),
                      ),
@@ -143,8 +144,10 @@ class _EventDetailPageState extends ConsumerState<EventDetailPage>
                 return TabBarView(
                   controller: _tabController,
                   children: [
-                    TodoTab(event: event),
-                    DiaryTab(eventId: event.id),
+                    if (isPast)
+                      DiaryTab(eventId: event.id)
+                    else
+                      TodoTab(event: event),
                     EditTab(
                       event: event,
                       onIconChanged: (i) => setState(() => _previewIconIndex = i),

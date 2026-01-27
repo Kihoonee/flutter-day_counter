@@ -8,6 +8,10 @@ import '../data/datasources/event_local_data_source_sembast.dart';
 import '../data/repositories/event_repository_impl.dart';
 import '../domain/event.dart';
 import '../domain/event_repository.dart';
+import '../domain/diary_entry.dart';
+import '../domain/todo_item.dart';
+import '../../../../core/utils/date_calc.dart';
+import 'package:uuid/uuid.dart';
 
 final eventRepoProvider = FutureProvider<EventRepository>((ref) async {
   final database = await ref.watch(databaseProvider.future);
@@ -49,12 +53,58 @@ class EventsController extends AsyncNotifier<List<Event>> {
         // 정렬: sortOrder 오름차순
         final sorted = [...events]..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
         
+        // 과거 이벤트의 할일을 메모로 자동 전환
+        final processed = await _checkAndConvertTodosToMemos(sorted);
+
         // App 시작 시 위젯 명시적 갱신
         unawaited(_updateWidget()); 
         
-        return sorted;
+        return processed;
       },
     );
+  }
+
+  Future<List<Event>> _checkAndConvertTodosToMemos(List<Event> events) async {
+    final now = DateTime.now();
+    final repo = await _repo;
+    bool changed = false;
+    final updatedList = <Event>[];
+
+    for (var e in events) {
+      final diff = DateCalc.diffDays(
+        base: now,
+        target: e.targetDate,
+        includeToday: e.includeToday,
+        excludeWeekends: e.excludeWeekends,
+      );
+
+      // 과거(D+N)이면서 할일이 있는 경우 전환
+      if (diff < 0 && e.todos.isNotEmpty) {
+        final newMemos = e.todos.map((t) => DiaryEntry(
+          id: const Uuid().v4(),
+          content: t.isCompleted ? '[완료] ${t.content}' : t.content,
+          date: t.createdAt, // 할일 작성일 기준
+          createdAt: DateTime.now(),
+        )).toList();
+
+        final updatedEvent = e.copyWith(
+          diaryEntries: [...e.diaryEntries, ...newMemos],
+          todos: [], // 할일 비우기
+        );
+
+        await repo.upsert(updatedEvent);
+        updatedList.add(updatedEvent);
+        changed = true;
+      } else {
+        updatedList.add(e);
+      }
+    }
+
+    if (changed) {
+      // 만약 정렬 순서가 필요하면 여기서 다시 수행
+      return updatedList;
+    }
+    return events;
   }
 
   Future<bool> _checkAndSetFirstLaunch() async {
@@ -73,6 +123,11 @@ class EventsController extends AsyncNotifier<List<Event>> {
         (failure) => state = AsyncValue.error(failure, StackTrace.current),
         (_) async {
           await NotificationService().scheduleEvent(e);
+          // 저장 후에도 한 번 더 체크 (미래 날짜를 과거로 수정했을 경우 대비)
+          final repo = await _repo;
+          final all = await repo.fetchAll();
+          all.fold((l) => null, (events) => _checkAndConvertTodosToMemos(events));
+          
           await _updateWidget(); // Update Widget
           ref.invalidateSelf();
         },

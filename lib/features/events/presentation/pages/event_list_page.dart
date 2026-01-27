@@ -28,12 +28,16 @@ class EventListPage extends ConsumerWidget {
     return Scaffold(
       extendBodyBehindAppBar: true, 
       appBar: AppBar(
-        title: Text(
-          'Days+',
-          style: theme.textTheme.headlineSmall?.copyWith(
-            fontWeight: FontWeight.w800,
-            letterSpacing: -1.0,
-            color: theme.colorScheme.onSurface,
+        toolbarHeight: 80, // Increased height
+        title: Padding(
+          padding: const EdgeInsets.only(top: 16), // Lower the text
+          child: Text(
+            'Days+',
+            style: theme.textTheme.headlineSmall?.copyWith(
+              fontWeight: FontWeight.w800,
+              letterSpacing: -1.0,
+              color: theme.colorScheme.onSurface,
+            ),
           ),
         ),
         centerTitle: true,
@@ -51,7 +55,7 @@ class EventListPage extends ConsumerWidget {
               if (events.isEmpty) {
                 return Padding(
                   padding: EdgeInsets.only(
-                    top: MediaQuery.of(context).padding.top + kToolbarHeight + 20,
+                    top: MediaQuery.of(context).padding.top + 80 + 20, // Match toolbarHeight
                   ),
                   child: _Empty(
                     onCreate: () => context.push('/edit', extra: null),
@@ -61,8 +65,8 @@ class EventListPage extends ConsumerWidget {
 
               return ReorderableListView.builder(
                 padding: EdgeInsets.only(
-                  top: MediaQuery.of(context).padding.top + kToolbarHeight + 20,
-                  bottom: 180, // Space for Bottom Bar
+                  top: MediaQuery.of(context).padding.top + 80 + 20, // Match toolbarHeight
+                  bottom: 160, // Space for Bottom Bar
                   left: 16,
                   right: 16,
                 ),
@@ -126,65 +130,79 @@ class EventListPage extends ConsumerWidget {
             bottom: 0,
             left: 0,
             right: 0,
-            child: Container(
-              decoration: BoxDecoration(
-                color: theme.scaffoldBackgroundColor,
-                border: Border(
-                  top: BorderSide(color: theme.dividerColor.withOpacity(0.05)),
-                ),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Minimal Button Layer
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
-                    child: Material(
-                      color: theme.colorScheme.surfaceVariant.withOpacity(0.5),
-                      borderRadius: BorderRadius.circular(16),
-                      child: InkWell(
-                        onTap: () => context.push('/edit', extra: null),
-                        borderRadius: BorderRadius.circular(16),
-                        child: Container(
-                          height: 52,
-                          alignment: Alignment.center,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              HugeIcon(
-                                icon: HugeIcons.strokeRoundedAdd01,
-                                color: theme.colorScheme.primary,
-                                size: 20,
+            child: ClipRect(
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        theme.scaffoldBackgroundColor.withOpacity(0.0),
+                        theme.scaffoldBackgroundColor.withOpacity(0.4),
+                        theme.scaffoldBackgroundColor.withOpacity(0.8),
+                        theme.scaffoldBackgroundColor,
+                      ],
+                      stops: const [0.0, 0.2, 0.45, 0.7], // More stretched transition for smoothness
+                    ),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Minimal Button Layer
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
+                        child: Material(
+                          color: Colors.transparent,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: InkWell(
+                            onTap: () => context.push('/edit', extra: null),
+                            borderRadius: BorderRadius.circular(16),
+                            child: Container(
+                              height: 52,
+                              alignment: Alignment.center,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  HugeIcon(
+                                    icon: HugeIcons.strokeRoundedAdd01,
+                                    color: theme.colorScheme.primary,
+                                    size: 20,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    '기념일 추가하기',
+                                    style: TextStyle(
+                                      color: theme.colorScheme.primary,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w700,
+                                      letterSpacing: -0.3,
+                                    ),
+                                  ),
+                                ],
                               ),
-                              const SizedBox(width: 8),
-                              Text(
-                                '기념일 추가하기',
-                                style: TextStyle(
-                                  color: theme.colorScheme.primary,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w700,
-                                  letterSpacing: -0.3,
-                                ),
-                              ),
-                            ],
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ),
-                  // Banner Slot
-                  Container(
-                    color: theme.scaffoldBackgroundColor, // Ensure solid background
-                    width: double.infinity,
-                    child: const SafeArea(
-                      top: false,
-                      child: Padding(
-                        padding: EdgeInsets.fromLTRB(0, 4, 0, 12),
-                        child: _BannerSlot(),
+                      // Banner Slot
+                      Container(
+                        color: Colors.transparent, // Maintain glass effect through banner area if possible
+                        width: double.infinity,
+                        child: const SafeArea(
+                          top: false,
+                          child: Padding(
+                            padding: EdgeInsets.fromLTRB(0, 4, 0, 12),
+                            child: _BannerSlot(),
+                          ),
+                        ),
                       ),
-                    ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
           ),
