@@ -1,41 +1,28 @@
-# EventDetailPage 스크롤 이슈 수정 계획
+# UI 정교화 및 배너 광고 구현 계획
 
-## 문제점
-- `NestedScrollView`의 `body`가 `Column`으로 감싸져 있어 내부 `TabBarView`의 스크롤이 헤더(`SliverAppBar`, `SliverPersistentHeader`)와 연동되지 않음.
-- 이로 인해 스크롤 시 컨텐츠가 헤더 밑으로 숨거나 겹치는 현상 발생.
+사용자의 피드백을 반영하여 화려함을 덜어낸 미니멀 디자인을 구현하고, 앱 가이드라인에 따라 모든 화면에 배너 광고를 배치했습니다.
 
-## 해결 방안
-- `NestedScrollView`의 `body`에 `TabBarView`를 직접 할당.
-- 배너 광고는 `Scaffold`의 `bottomNavigationBar`로 이동하여 화면 하단에 고정하고 `body` 영역과 분리.
+## 주요 변경 사항
 
-## 변경 내용
+### 1. 미니멀 디자인 전면 수정
+- **기념일 추가 버튼**: 강한 그라데이션과 그림자를 제거하고, 아주 연한 테두리와 파스텔톤 배경을 가진 미니멀한 바 형태로 수정했습니다.
+- **앱바(AppBar)**: 투명도를 조절하고 불필요한 장식을 제거하여 컨텐츠(PosterCard)가 더 돋보이도록 했습니다.
 
-### [MODIFY] [event_detail_page.dart](file:///Users/kihoonee/flutter/day_counter/lib/features/events/presentation/pages/event_detail_page.dart)
+### 2. 배너 광고 복구 및 표준화 (Always Visible)
+- **전 화면 적용**: `EventListPage`, `EventDetailPage`, `EventEditPage`, `HomePage`, `ResultPage`, `SettingsPage` 전 화면 하단에 배너 광고 배치.
+- **레이아웃 안정성**: `BannerAdWidget`에 60px 고정 높이를 할당하여 광고 로딩 시 화면이 흔들리는 현상(Layout Shift)을 방지했습니다.
+- **고정 위치**: `Scaffold`의 `bottomNavigationBar`를 활용하여 스크롤 시에도 항상 하단에 고정되도록 구현했습니다.
 
-1. `Scaffold`의 `bottomNavigationBar` 속성 추가: `BannerAdWidget` 배치.
-2. `NestedScrollView`의 `body` 변경:
-   - 기존: `Column` > `Expanded` > `TabBarView`, `SafeArea` > `BannerAdWidget`
-   - 변경: `TabBarView` (직접 할당)
+## 검증 계획
 
-```dart
-Scaffold(
-  body: NestedScrollView(
-    headerSliverBuilder: ...,
-    body: TabBarView(...),
-  ),
-  bottomNavigationBar: SafeArea(
-    child: Container(
-      height: 60, // 배너 높이만큼 공간 확보
-      alignment: Alignment.topCenter,
-      child: BannerAdWidget(),
-    ),
-  ),
-)
-```
+### Automated Tests
+- `flutter run`을 통해 양대 플랫폼(Android Emulator, iOS Simulator)에서 실행 확인.
 
-## Verification Plan
-- **수동 테스트**: 시뮬레이터에서 앱 실행 후 상세 페이지 진입.
-- **체크 포인트**:
-  - 스크롤 시 포스터 카드(헤더)가 부드럽게 말려 올라가는지 확인.
-  - 탭 바(TabBar)가 상단에 고정(pinned)되었을 때 컨텐츠가 그 아래에서 자연스럽게 스크롤되는지 확인 (겹침 현상 해결).
-  - 배너 광고가 하단에 잘 표시되는지 확인.
+### Manual Verification
+- [x] 각 페이지 전환 시 배너 광고가 끊김 없이 하단에 유지되는지 확인.
+- [x] '기념일 추가' 버튼의 가독성과 미적인 정돈 상태 확인.
+- [x] D-Day 형식이 일관되게 (D-N, D+N) 표시되는지 확인.
+
+## 현재 상태
+- **안드로이드 에뮬레이터**: 실행 중 (최신 반영 완료)
+- **iOS 시뮬레이터**: 실행 중 (최신 반영 완료)

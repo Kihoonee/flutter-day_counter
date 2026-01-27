@@ -1,31 +1,34 @@
-# DayCounter Widget Implementation & Release Build
+# UI 정교화 및 배너 광고 표준화 완료 보고서
 
-## Changes
-### iOS Widget Implementation
-- **DayCounterWidget**: Implemented a HomeScreen widget using `WidgetKit` and `SwiftUI`.
-- **Design**: Replicated the `PosterCard` design with dynamic background/foreground colors.
-- **Sizes**: Supported both `.systemSmall` and `.systemMedium` families.
-- **App Group**: Configured `group.day_counter` for data synchronization between the main App and Widget.
-- **WidgetService**: Updated `WidgetService.dart` to save event data (title, d-day, date, colors) to `UserDefaults` via `home_widget` plugin.
+이벤트 추가 버튼의 디자인을 더 세련되게 다듬고, 모든 화면에서 배너 광고가 안정적으로 노출되도록 개선 작업을 완료했습니다.
 
-### Feature Improvements
-- **Event Detail Page**: Fixed `NestedScrollView` scroll behavior to prevent header collapse issues.
-- **Todo List**: Added creation date display to todo items.
+## 주요 변경 사항
 
-### Build & Release
-- **Android**:
-    - Updated `build.gradle.kts` to support Java 8 desugaring (library version 2.1.4).
-    - Built Release APK: `build/app/outputs/flutter-apk/app-release.apk`
-- **iOS**:
-    - Built Release App: `build/ios/iphoneos/Runner.app`
-    - Verified installation on physical iPhone via `flutter run` and Xcode.
+### 1. 미니멀 UI 디자인 반영
+- **"기념일 추가" 버튼**: 과한 효과(그라데이션, 블러, 진한 그림자)를 제거하고, 앱의 핵심 톤앤매너에 맞춘 아주 심플하고 고급스러운 바 디자인으로 교체했습니다.
+- **전용 버튼 구성**: 버튼 내부의 텍스트와 아이콘 크기를 조정하여 가독성을 높였으며, 배경색을 파스텔톤으로 처리해 시각적 피로도를 낮췄습니다.
 
-## Verification Results
-### Automated Tests
-- `flutter run` on physical iPhone verified successful launch and database loading.
-- `flutter build apk --release` passed.
-- `flutter build ios --release` passed.
+### 2. 배너 광고 통합 및 레이아웃 안정화
+- **전 화면 하단 배치**: 목록, 상세, 수정, 설정 등 **모든 화면** 하단에 배너 광고를 배치했습니다.
+- **하단 고정(Fixed)**: `Scaffold`의 `bottomNavigationBar` 영역을 활용하여 스크롤 흐름을 방해하지 않으면서도 항상 노출되도록 했습니다.
+- **높이 예약 (Layout Stability)**: 광고가 로딩되는 동안 화면이 위아래로 튀는 현상을 방지하기 위해 60px의 고정 높이를 할당했습니다.
 
-### Manual Verification
-- Confirmed Widget UI matches the in-app design.
-- Confirmed Widget updates when events are modified (implied by service logic).
+## 릴리즈 빌드 및 배포
+
+| 플랫폼 | 빌드 결과 | 비고 |
+| :--- | :--- | :--- |
+| **Android** | `app-release.apk` (58.2MB) | `build/app/outputs/flutter-apk/`에 생성 완료 |
+| **iOS** | 실기기 설치 완료 | Kihoonee iPhone에 릴리즈 버전 설치 및 실행 |
+
+## 최종 검증 결과 요약
+
+| 항목 | 검증 내용 | 결과 |
+| :--- | :--- | :---: |
+| **디자인** | 미니멀 디자인 가이드 준수 (과한 효과 제거) | ✅ |
+| **배너 광고** | 모든 화면 하단 노출 및 60px 영역 확보 | ✅ |
+| **D-Day 계산** | 앱과 위젯의 계산 결과 일치 및 옵션 반영 확인 | ✅ |
+| **D-Day 형식** | `D-N`, `D+N` (공백 제거) 일관성 | ✅ |
+| **플랫폼** | 실기기(iOS) 및 에뮬레이터(Android) 정상 동작 확인 | ✅ |
+| **릴리즈** | APK 빌드 완료 및 실기기 배포 성공 | ✅ |
+
+이제 앱이 훨씬 전문적이고 정돈된 느낌을 줍니다. 추가적인 기능 요구나 수정 사항이 있으시면 언제든 말씀해 주세요! ☺️
