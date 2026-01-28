@@ -1,9 +1,13 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 import 'package:hugeicons/hugeicons.dart';
+
+import '../../../../core/services/image_service.dart';
 
 import '../../../../core/utils/date_calc.dart';
 import '../../../../core/widgets/banner_ad_widget.dart';
@@ -28,6 +32,9 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
   bool _isNotificationEnabled = true;
   int _themeIndex = 0;
   int _iconIndex = 0;
+  String? _photoPath;
+
+  final ImageService _imageService = ImageService();
 
   bool _initialized = false;
 
@@ -55,6 +62,7 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
       _isNotificationEnabled = e.isNotificationEnabled;
       _themeIndex = e.themeIndex;
       _iconIndex = e.iconIndex;
+      _photoPath = e.photoPath;
     } else {
       _title.text = ''; // 새 이벤트는 빈 제목
       final now = DateTime.now();
@@ -64,7 +72,28 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
       _isNotificationEnabled = true; // Default true
       _themeIndex = 0;
       _iconIndex = 0;
+      _photoPath = null;
     }
+  }
+
+  Future<void> _pickPhoto() async {
+    final path = await _imageService.pickAndCropImage(context);
+    
+    if (path != null) {
+      if (_photoPath != null && _photoPath!.isNotEmpty) {
+        await FileImage(File(_photoPath!)).evict();
+        await _imageService.deleteImage(_photoPath);
+      }
+      
+      setState(() => _photoPath = path);
+    }
+  }
+
+  Future<void> _deletePhoto() async {
+    if (_photoPath == null || _photoPath!.isEmpty) return;
+    
+    await _imageService.deleteImage(_photoPath);
+    setState(() => _photoPath = null);
   }
 
   @override
@@ -113,6 +142,7 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
                         dText: _dText(diff),
                         themeIndex: _themeIndex,
                         iconIndex: _iconIndex,
+                        photoPath: _photoPath,
                       ),
                     ),
                     const SizedBox(height: 24),
@@ -249,6 +279,95 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
                         ],
                       ),
                     ),
+                    const SizedBox(height: 16),
+
+                    // 6. 사진 추가
+                    Card(
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '대표 사진',
+                              style: theme.textTheme.bodyMedium,
+                            ),
+                            const SizedBox(height: 12),
+                            Row(
+                              children: [
+                                // 사진 미리보기
+                                Container(
+                                  width: 80,
+                                  height: 80,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(12),
+                                    color: theme.colorScheme.surfaceContainerHighest,
+                                    border: Border.all(
+                                      color: theme.colorScheme.outlineVariant.withOpacity(0.3),
+                                    ),
+                                  ),
+                                  child: _photoPath != null && _photoPath!.isNotEmpty
+                                      ? ClipRRect(
+                                          borderRadius: BorderRadius.circular(11),
+                                          child: Image.file(
+                                            File(_photoPath!),
+                                            key: ValueKey('${_photoPath}_${DateTime.now().millisecondsSinceEpoch}'),
+                                            fit: BoxFit.cover,
+                                            errorBuilder: (_, __, ___) => Icon(
+                                              Icons.image_not_supported_outlined,
+                                              color: theme.colorScheme.onSurfaceVariant,
+                                            ),
+                                          ),
+                                        )
+                                      : Icon(
+                                          Icons.add_photo_alternate_outlined,
+                                          color: theme.colorScheme.onSurfaceVariant.withOpacity(0.5),
+                                          size: 32,
+                                        ),
+                                ),
+                                const SizedBox(width: 16),
+                                // 버튼들
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                                    children: [
+                                      if (_photoPath == null || _photoPath!.isEmpty)
+                                        FilledButton.tonal(
+                                          onPressed: _pickPhoto,
+                                          style: FilledButton.styleFrom(
+                                            padding: const EdgeInsets.symmetric(vertical: 12),
+                                          ),
+                                          child: const Text('사진 추가'),
+                                        )
+                                      else ...[
+                                        OutlinedButton(
+                                          onPressed: _pickPhoto,
+                                          style: OutlinedButton.styleFrom(
+                                            padding: const EdgeInsets.symmetric(vertical: 10),
+                                          ),
+                                          child: const Text('사진 변경'),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        TextButton(
+                                          onPressed: _deletePhoto,
+                                          style: TextButton.styleFrom(
+                                            foregroundColor: theme.colorScheme.error,
+                                            padding: const EdgeInsets.symmetric(vertical: 10),
+                                          ),
+                                          child: const Text('사진 삭제'),
+                                        ),
+                                      ],
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                     const SizedBox(height: 32),
 
                     // 저장 버튼
@@ -271,6 +390,7 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
                             isNotificationEnabled: _isNotificationEnabled,
                             themeIndex: _themeIndex,
                             iconIndex: _iconIndex,
+                            photoPath: _photoPath,
                             todos: todos,
                             diaryEntries: diaryEntries,
                           );
