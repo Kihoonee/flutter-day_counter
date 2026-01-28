@@ -30,6 +30,7 @@ class _EventDetailPageState extends ConsumerState<EventDetailPage>
   DateTime? _previewTargetDate;
   bool? _previewIncludeToday;
   bool? _previewExcludeWeekends;
+  String? _previewPhotoPath;
 
   @override
   void initState() {
@@ -115,6 +116,7 @@ class _EventDetailPageState extends ConsumerState<EventDetailPage>
                           themeIndex: _previewThemeIndex ?? event.themeIndex,
                           iconIndex: _previewIconIndex ?? event.iconIndex,
                           todoCount: event.todos.length,
+                          photoPath: _previewPhotoPath ?? event.photoPath,
                         ),
                       ),
                     ),
@@ -164,6 +166,7 @@ class _EventDetailPageState extends ConsumerState<EventDetailPage>
                         onExcludeWeekendsChanged: (v) => setState(() => _previewExcludeWeekends = v),
                         onIconChanged: (i) => setState(() => _previewIconIndex = i),
                         onThemeChanged: (i) => setState(() => _previewThemeIndex = i),
+                        onPhotoChanged: (p) => setState(() => _previewPhotoPath = p),
                       ),
                   ],
                 );

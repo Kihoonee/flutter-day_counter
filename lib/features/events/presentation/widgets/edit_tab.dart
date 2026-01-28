@@ -1,8 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hugeicons/hugeicons.dart';
 
+import '../../../../core/services/image_service.dart';
 import '../../application/event_controller.dart';
 import '../../domain/event.dart';
 import 'date_field.dart';
@@ -17,7 +20,7 @@ class EditTab extends ConsumerStatefulWidget {
   final ValueChanged<DateTime>? onDateChanged;
   final ValueChanged<bool>? onIncludeTodayChanged;
   final ValueChanged<bool>? onExcludeWeekendsChanged;
-  
+  final ValueChanged<String?>? onPhotoChanged;
   const EditTab({
     super.key, 
     required this.event,
@@ -27,6 +30,7 @@ class EditTab extends ConsumerStatefulWidget {
     this.onDateChanged,
     this.onIncludeTodayChanged,
     this.onExcludeWeekendsChanged,
+    this.onPhotoChanged,
   });
 
   @override
@@ -41,7 +45,9 @@ class _EditTabState extends ConsumerState<EditTab> {
   late bool _isNotificationEnabled;
   late int _themeIndex;
   late int _iconIndex;
+  String? _photoPath;
 
+  final ImageService _imageService = ImageService();
   bool _initialized = false;
 
   @override
@@ -68,6 +74,35 @@ class _EditTabState extends ConsumerState<EditTab> {
     _isNotificationEnabled = e.isNotificationEnabled;
     _themeIndex = e.themeIndex;
     _iconIndex = e.iconIndex;
+    _photoPath = e.photoPath;
+  }
+
+  Future<void> _pickPhoto() async {
+    debugPrint('EditTab: _pickPhoto started');
+    final path = await _imageService.pickAndCropImage(context);
+    debugPrint('EditTab: Result path: $path');
+    
+    if (path != null) {
+      if (_photoPath != null && _photoPath!.isNotEmpty) {
+        debugPrint('EditTab: Evicting old image cache: $_photoPath');
+        await FileImage(File(_photoPath!)).evict();
+        await _imageService.deleteImage(_photoPath);
+      }
+      
+      setState(() {
+        debugPrint('EditTab: Setting new photo path: $path');
+        _photoPath = path;
+      });
+      widget.onPhotoChanged?.call(path);
+    }
+  }
+
+  Future<void> _deletePhoto() async {
+    if (_photoPath == null || _photoPath!.isEmpty) return;
+    
+    await _imageService.deleteImage(_photoPath);
+    setState(() => _photoPath = null);
+    widget.onPhotoChanged?.call(null);
   }
 
   @override
@@ -233,6 +268,95 @@ class _EditTabState extends ConsumerState<EditTab> {
                     ],
                   ),
                 ),
+                const SizedBox(height: 16),
+
+                // 6. 사진 추가
+                Card(
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '추억 사진',
+                          style: theme.textTheme.bodyMedium,
+                        ),
+                        const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            // 사진 미리보기
+                            Container(
+                              width: 80,
+                              height: 80,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(12),
+                                color: theme.colorScheme.surfaceContainerHighest,
+                                border: Border.all(
+                                  color: theme.colorScheme.outlineVariant.withOpacity(0.3),
+                                ),
+                              ),
+                              child: _photoPath != null && _photoPath!.isNotEmpty
+                                  ? ClipRRect(
+                                      borderRadius: BorderRadius.circular(11),
+                                      child: Image.file(
+                                        File(_photoPath!),
+                                        key: ValueKey('${_photoPath}_${DateTime.now().millisecondsSinceEpoch}'), // 강제 리빌드
+                                        fit: BoxFit.cover,
+                                        errorBuilder: (_, __, ___) => Icon(
+                                          Icons.image_not_supported_outlined,
+                                          color: theme.colorScheme.onSurfaceVariant,
+                                        ),
+                                      ),
+                                    )
+                                  : Icon(
+                                      Icons.add_photo_alternate_outlined,
+                                      color: theme.colorScheme.onSurfaceVariant.withOpacity(0.5),
+                                      size: 32,
+                                    ),
+                            ),
+                            const SizedBox(width: 16),
+                            // 버튼들
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  if (_photoPath == null || _photoPath!.isEmpty)
+                                    FilledButton.tonal(
+                                      onPressed: _pickPhoto,
+                                      style: FilledButton.styleFrom(
+                                        padding: const EdgeInsets.symmetric(vertical: 12),
+                                      ),
+                                      child: const Text('사진 추가'),
+                                    )
+                                  else ...[
+                                    OutlinedButton(
+                                      onPressed: _pickPhoto,
+                                      style: OutlinedButton.styleFrom(
+                                        padding: const EdgeInsets.symmetric(vertical: 10),
+                                      ),
+                                      child: const Text('사진 변경'),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    TextButton(
+                                      onPressed: _deletePhoto,
+                                      style: TextButton.styleFrom(
+                                        foregroundColor: theme.colorScheme.error,
+                                        padding: const EdgeInsets.symmetric(vertical: 10),
+                                      ),
+                                      child: const Text('사진 삭제'),
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
                 const SizedBox(height: 32),
 
                 // 저장 / 삭제 버튼
@@ -286,6 +410,7 @@ class _EditTabState extends ConsumerState<EditTab> {
                             isNotificationEnabled: _isNotificationEnabled,
                             themeIndex: _themeIndex,
                             iconIndex: _iconIndex,
+                            photoPath: _photoPath,
                           );
 
                           await ref
