@@ -24,3 +24,6 @@
   - [x] iPhone Release 설치 (`flutter run --release`) - *Installed (Launch failed via CLI)*
 - [x] **Android**: Release APK 빌드 (`flutter build apk --release`)
   - Path: `build/app/outputs/flutter-apk/app-release.apk`
+
+## 추가 개선 (Post-Deployment Polish)
+- [x] **Todo UI 정렬**: 입력 필드와 체크박스 수직 정렬 (Left 24px, Right 4px).

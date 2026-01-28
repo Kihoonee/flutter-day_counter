@@ -27,8 +27,12 @@
 ### 5. 배포 (Deployment)
 - **iOS**: iPhone Release Build 설치 완료.
   - *Note*: Release 모드로 설치되어 CLI 디버깅 연결은 실패할 수 있으나, 기기에는 정상 설치되었습니다.
-- **Android**: Release APK 빌드 완료.
-  - Path: `build/app/outputs/flutter-apk/app-release.apk` (58.2MB)
+- **Android**: Release APK 빌드 완료 (`app-release.apk`).
+- **Simulators**: iOS Simulator & Android Emulator 동시 실행 및 UI 검증 완료.
+
+### 6. UI 미세 조정 (Polish)
+- **할 일 입력창 정렬**: 입력 텍스트와 하단 체크박스 아이콘의 시작점을 수직으로 일치시킴 (Left Padding: 24px).
+- **등록 버튼 정렬**: 우측 (+) 버튼을 날짜 텍스트 끝선에 맞춤 (Right Padding: 4px).
 
 ### 3. 데이터 모델 업데이트
 - `Event` 모델에 `isNotificationEnabled` 필드를 추가하여 알림 설정 상태를 기기 내에 안전하게 저장합니다.
