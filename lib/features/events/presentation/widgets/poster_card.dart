@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
@@ -9,7 +10,7 @@ class PosterTheme {
 }
 
 // HugeIcons 리스트 (인덱스로 관리)
-const eventIcons = <dynamic>[
+const eventIcons = [
   HugeIcons.strokeRoundedFavourite,      // 0: 하트
   HugeIcons.strokeRoundedBirthdayCake,    // 1: 케이크
   HugeIcons.strokeRoundedNaturalFood,     // 2: 나뭇잎/자연
@@ -61,6 +62,7 @@ class PosterCard extends StatelessWidget {
   final int themeIndex;
   final int iconIndex;
   final int todoCount;
+  final String? photoPath;
   final VoidCallback? onTap;
 
   const PosterCard({
@@ -71,6 +73,7 @@ class PosterCard extends StatelessWidget {
     required this.themeIndex,
     this.iconIndex = 0,
     this.todoCount = 0,
+    this.photoPath,
     this.onTap,
   });
 
@@ -218,15 +221,16 @@ class PosterCard extends StatelessWidget {
                       ),
                     ),
 
-                    // Bottom-Right: D-Day Text (Explicitly right-aligned)
+                    // Bottom-Left: D-Day Text
                     Positioned(
                       bottom: 0,
-                      right: 0,
+                      left: 0,
                       child: Text(
                         dText,
-                        textAlign: TextAlign.right,
+                        textAlign: TextAlign.left,
                         style: theme.textTheme.displaySmall?.copyWith( 
-                          fontSize: 40,
+                          // 사진이 있으면 폰트 크기 축소
+                          fontSize: photoPath != null ? 32 : 40,
                           fontWeight: FontWeight.w700,
                           letterSpacing: -1.0,
                           height: 1.0,
@@ -234,6 +238,45 @@ class PosterCard extends StatelessWidget {
                         ),
                       ),
                     ),
+
+                    // Bottom-Right: Photo (정사각형)
+                    if (photoPath != null && photoPath!.isNotEmpty)
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: Container(
+                          width: 72,
+                          height: 72,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.15),
+                                blurRadius: 4,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: Image.file(
+                              File(photoPath!),
+                              key: ValueKey(photoPath), // 키 추가로 리빌드 강제
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Container(
+                                  color: fgColor.withOpacity(0.1),
+                                  child: Icon(
+                                    Icons.image_not_supported_outlined,
+                                    color: fgColor.withOpacity(0.4),
+                                    size: 28,
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                      ),
                   ],
                 ),
               ),

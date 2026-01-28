@@ -116,6 +116,7 @@ class EventListPage extends ConsumerWidget {
                         themeIndex: e.themeIndex,
                         iconIndex: e.iconIndex,
                         todoCount: e.todos.length,
+                        photoPath: e.photoPath,
                         onTap: () => context.push('/detail', extra: e.id),
                       ),
                     ),
