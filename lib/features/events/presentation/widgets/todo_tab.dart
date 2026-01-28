@@ -97,12 +97,12 @@ class _TodoTabState extends ConsumerState<TodoTab> {
                     Expanded(
                       child: Container(
                         decoration: BoxDecoration(
-                          color: theme.colorScheme.surfaceContainerLow,
+                          color: Colors.transparent,
                           borderRadius: BorderRadius.circular(24),
                         ),
                         child: Row(
                           children: [
-                            const SizedBox(width: 16),
+                            const SizedBox(width: 24),
                             Expanded(
                               child: TextField(
                                 controller: _controller,
@@ -130,7 +130,7 @@ class _TodoTabState extends ConsumerState<TodoTab> {
                                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                               ),
                             ),
-                            const SizedBox(width: 8),
+                            const SizedBox(width: 4),
                           ],
                         ),
                       ),
