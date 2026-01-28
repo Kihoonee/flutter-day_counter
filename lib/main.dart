@@ -8,8 +8,17 @@ import 'firebase_options.dart';
 import 'app/app.dart';
 import 'core/storage/shared_prefs_provider.dart';
 
+import 'package:flutter/services.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // 세로 모드 고정
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
+
   print('MAIN: Starting initialization...');
   
   // 1. 필수 로컬 설정만 먼저 초기화
