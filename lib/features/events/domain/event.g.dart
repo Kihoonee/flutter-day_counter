@@ -16,6 +16,7 @@ _Event _$EventFromJson(Map<String, dynamic> json) => _Event(
   isNotificationEnabled: json['isNotificationEnabled'] as bool? ?? true,
   themeIndex: (json['themeIndex'] as num?)?.toInt() ?? 0,
   iconIndex: (json['iconIndex'] as num?)?.toInt() ?? 0,
+  photoPath: json['photoPath'] as String?,
   todos:
       (json['todos'] as List<dynamic>?)
           ?.map((e) => TodoItem.fromJson(e as Map<String, dynamic>))
@@ -39,6 +40,7 @@ Map<String, dynamic> _$EventToJson(_Event instance) => <String, dynamic>{
   'isNotificationEnabled': instance.isNotificationEnabled,
   'themeIndex': instance.themeIndex,
   'iconIndex': instance.iconIndex,
+  'photoPath': instance.photoPath,
   'todos': instance.todos.map((e) => e.toJson()).toList(),
   'diaryEntries': instance.diaryEntries.map((e) => e.toJson()).toList(),
   'sortOrder': instance.sortOrder,

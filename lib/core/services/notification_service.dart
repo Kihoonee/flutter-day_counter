@@ -41,7 +41,7 @@ class NotificationService {
     );
 
     await flutterLocalNotificationsPlugin.initialize(
-      initializationSettings,
+      settings: initializationSettings,
     );
 
     _isInitialized = true;
@@ -98,11 +98,11 @@ class NotificationService {
   }) async {
     try {
       await flutterLocalNotificationsPlugin.zonedSchedule(
-        id,
-        title,
-        body,
-        scheduledDate,
-        const NotificationDetails(
+        id: id,
+        title: title,
+        body: body,
+        scheduledDate: scheduledDate,
+        notificationDetails: const NotificationDetails(
           android: AndroidNotificationDetails(
             'event_channel',
             'Events',
@@ -121,9 +121,9 @@ class NotificationService {
 
   Future<void> cancelEvent(String eventId) async {
     if (!_isInitialized) return;
-    await flutterLocalNotificationsPlugin.cancel(_generateId(eventId, 'dday'));
-    await flutterLocalNotificationsPlugin.cancel(_generateId(eventId, 'dminus1'));
-    await flutterLocalNotificationsPlugin.cancel(_generateId(eventId, 'anniv'));
+    await flutterLocalNotificationsPlugin.cancel(id: _generateId(eventId, 'dday'));
+    await flutterLocalNotificationsPlugin.cancel(id: _generateId(eventId, 'dminus1'));
+    await flutterLocalNotificationsPlugin.cancel(id: _generateId(eventId, 'anniv'));
   }
 
   int _generateId(String eventId, String type) {

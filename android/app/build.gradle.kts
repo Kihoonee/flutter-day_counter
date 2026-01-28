@@ -28,8 +28,8 @@ android {
         applicationId = "com.example.day_counter"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = flutter.minSdkVersion
-        targetSdk = flutter.targetSdkVersion
+        minSdk = 24  // Required for latest Firebase/AdMob
+        targetSdk = 35  // Android 15
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }

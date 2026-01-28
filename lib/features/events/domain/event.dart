@@ -33,6 +33,9 @@ abstract class Event with _$Event {
     // 아이콘(0~n)
     @Default(0) int iconIndex,
 
+    // 사진 경로 (로컬 앱 디렉토리)
+    String? photoPath,
+
     // 투두 리스트
     @Default([]) List<TodoItem> todos,
 
