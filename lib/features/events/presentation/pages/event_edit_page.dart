@@ -96,6 +96,16 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
     setState(() => _photoPath = null);
   }
 
+  Widget _buildPhotoIcon(ThemeData theme) {
+    return Center(
+      child: Icon(
+        Icons.add_photo_alternate_outlined,
+        color: theme.colorScheme.onSurfaceVariant.withOpacity(0.5),
+        size: 28,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -281,90 +291,101 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
                     ),
                     const SizedBox(height: 16),
 
-                    // 6. 사진 추가
+                    // 6. 사진 추가 (단순화된 UX)
                     Card(
                       elevation: 0,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              '대표 사진',
-                              style: theme.textTheme.bodyMedium,
-                            ),
-                            const SizedBox(height: 12),
-                            Row(
-                              children: [
-                                // 사진 미리보기
-                                Container(
-                                  width: 80,
-                                  height: 80,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(12),
-                                    color: theme.colorScheme.surfaceContainerHighest,
-                                    border: Border.all(
-                                      color: theme.colorScheme.outlineVariant.withOpacity(0.3),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: InkWell(
+                        onTap: () async {
+                          if (_photoPath == null || _photoPath!.isEmpty) {
+                            // 사진 없으면 바로 갤러리
+                            await _pickPhoto();
+                          } else {
+                            // 사진 있으면 ActionSheet
+                            final action = await showModalBottomSheet<String>(
+                              context: context,
+                              builder: (ctx) => SafeArea(
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    ListTile(
+                                      leading: const Icon(Icons.photo_library_outlined),
+                                      title: const Text('사진 변경'),
+                                      onTap: () => Navigator.pop(ctx, 'change'),
                                     ),
-                                  ),
-                                  child: _photoPath != null && _photoPath!.isNotEmpty
-                                      ? ClipRRect(
-                                          borderRadius: BorderRadius.circular(11),
-                                          child: Image.file(
-                                            File(_photoPath!),
-                                            key: ValueKey('${_photoPath}_${DateTime.now().millisecondsSinceEpoch}'),
-                                            fit: BoxFit.cover,
-                                            errorBuilder: (_, __, ___) => Icon(
-                                              Icons.image_not_supported_outlined,
-                                              color: theme.colorScheme.onSurfaceVariant,
-                                            ),
-                                          ),
-                                        )
-                                      : Icon(
-                                          Icons.add_photo_alternate_outlined,
-                                          color: theme.colorScheme.onSurfaceVariant.withOpacity(0.5),
-                                          size: 32,
-                                        ),
+                                    ListTile(
+                                      leading: Icon(
+                                        Icons.delete_outline,
+                                        color: theme.colorScheme.error,
+                                      ),
+                                      title: Text(
+                                        '사진 삭제',
+                                        style: TextStyle(color: theme.colorScheme.error),
+                                      ),
+                                      onTap: () => Navigator.pop(ctx, 'delete'),
+                                    ),
+                                  ],
                                 ),
-                                const SizedBox(width: 16),
-                                // 버튼들
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                                    children: [
-                                      if (_photoPath == null || _photoPath!.isEmpty)
-                                        FilledButton.tonal(
-                                          onPressed: _pickPhoto,
-                                          style: FilledButton.styleFrom(
-                                            padding: const EdgeInsets.symmetric(vertical: 12),
-                                          ),
-                                          child: const Text('사진 추가'),
-                                        )
-                                      else ...[
-                                        OutlinedButton(
-                                          onPressed: _pickPhoto,
-                                          style: OutlinedButton.styleFrom(
-                                            padding: const EdgeInsets.symmetric(vertical: 10),
-                                          ),
-                                          child: const Text('사진 변경'),
-                                        ),
-                                        const SizedBox(height: 8),
-                                        TextButton(
-                                          onPressed: _deletePhoto,
-                                          style: TextButton.styleFrom(
-                                            foregroundColor: theme.colorScheme.error,
-                                            padding: const EdgeInsets.symmetric(vertical: 10),
-                                          ),
-                                          child: const Text('사진 삭제'),
-                                        ),
-                                      ],
-                                    ],
+                              ),
+                            );
+                            if (action == 'change') {
+                              await _pickPhoto();
+                            } else if (action == 'delete') {
+                              await _deletePhoto();
+                            }
+                          }
+                        },
+                        borderRadius: BorderRadius.circular(16),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Row(
+                            children: [
+                              // 사진 미리보기
+                              Container(
+                                width: 64,
+                                height: 64,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(12),
+                                  color: theme.colorScheme.surfaceContainerHighest,
+                                  border: Border.all(
+                                    color: theme.colorScheme.outlineVariant.withOpacity(0.3),
                                   ),
                                 ),
-                              ],
-                            ),
-                          ],
+                                child: _photoPath != null && _photoPath!.isNotEmpty
+                                    ? FutureBuilder<bool>(
+                                        future: File(_photoPath!).exists(),
+                                        builder: (context, snapshot) {
+                                          if (snapshot.data == true) {
+                                            return ClipRRect(
+                                              borderRadius: BorderRadius.circular(11),
+                                              child: Image.file(
+                                                File(_photoPath!),
+                                                key: ValueKey(_photoPath),
+                                                fit: BoxFit.cover,
+                                                errorBuilder: (_, __, ___) =>
+                                                    _buildPhotoIcon(theme),
+                                              ),
+                                            );
+                                          }
+                                          return _buildPhotoIcon(theme);
+                                        },
+                                      )
+                                    : _buildPhotoIcon(theme),
+                              ),
+                              const SizedBox(width: 16),
+                              // 텍스트
+                              Expanded(
+                                child: Text(
+                                  '추억사진',
+                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                    color: theme.colorScheme.onSurfaceVariant,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
