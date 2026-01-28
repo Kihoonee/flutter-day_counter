@@ -4,7 +4,7 @@
 <dict>
 	<key>com.apple.security.application-groups</key>
 	<array>
-		<string>group.day_counter</string>
+		<string>group.com.kihoonee.daycounterv2</string>
 	</array>
 </dict>
 </plist>

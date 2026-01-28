@@ -37,7 +37,7 @@ extension Color {
 
 // UserDefaults Helper
 struct DataStorage {
-    static let appGroupId = "group.day_counter"
+    static let appGroupId = "group.com.kihoonee.daycounterv2"
     
     static func getData() -> (title: String, dDay: String, targetDate: String, bgColor: String, fgColor: String) {
         let userDefaults = UserDefaults(suiteName: appGroupId)

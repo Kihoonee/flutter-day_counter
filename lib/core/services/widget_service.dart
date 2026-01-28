@@ -5,7 +5,7 @@ import '../../features/events/presentation/widgets/poster_card.dart'; // To acce
 import '../utils/date_calc.dart';
 
 class WidgetService {
-  static const String appGroupId = 'group.day_counter'; 
+  static const String appGroupId = 'group.com.kihoonee.daycounterv2'; 
   static const String androidWidgetName = 'DayCounterWidget';
 
   String _colorToHex(dynamic color) {
