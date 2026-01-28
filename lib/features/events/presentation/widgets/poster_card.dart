@@ -239,42 +239,41 @@ class PosterCard extends StatelessWidget {
                       ),
                     ),
 
-                    // Bottom-Right: Photo (정사각형)
+                    // Bottom-Right: Photo (정사각형) - 파일 존재할 때만 표시
                     if (photoPath != null && photoPath!.isNotEmpty)
                       Positioned(
                         bottom: 0,
                         right: 0,
-                        child: Container(
-                          width: 72,
-                          height: 72,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(12),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.15),
-                                blurRadius: 4,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(12),
-                            child: Image.file(
-                              File(photoPath!),
-                              key: ValueKey(photoPath), // 키 추가로 리빌드 강제
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) {
-                                return Container(
-                                  color: fgColor.withOpacity(0.1),
-                                  child: Icon(
-                                    Icons.image_not_supported_outlined,
-                                    color: fgColor.withOpacity(0.4),
-                                    size: 28,
+                        child: FutureBuilder<bool>(
+                          future: File(photoPath!).exists(),
+                          builder: (context, snapshot) {
+                            if (snapshot.data != true) {
+                              return const SizedBox.shrink();
+                            }
+                            return Container(
+                              width: 72,
+                              height: 72,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(12),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.15),
+                                    blurRadius: 4,
+                                    offset: const Offset(0, 2),
                                   ),
-                                );
-                              },
-                            ),
-                          ),
+                                ],
+                              ),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(12),
+                                child: Image.file(
+                                  File(photoPath!),
+                                  key: ValueKey(photoPath),
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                                ),
+                              ),
+                            );
+                          },
                         ),
                       ),
                   ],
