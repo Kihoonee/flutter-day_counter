@@ -1,56 +1,89 @@
-# UI 및 기능 개선 v2.5 구현 계획
+# 최신 OS 및 의존성 업데이트 계획
 
-사용자가 요청한 **수정 화면의 실시간 반응형 수정**, **알림 토글 추가**, 그리고 **한줄메모 달력 마커 표시** 기능을 구현합니다.
+iOS/Android 최신 OS 지원 및 모든 패키지를 최신 버전으로 업데이트합니다.
+
+---
+
+## 현재 플랫폼 설정
+
+| 플랫폼 | 현재 설정 | 권장 설정 |
+| :--- | :--- | :--- |
+| iOS | 15.0 | **16.0** (Flutter 최신 권장) |
+| Android minSdk | flutter.minSdkVersion | **24** (최신 Firebase/AdMob 요구) |
+| Android targetSdk | flutter.targetSdkVersion | **35** (Android 15) |
+
+---
+
+## Outdated Dependencies
+
+### 🔴 Major Updates (Breaking Changes 가능)
+
+| 패키지 | 현재 | 최신 | 비고 |
+| :--- | :--- | :--- | :--- |
+| firebase_core | 3.15.2 | **4.4.0** | Firebase SDK 메이저 업데이트 |
+| firebase_analytics | 11.6.0 | **12.1.1** | |
+| firebase_messaging | 15.2.10 | **16.1.1** | |
+| firebase_remote_config | 5.5.0 | **6.1.4** | |
+| google_mobile_ads | 5.2.0 | **7.0.0** | AdMob SDK 메이저 업데이트 |
+| image_cropper | 8.1.0 | **11.0.0** | API 변경 가능 |
+| flutter_local_notifications | 19.5.0 | **20.0.0** | |
+| home_widget | 0.7.0 | **0.9.0** | |
+| hooks | 0.20.5 | **1.0.0** | |
+
+### 🟡 Minor/Patch Updates
+
+| 패키지 | 현재 | 최신 |
+| :--- | :--- | :--- |
+| dio | 5.9.0 | 5.9.1 |
+| path_provider | 2.1.3 | 2.1.5 |
+| sembast_web | 2.4.3 | 2.4.4 |
+| timezone | 0.10.1 | 0.11.0 |
+| riverpod_annotation | 4.0.0 | 4.0.1 |
+| freezed | 3.2.3 | 3.2.4 |
+| json_serializable | 6.11.2 | 6.11.4 |
+| riverpod_generator | 4.0.0+1 | 4.0.2 |
+
+---
 
 ## User Review Required
-> [!IMPORTANT]
-> `Event` 모델에 `isNotificationEnabled` 필드가 추가됩니다. 이 변경으로 인해 `build_runner` 실행이 필요하며, 기존 앱 데이터와의 호환성을 위해 `default: true`로 설정됩니다.
+
+> [!CAUTION]
+> **Major 업데이트**는 API 변경이 있을 수 있습니다. 특히:
+> - `firebase_core` 4.x: 초기화 방식 변경 가능
+> - `google_mobile_ads` 7.x: AdWidget 사용법 변경 가능
+> - `image_cropper` 11.x: 크롭 설정 API 변경
+
+**선택지:**
+1. **전체 업데이트**: 모든 패키지를 최신으로 (권장, 시간 소요)
+2. **Minor만 업데이트**: Breaking changes 없이 안전하게 업데이트
+3. **선택적 업데이트**: 특정 패키지만 지정
+
+---
 
 ## Proposed Changes
 
-### [Domain Layer]
+### [Platform Configuration]
 
-#### [MODIFY] [event.dart](file:///Users/kihoonee/flutter/day_counter/lib/features/events/domain/event.dart)
-- `Event` 클래스에 `bool isNotificationEnabled` 필드 추가 (Default: true).
-- `freezed` 및 `json_serializable` 재생성을 위한 `build_runner` 실행.
+#### [MODIFY] [Podfile](file:///Users/kihoonee/flutter/day_counter/ios/Podfile)
+- iOS deployment target: `15.0` → `16.0`
 
-### [Presentation Layer - Edit Page]
+#### [MODIFY] [build.gradle.kts](file:///Users/kihoonee/flutter/day_counter/android/app/build.gradle.kts)
+- 명시적 minSdk: `24`, targetSdk: `35`
 
-#### [MODIFY] [event_edit_page.dart](file:///Users/kihoonee/flutter/day_counter/lib/features/events/presentation/pages/event_edit_page.dart)
-- **실시간 미리보기 수정**: `TextField`의 `onChanged` 및 기타 입력 위젯의 상태 변경이 `setState`를 통해 확실하게 UI 리빌드를 트리거하도록 재점검.
-    - *분석 결과*: 코드는 정상이지만, 복잡한 위젯 트리에서 상태 갱신이 시각적으로 지연되거나 묻히는 경우가 있을 수 있음. 명시적으로 `PosterCard`에 키를 주거나 상태 관리를 단순화하여 해결 시도.
-- **알림 토글 추가**: '옵션' 카드 내에 '알림 켜기' `SwitchListTile` 추가.
+---
 
-### [Presentation Layer - Diary & Calendar]
+### [Dependencies]
 
-#### [MODIFY] [custom_calendar.dart](file:///Users/kihoonee/flutter/day_counter/lib/core/widgets/custom_calendar.dart)
-- `CustomCalendar` 및 `showCustomCalendar`에 `List<DateTime>? markerDates` 파라미터 추가.
-- `_buildDaysGrid` 메서드에서 해당 날짜 아래에 작은 원형 점(Dot) 렌더링 로직 추가.
+#### [MODIFY] [pubspec.yaml](file:///Users/kihoonee/flutter/day_counter/pubspec.yaml)
+- 모든 outdated 패키지 버전 업데이트
+- `dependency_overrides` 섹션 제거 (호환성 확인 후)
 
-### App Configuration
-#### [MODIFY] [AndroidManifest.xml](file:///Users/kihoonee/flutter/day_counter/android/app/src/main/AndroidManifest.xml)
-- Change `android:label` to "Days+".
-
-#### [MODIFY] [Info.plist](file:///Users/kihoonee/flutter/day_counter/ios/Runner/Info.plist)
-- Change `CFBundleDisplayName` to "Days+".
-- Change `CFBundleName` to "Days+".
-
-#### [MODIFY] [date_field.dart](file:///Users/kihoonee/flutter/day_counter/lib/features/events/presentation/widgets/date_field.dart)
-- `pickDate` 함수에 `markerDates` 파라미터를 전달할 수 있도록 시그니처 수정.
-
-#### [MODIFY] [diary_tab.dart](file:///Users/kihoonee/flutter/day_counter/lib/features/events/presentation/widgets/diary_tab.dart)
-- `_showDiaryDialog` 내부의 날짜 선택 로직에서 현재 이벤트의 `diaryEntries` 날짜 목록을 추출하여 `pickDate`에 전달.
+---
 
 ## Verification Plan
 
-### Automated Tests
-- `flutter test`를 실행하여 모델 변경 후 JSON 직렬화/역직렬화가 정상 작동하는지 확인.
-
-### Manual Verification
-1. **수정 화면**:
-   - 제목 입력 시 상단 카드에 즉시 반영되는지 확인.
-   - 날짜 및 옵션 변경 시 D-Day 계산이 즉시 반영되는지 확인.
-   - 알림 토글 스위치가 정상 작동하고 저장되는지 확인.
-2. **한줄메모**:
-   - 작성/수정 다이얼로그에서 달력 아이콘 클릭.
-   - 달력에 메모가 있는 날짜 밑에 점이 표시되는지 확인.
+1. `flutter pub upgrade --major-versions`
+2. `flutter analyze` - 에러 확인
+3. `dart run build_runner build` - 코드 생성
+4. iOS/Android 빌드 테스트
+5. 앱 실행 및 기능 테스트

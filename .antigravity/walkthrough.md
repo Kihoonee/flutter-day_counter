@@ -1,48 +1,109 @@
-# UI 및 기능 개선 v2.5 완료 보고서
+# 의존성 업데이트 완료 보고서
 
-사용자 경험을 향상시키기 위해 수정 화면의 반응성을 개선하고, 알림 제어권 및 한줄메모의 시각적 피드백 기능을 추가했습니다.
+iOS/Android 최신 OS 지원 및 모든 패키지를 최신 버전으로 업데이트했습니다.
 
-## 주요 **변경 사항**:
-- `EventDetailPage`와 `EditTab` 간의 상태 동기화 로직 구현 (Callback 패턴).
-- 제목, 날짜(`onDateChanged`), 옵션(`includeToday`, `excludeWeekends`) 변경 시 `PosterCard` 즉시 갱신.
-- `EventEditPage`(신규 생성)와 `EditTab`(기존 수정) 동일한 UX 제공.
-- **실시간 미리보기 (Live Preview)**: 이벤트 제목, 날짜, 옵션을 변경할 때마다 상단의 `PosterCard` 미리보기가 **즉시 반영**되도록 수정했습니다. 더 이상 저장을 눌러야만 확인 가능한 불편함이 없습니다.
-- **알림 토글 추가**: '옵션' 섹션에 **'알림 켜기'** 스위치를 추가했습니다. 이제 특정 이벤트에 대한 알림을 개별적으로 켜고  끌 수 있습니다. (기본값: 켜짐)
+---
 
-### 2. 한줄메모 (Diary) 개선
-- **변경 사항**:
-- `CustomCalendar` 위젯에 `markerDates` 및 `dDayDate` 파라미터 추가.
-- **마커 디자인**: 날짜 하단 점(Dot) 방식에서 **파스텔톤 원(Pastel Filled Circle)** 방식으로 변경.
-  - *변경 사유*: 가독성 및 앱 톤 매칭. 선택된 날짜와 유사한 스타일이되, **크기를 축소(약 70%)**하고 **파스텔톤 색상(Primary Container)**을 적용하여 은은하게 표시.
-- **D-Day 디자인**: 목표일 날짜에 붉은색 테두리(Border) 표시 유지.
-- **레이아웃 복구**: 날짜 셀 크기 표준(32x32) 유지.
-- `DiaryTab`에서 데이터 연동 완료.
-- **직관적 확인**: 달력을 열자마자 언제 기록을 남겼는지 한눈에 파악할 수 있어, 과거의 추억을 찾아보기 훨씬 쉬워졌습니다.
+## 업데이트 요약
 
-### 4. 앱 브랜딩 (App Branding)
-- **앱 이름 변경**: `Day Counter` -> **`Days+`**
-  - Android: `AndroidManifest.xml` label 수정.
-  - iOS: `Info.plist` BundleDisplayName 수정.
-
-### 5. 배포 (Deployment)
-- **iOS**: iPhone Release Build 설치 완료.
-  - *Note*: Release 모드로 설치되어 CLI 디버깅 연결은 실패할 수 있으나, 기기에는 정상 설치되었습니다.
-- **Android**: Release APK 빌드 완료 (`app-release.apk`).
-- **Simulators**: iOS Simulator & Android Emulator 동시 실행 및 UI 검증 완료.
-
-### 6. UI 미세 조정 (Polish)
-- **할 일 입력창 정렬**: 입력 텍스트와 하단 체크박스 아이콘의 시작점을 수직으로 일치시킴 (Left Padding: 24px).
-- **등록 버튼 정렬**: 우측 (+) 버튼을 날짜 텍스트 끝선에 맞춤 (Right Padding: 4px).
-
-### 3. 데이터 모델 업데이트
-- `Event` 모델에 `isNotificationEnabled` 필드를 추가하여 알림 설정 상태를 기기 내에 안전하게 저장합니다.
-
-## 검증 계획
-
-| 항목 | 플랫폼 | 예상 결과 |
+### 플랫폼 설정
+| 플랫폼 | 이전 | 이후 |
 | :--- | :--- | :--- |
-| **실시간 미리보기** | Android/iOS | 제목/날짜 입력 시 PosterCard 텍스트/D-Day가 즉시 변경됨 |
-| **알림 토글** | Android/iOS | 스위치 상태가 저장되고, 재진입 시 유지됨 |
-| **달력 마커** | Android/iOS | 메모가 있는 날짜에만 점이 표시되고, 없는 날짜는 깨끗함 |
+| iOS Deployment Target | 15.0 | **16.0** |
+| Android minSdk | flutter.minSdkVersion | **24** |
+| Android targetSdk | flutter.targetSdkVersion | **35** |
 
-모든 기능이 계획대로 구현되었으며, 앱의 완성도가 한층 높아졌습니다. 🚀
+### Major 의존성 변경
+| 패키지 | 이전 | 이후 |
+| :--- | :--- | :--- |
+| firebase_core | 3.15.2 | **4.4.0** |
+| firebase_analytics | 11.6.0 | **12.1.1** |
+| firebase_messaging | 15.2.10 | **16.1.1** |
+| firebase_remote_config | 5.5.0 | **6.1.4** |
+| google_mobile_ads | 5.2.0 | **7.0.0** |
+| flutter_local_notifications | 19.5.0 | **20.0.0** |
+| image_cropper | 8.1.0 | **11.0.0** |
+| home_widget | 0.7.0 | **0.9.0** |
+| hooks | 0.20.5 | **1.0.0** |
+
+---
+
+## 코드 수정 필요했던 부분
+
+### [notification_service.dart](file:///Users/kihoonee/flutter/day_counter/lib/core/services/notification_service.dart)
+
+`flutter_local_notifications` 20.0.0에서 positional → named parameters로 변경:
+
+```diff
+- await plugin.initialize(initializationSettings);
++ await plugin.initialize(settings: initializationSettings);
+
+- await plugin.zonedSchedule(id, title, body, date, details, ...);
++ await plugin.zonedSchedule(id: id, title: title, body: body, 
++   scheduledDate: date, notificationDetails: details, ...);
+
+- await plugin.cancel(id);
++ await plugin.cancel(id: id);
+```
+
+
+---
+
+## 라이브러리 교체 (Verification)
+
+**[UPDATE] image_cropper → crop_your_image 교체**
+- 이유: Android 네이티브 크래시 이슈 해결 및 iOS/Android UI 통일
+- 변경사항:
+  - `image_cropper` 제거
+  - `crop_your_image` 추가
+  - `AndroidManfiest.xml`에서 `UCropActivity` 제거
+  - `AndroidManfiest.xml`에서 `UCropActivity` 제거
+  - `ImageService`를 Flutter Widget(`_CropPage`) 기반으로 재작성
+
+## 버그 수정 (Bug Fixes)
+
+### iOS 실시간 사진 미리보기 이슈 수정
+- **증상**: iOS에서 사진 변경 시 즉시 반영되지 않고 이전 이미지가 보이거나 변경되지 않음.
+- **원인**: 
+  1. `EventDetailPage`가 `EditTab`의 사진 변경 상태(`_photoPath`)를 전달받지 못해 `PosterCard`에 기존 경로(`event.photoPath`)를 계속 주입함.
+  2. Flutter `Image.file` 위젯이 동일 경로의 파일 내용 변경을 즉시 감지하지 못하고 캐싱된 이미지를 보여줌.
+- **해결**:
+  1. **State Lifting**: `EventDetailPage`에 `_previewPhotoPath` 상태 추가 및 `EditTab`의 `onPhotoChanged` 콜백 연결.
+  2. **Cache Eviction**: 사진 변경 시 이전 파일 경로에 대해 `FileImage(...).evict()` 호출로 캐시 삭제.
+  3. **Force Rebuild**: `PosterCard` 이미지 위젯에 `key: ValueKey(photoPath)`를 부여하여 강제 리빌드 유도.
+
+### 새 이벤트 등록 화면 사진 기능 추가
+- **요청**: 새 기념일 등록 시 사진을 추가하는 UI가 누락됨.
+- **해결**: `EventEditPage`에 `EditTab`과 동일한 사진 선택/크롭/삭제 로직 및 UI 구현. 이제 이벤트를 생성할 때부터 사진을 등록할 수 있습니다.
+
+### 앱 세로 모드 고정
+- **요청**: 앱을 세로 모드로 고정해달라.
+- **해결**: `main.dart` 도입부에 `SystemChrome.setPreferredOrientations`를 사용하여 가로 모드 회전을 방지했습니다.
+
+## 릴리즈 빌드 완료 (Release Builds)
+
+### Android
+- **APK 생성**: `build/app/outputs/flutter-apk/app-release.apk`
+- **상태**: 릴리즈 사이닝 키스토어 설정에 따라 서명됨 (설정되어 있다고 가정).
+
+### iOS
+- **설치**: Kihoonee iPhone (실기기)에 릴리즈 모드로 설치 및 실행 완료.
+
+## 빌드 검증
+
+| 플랫폼 | 상태 |
+| :--- | :--- |
+| iOS Simulator | ✅ 정상 실행 (Hot Restart) |
+| Android Emulator | ✅ 정상 실행 (Hot Restart) |
+| 사진 크롭 UI | ✅ Flutter Custom UI 적용 |
+
+---
+
+## 추가 확인 필요 (선택사항)
+
+dependency_overrides에 아직 남아있는 항목:
+- `path_provider_foundation: 2.4.0` (최신 2.6.0)
+- `objective_c: 1.0.0` (최신 9.2.4)
+
+> [!TIP]
+> 이 override들은 다른 패키지와의 호환성 이슈로 유지 중입니다. 향후 의존성이 안정화되면 제거 가능합니다.

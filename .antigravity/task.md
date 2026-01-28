@@ -1,29 +1,27 @@
-# 기능 및 UI 개선 v2.5
+# 이벤트 카드 사진 추가 기능
 
-## 수정화면 (EventEditPage) 개선
-- [x] **실시간 미리보기 수정**: 타이틀, 날짜, 옵션 변경 시 상단 PosterCard가 즉시 업데이트되지 않는 문제 수정.
-- [x] **알림 설정 토글 추가**: 당일포함/주말제외 옵션 하단에 '알림 켜기/끄기' 토글 추가.
-  - [x] `Event` 모델에 `isNotificationEnabled` 필드 추가.
-  - [x] DB 마이그레이션 (기존 데이터 default true).
+## 계획 (Planning)
+- [x] 기존 코드 구조 분석 (`PosterCard`, `Event` 모델)
+- [x] 필요 패키지 조사 (`image_picker`, `image_cropper`)
+- [x] 구현 계획서(`implementation_plan.md`) 작성
+- [x] 사용자 리뷰 및 승인
 
-## 한줄메모 (Diary) 개선
-- [x] **달력 마커 표시**: 날짜 선택 달력(CustomCalendar)에 메모가 존재하는 날짜를 점(Mark)으로 표시.
-  - [x] `CustomCalendar` 위젯에 `markerDates` 파라미터 추가.
-  - [x] 날짜 그리드에 마커 렌더링 로직 구현.
-  - [x] `DiaryTab`에서 다이어리 엔트리 날짜 리스트 전달.
-  - [x] **UI 개선**: 마커 스타일 변경 (점 -> 색상 원) 및 기본 셀 크기(32x32) 복구.
-  - [x] **D-Day 표시**: 목표일(Target Date)에 붉은 테두리(Border) 표시로 구분.
+## 구현 (Implementation)
+- [x] **Domain Layer**: `Event` 모델에 `photoPath` 필드 추가
+- [x] **Core Layer**: 이미지 유틸리티 서비스 생성
+- [x] **Presentation Layer**:
+  - [x] `PosterCard` 레이아웃 수정 (D-Day 좌하단, 사진 우하단)
+  - [x] 수정 화면에 사진 선택/크롭 UI 추가
+- [x] 저장된 사진 로드 및 표시 로직
 
-## (보류) 앱 이름 변경
-- [x] 앱 이름을 'Days+ (데이즈플러스)'로 변경.
-  - [x] iOS (`Info.plist` -> "Days+")
-
-## 배포 및 빌드 (Deployment)
-- [/] **iOS**: Simulator 실행 & iPhone Release 설치.
-  - [/] iOS Simulator 실행 (`flutter run`) - *Skipped (Device Not Found)*
-  - [x] iPhone Release 설치 (`flutter run --release`) - *Installed (Launch failed via CLI)*
-- [x] **Android**: Release APK 빌드 (`flutter build apk --release`)
-  - Path: `build/app/outputs/flutter-apk/app-release.apk`
-
-## 추가 개선 (Post-Deployment Polish)
-- [x] **Todo UI 정렬**: 입력 필드와 체크박스 수직 정렬 (Left 24px, Right 4px).
+## 검증 (Verification)
+- [x] iOS/Android 분석 및 Pod 설치 완료
+- [x] iOS/Android 실기기 테스트 (Simulator/Emulator)
+- [x] 사진 선택 → 크롭 → 저장 → 표시 흐름 확인
+- [x] 앱 재시작 후 사진 유지 확인
+- [x] **iOS Real-time Preview Fix**: `EditTab`과 `EventDetailPage` 상태 동기화 및 `ValueKey` 적용
+- [x] **Refactoring**: `image_cropper` → `crop_your_image`로 교체 (UI 통일)
+- [x] **Feature**: 새 이벤트 등록 화면(`EventEditPage`)에 사진 추가 기능 구현
+- [x] **Config**: 앱 세로 모드 고정 (`SystemChrome.setPreferredOrientations`)
+- [x] **Build**: Android Release APK 빌드
+- [x] **Build**: iOS Release Build & Install (Kihoonee iPhone)
