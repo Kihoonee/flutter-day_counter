@@ -6,6 +6,8 @@ Future<DateTime?> showCustomCalendar(
   required DateTime initialDate,
   DateTime? firstDate,
   DateTime? lastDate,
+  List<DateTime>? markerDates,
+  DateTime? dDayDate,
 }) {
   return showDialog<DateTime>(
     context: context,
@@ -16,6 +18,8 @@ Future<DateTime?> showCustomCalendar(
         initialDate: initialDate,
         firstDate: firstDate,
         lastDate: lastDate,
+        markerDates: markerDates,
+        dDayDate: dDayDate,
       ),
     ),
   );
@@ -25,12 +29,16 @@ class CustomCalendar extends StatefulWidget {
   final DateTime initialDate;
   final DateTime? firstDate;
   final DateTime? lastDate;
+  final List<DateTime>? markerDates;
+  final DateTime? dDayDate;
 
   const CustomCalendar({
     super.key,
     required this.initialDate,
     this.firstDate,
     this.lastDate,
+    this.markerDates,
+    this.dDayDate,
   });
 
   @override
@@ -274,6 +282,39 @@ class _CustomCalendarState extends State<CustomCalendar> {
               final date = DateTime(_currentMonth.year, _currentMonth.month, day);
               final isSelected = DateUtils.isSameDay(date, _selectedDate);
               final isToday = DateUtils.isSameDay(date, DateTime.now());
+              final hasMarker = widget.markerDates != null && widget.markerDates!.any((d) => DateUtils.isSameDay(d, date));
+              final isDDay = widget.dDayDate != null && DateUtils.isSameDay(date, widget.dDayDate!);
+
+              // Color Logic
+              Color? circleColor;
+              Color textColor = theme.colorScheme.onSurface;
+              FontWeight fontWeight = FontWeight.w400;
+              
+              // Marker Visual Size (diameter)
+              // User requested ~50% reduction. Standard is 32. 
+              // 24px is visually significantly smaller but legible.
+              // Logic: Default 32. If marker, 24.
+              double circleSize = 32;
+
+              if (isSelected) {
+                circleColor = theme.colorScheme.primary;
+                textColor = theme.colorScheme.onPrimary;
+                fontWeight = FontWeight.w700;
+                circleSize = 32;
+              } else if (hasMarker) {
+                // User requested: "App tone pastel, low saturation, size 50% down"
+                // Using primaryContainer (usually pastel version of primary)
+                circleColor = theme.colorScheme.primaryContainer.withOpacity(0.7); 
+                textColor = theme.colorScheme.onPrimaryContainer;
+                fontWeight = FontWeight.w700;
+                circleSize = 22; // ~50% area of 32px
+              } else if (isToday) {
+                textColor = theme.colorScheme.primary;
+                fontWeight = FontWeight.w700;
+              } else if (isDDay) {
+                 textColor = theme.colorScheme.error;
+                 fontWeight = FontWeight.w700;
+              }
 
               return GestureDetector(
                 onTap: () {
@@ -284,17 +325,26 @@ class _CustomCalendarState extends State<CustomCalendar> {
                   width: 32,
                   height: 32,
                   alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: isSelected ? theme.colorScheme.primary : Colors.transparent,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Text(
-                    '$day',
-                    style: TextStyle(
-                      color: isSelected
-                          ? theme.colorScheme.onPrimary
-                          : (isToday ? theme.colorScheme.primary : theme.colorScheme.onSurface),
-                      fontWeight: isSelected || isToday ? FontWeight.w700 : FontWeight.w400,
+                  color: Colors.transparent, // Touch target
+                  child: Container(
+                    width: circleSize,
+                    height: circleSize,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: circleColor ?? Colors.transparent,
+                      shape: BoxShape.circle,
+                      // Keep D-Day Border as it distinguishes from filled types
+                      border: (isDDay && !isSelected && !hasMarker) 
+                          ? Border.all(color: theme.colorScheme.error, width: 2)
+                          : null,
+                    ),
+                    child: Text(
+                      '$day',
+                      style: TextStyle(
+                        color: textColor,
+                        fontWeight: fontWeight,
+                        fontSize: (hasMarker && !isSelected) ? 12 : 14, // Slightly smaller text for smaller bubble
+                      ),
                     ),
                   ),
                 ),

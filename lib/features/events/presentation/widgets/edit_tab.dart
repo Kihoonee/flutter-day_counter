@@ -13,12 +13,20 @@ class EditTab extends ConsumerStatefulWidget {
   final Event event;
   final ValueChanged<int>? onIconChanged;
   final ValueChanged<int>? onThemeChanged;
+  final ValueChanged<String>? onTitleChanged;
+  final ValueChanged<DateTime>? onDateChanged;
+  final ValueChanged<bool>? onIncludeTodayChanged;
+  final ValueChanged<bool>? onExcludeWeekendsChanged;
   
   const EditTab({
     super.key, 
     required this.event,
     this.onIconChanged,
     this.onThemeChanged,
+    this.onTitleChanged,
+    this.onDateChanged,
+    this.onIncludeTodayChanged,
+    this.onExcludeWeekendsChanged,
   });
 
   @override
@@ -30,6 +38,7 @@ class _EditTabState extends ConsumerState<EditTab> {
   late DateTime _target;
   late bool _includeToday;
   late bool _excludeWeekends;
+  late bool _isNotificationEnabled;
   late int _themeIndex;
   late int _iconIndex;
 
@@ -54,7 +63,9 @@ class _EditTabState extends ConsumerState<EditTab> {
     _title.text = e.title;
     _target = e.targetDate;
     _includeToday = e.includeToday;
+    _includeToday = e.includeToday;
     _excludeWeekends = e.excludeWeekends;
+    _isNotificationEnabled = e.isNotificationEnabled;
     _themeIndex = e.themeIndex;
     _iconIndex = e.iconIndex;
   }
@@ -101,7 +112,10 @@ class _EditTabState extends ConsumerState<EditTab> {
                       contentPadding: const EdgeInsets.only(left: 16, right: 16, top: 24, bottom: 16),
                       floatingLabelBehavior: FloatingLabelBehavior.always,
                     ),
-                    onChanged: (_) => setState(() {}),
+                    onChanged: (v) {
+                      setState(() {});
+                      widget.onTitleChanged?.call(v);
+                    },
                   ),
                 ),
                 const SizedBox(height: 24), // 간격 확보
@@ -172,6 +186,7 @@ class _EditTabState extends ConsumerState<EditTab> {
                     final picked = await pickDate(context, initial: _target);
                     if (picked == null) return;
                     setState(() => _target = picked);
+                    widget.onDateChanged?.call(picked);
                   },
                 ),
                 const SizedBox(height: 16),
@@ -189,7 +204,10 @@ class _EditTabState extends ConsumerState<EditTab> {
                           style: theme.textTheme.bodyMedium,
                         ),
                         value: _includeToday,
-                        onChanged: (v) => setState(() => _includeToday = v),
+                        onChanged: (v) {
+                          setState(() => _includeToday = v);
+                          widget.onIncludeTodayChanged?.call(v);
+                        },
                       ),
                       Divider(height: 1, color: theme.colorScheme.outlineVariant.withOpacity(0.2)),
                       SwitchListTile(
@@ -198,7 +216,19 @@ class _EditTabState extends ConsumerState<EditTab> {
                           style: theme.textTheme.bodyMedium,
                         ),
                         value: _excludeWeekends,
-                        onChanged: (v) => setState(() => _excludeWeekends = v),
+                        onChanged: (v) {
+                           setState(() => _excludeWeekends = v);
+                           widget.onExcludeWeekendsChanged?.call(v);
+                        },
+                      ),
+                      Divider(height: 1, color: theme.colorScheme.outlineVariant.withOpacity(0.2)),
+                      SwitchListTile(
+                        title: Text(
+                          '알림 켜기',
+                          style: theme.textTheme.bodyMedium,
+                        ),
+                        value: _isNotificationEnabled,
+                        onChanged: (v) => setState(() => _isNotificationEnabled = v),
                       ),
                     ],
                   ),
@@ -253,6 +283,7 @@ class _EditTabState extends ConsumerState<EditTab> {
                             targetDate: _target,
                             includeToday: _includeToday,
                             excludeWeekends: _excludeWeekends,
+                            isNotificationEnabled: _isNotificationEnabled,
                             themeIndex: _themeIndex,
                             iconIndex: _iconIndex,
                           );

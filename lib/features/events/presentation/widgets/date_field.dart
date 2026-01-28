@@ -76,11 +76,15 @@ Future<DateTime?> pickDate(
   required DateTime initial,
   DateTime? firstDate,
   DateTime? lastDate,
+  List<DateTime>? markerDates,
+  DateTime? dDayDate,
 }) {
   return showCustomCalendar(
     context,
     initialDate: initial,
     firstDate: firstDate,
     lastDate: lastDate,
+    markerDates: markerDates,
+    dDayDate: dDayDate,
   );
 }

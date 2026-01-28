@@ -26,6 +26,10 @@ class _EventDetailPageState extends ConsumerState<EventDetailPage>
   // Live Preview State (null means use event data)
   int? _previewThemeIndex;
   int? _previewIconIndex;
+  String? _previewTitle;
+  DateTime? _previewTargetDate;
+  bool? _previewIncludeToday;
+  bool? _previewExcludeWeekends;
 
   @override
   void initState() {
@@ -69,15 +73,19 @@ class _EventDetailPageState extends ConsumerState<EventDetailPage>
           );
         }
 
+        final targetDate = _previewTargetDate ?? event.targetDate;
+        final includeToday = _previewIncludeToday ?? event.includeToday;
+        final excludeWeekends = _previewExcludeWeekends ?? event.excludeWeekends;
+        
         final diff = DateCalc.diffDays(
           base: DateTime.now(),
-          target: event.targetDate,
-          includeToday: event.includeToday,
-          excludeWeekends: event.excludeWeekends,
+          target: targetDate,
+          includeToday: includeToday,
+          excludeWeekends: excludeWeekends,
         );
 
         final isPast = diff < 0;
-        final dateLine = DateFormat('yyyy.MM.dd').format(event.targetDate);
+        final dateLine = DateFormat('yyyy.MM.dd').format(targetDate);
 
         return Scaffold(
           body: NestedScrollView(
@@ -101,7 +109,7 @@ class _EventDetailPageState extends ConsumerState<EventDetailPage>
                           bottom: 64, // Space for TabBar
                         ),
                         child: PosterCard(
-                          title: event.title,
+                          title: _previewTitle ?? event.title,
                           dateLine: dateLine,
                           dText: _dText(diff),
                           themeIndex: _previewThemeIndex ?? event.themeIndex,
@@ -148,11 +156,15 @@ class _EventDetailPageState extends ConsumerState<EventDetailPage>
                       DiaryTab(eventId: event.id)
                     else
                       TodoTab(event: event),
-                    EditTab(
-                      event: event,
-                      onIconChanged: (i) => setState(() => _previewIconIndex = i),
-                      onThemeChanged: (i) => setState(() => _previewThemeIndex = i),
-                    ),
+                      EditTab(
+                        event: event,
+                        onTitleChanged: (v) => setState(() => _previewTitle = v),
+                        onDateChanged: (v) => setState(() => _previewTargetDate = v),
+                        onIncludeTodayChanged: (v) => setState(() => _previewIncludeToday = v),
+                        onExcludeWeekendsChanged: (v) => setState(() => _previewExcludeWeekends = v),
+                        onIconChanged: (i) => setState(() => _previewIconIndex = i),
+                        onThemeChanged: (i) => setState(() => _previewThemeIndex = i),
+                      ),
                   ],
                 );
               },

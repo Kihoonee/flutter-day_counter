@@ -25,6 +25,7 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
   DateTime _target = DateTime.now();
   bool _includeToday = false;
   bool _excludeWeekends = false;
+  bool _isNotificationEnabled = true;
   int _themeIndex = 0;
   int _iconIndex = 0;
 
@@ -51,6 +52,7 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
       _target = e.targetDate;
       _includeToday = e.includeToday;
       _excludeWeekends = e.excludeWeekends;
+      _isNotificationEnabled = e.isNotificationEnabled;
       _themeIndex = e.themeIndex;
       _iconIndex = e.iconIndex;
     } else {
@@ -59,6 +61,7 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
       _target = DateTime(now.year, now.month, now.day);
       _includeToday = false;
       _excludeWeekends = false;
+      _isNotificationEnabled = true; // Default true
       _themeIndex = 0;
       _iconIndex = 0;
     }
@@ -234,6 +237,15 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
                             value: _excludeWeekends,
                             onChanged: (v) => setState(() => _excludeWeekends = v),
                           ),
+                          Divider(height: 1, color: theme.colorScheme.outlineVariant.withOpacity(0.2)),
+                          SwitchListTile(
+                            title: Text(
+                              '알림 켜기',
+                              style: theme.textTheme.bodyMedium,
+                            ),
+                            value: _isNotificationEnabled,
+                            onChanged: (v) => setState(() => _isNotificationEnabled = v),
+                          ),
                         ],
                       ),
                     ),
@@ -256,6 +268,7 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
                             targetDate: _target,
                             includeToday: _includeToday,
                             excludeWeekends: _excludeWeekends,
+                            isNotificationEnabled: _isNotificationEnabled,
                             themeIndex: _themeIndex,
                             iconIndex: _iconIndex,
                             todos: todos,

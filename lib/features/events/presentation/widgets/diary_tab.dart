@@ -129,10 +129,15 @@ class DiaryTab extends ConsumerWidget {
   }
 
   void _showDiaryDialog(BuildContext context, WidgetRef ref, Event event, {DiaryEntry? entry}) {
+    // 메모가 있는 날짜 목록 추출
+    final markers = event.diaryEntries.map((e) => e.date).toList();
+
     showDialog(
       context: context,
       builder: (context) => _DiaryDialog(
         initialEntry: entry,
+        markerDates: markers,
+        dDayDate: event.targetDate,
         onSave: (content, date) async {
           // 여기서도 최신 상태를 보장하기 위해 ref.read를 쓰는 것이 좋지만,
           // 이미 build에서 최신 event를 받아왔으므로 그 event를 기반으로 업데이트하면 됨.
@@ -191,8 +196,10 @@ class DiaryTab extends ConsumerWidget {
 class _DiaryDialog extends StatefulWidget {
   final DiaryEntry? initialEntry;
   final Function(String content, DateTime date) onSave;
+  final List<DateTime>? markerDates;
+  final DateTime? dDayDate;
 
-  const _DiaryDialog({this.initialEntry, required this.onSave});
+  const _DiaryDialog({this.initialEntry, required this.onSave, this.markerDates, this.dDayDate});
 
   @override
   State<_DiaryDialog> createState() => _DiaryDialogState();
@@ -243,7 +250,23 @@ class _DiaryDialogState extends State<_DiaryDialog> {
                 ),
                 InkWell(
                   onTap: () async {
-                    final picked = await pickDate(context, initial: _selectedDate);
+                    // 현재 이벤트의 메모 날짜 목록 추출
+                    List<DateTime> markers = [];
+                    // 상위 위젯(DiaryTab)에서 event객체를 직접 접근하기 어려우므로
+                    // 여기서는 build메소드 내에서 event를 조회하지 않고,
+                    // DiaryDialog를 호출할 때 event를 넘겨주거나,
+                    // 필요한 markerDates를 인자로 받아야 함.
+                    // 현재 구조상 _DiaryDialog는 event를 직접 가지고 있지 않음.
+                    // 간단히 initialEntry가 있는 경우 그 날짜만이라도... 가 아니라,
+                    // 전체 마커를 보고 싶어하심.
+                    // 따라서 _DiaryDialog 생성자에 markerDates를 추가로 받아야 함.
+                    
+                    final picked = await pickDate(
+                      context, 
+                      initial: _selectedDate,
+                      markerDates: widget.markerDates, // 전달받은 마커 사용
+                      dDayDate: widget.dDayDate, // D-Day 전달
+                    );
                     if (picked != null) {
                       setState(() => _selectedDate = picked);
                     }

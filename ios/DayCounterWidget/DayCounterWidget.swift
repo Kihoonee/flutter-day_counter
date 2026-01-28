@@ -41,8 +41,8 @@ struct DataStorage {
     
     static func getData() -> (title: String, dDay: String, targetDate: String, bgColor: String, fgColor: String) {
         let userDefaults = UserDefaults(suiteName: appGroupId)
-        let title = userDefaults?.string(forKey: "widget_title") ?? "이벤트 없음"
-        let dDay = userDefaults?.string(forKey: "widget_dday") ?? "-"
+        let title = userDefaults?.string(forKey: "widget_title") ?? "Days+"
+        let dDay = userDefaults?.string(forKey: "widget_dday") ?? "D-day"
         let targetDate = userDefaults?.string(forKey: "widget_date") ?? ""
         let bgColor = userDefaults?.string(forKey: "widget_bg_color") ?? "FFFFFF" // Default White
         let fgColor = userDefaults?.string(forKey: "widget_fg_color") ?? "000000" // Default Black
@@ -52,7 +52,7 @@ struct DataStorage {
 
 struct Provider: TimelineProvider {
     func placeholder(in context: Context) -> SimpleEntry {
-        SimpleEntry(date: Date(), title: "이벤트 제목", dDay: "D-Day", targetDate: "2026.01.01", bgColor: "FFCDD2", fgColor: "5D1010")
+        SimpleEntry(date: Date(), title: "Days+", dDay: "D-Day", targetDate: "2026.01.01", bgColor: "FFCDD2", fgColor: "5D1010")
     }
 
     func getSnapshot(in context: Context, completion: @escaping (SimpleEntry) -> ()) {
@@ -140,7 +140,7 @@ struct DayCounterWidget: Widget {
                     // iOS 16 이하용 배경 설정은 ZStack Color로 충분함
             }
         }
-        .configurationDisplayName("디데이 위젯")
+        .configurationDisplayName("디데이")
         .description("이벤트를 홈 화면에서 확인하세요.")
         .supportedFamilies([.systemSmall, .systemMedium]) // Small, Medium 지원
         .contentMarginsDisabled() // 중요: 여백 제거하여 배경 꽉 채우기

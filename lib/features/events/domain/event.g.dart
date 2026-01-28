@@ -13,6 +13,7 @@ _Event _$EventFromJson(Map<String, dynamic> json) => _Event(
   targetDate: DateTime.parse(json['targetDate'] as String),
   includeToday: json['includeToday'] as bool? ?? false,
   excludeWeekends: json['excludeWeekends'] as bool? ?? false,
+  isNotificationEnabled: json['isNotificationEnabled'] as bool? ?? true,
   themeIndex: (json['themeIndex'] as num?)?.toInt() ?? 0,
   iconIndex: (json['iconIndex'] as num?)?.toInt() ?? 0,
   todos:
@@ -35,6 +36,7 @@ Map<String, dynamic> _$EventToJson(_Event instance) => <String, dynamic>{
   'targetDate': instance.targetDate.toIso8601String(),
   'includeToday': instance.includeToday,
   'excludeWeekends': instance.excludeWeekends,
+  'isNotificationEnabled': instance.isNotificationEnabled,
   'themeIndex': instance.themeIndex,
   'iconIndex': instance.iconIndex,
   'todos': instance.todos.map((e) => e.toJson()).toList(),

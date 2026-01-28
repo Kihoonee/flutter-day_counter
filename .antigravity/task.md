@@ -1,54 +1,26 @@
-# UI 개선 v1
+# 기능 및 UI 개선 v2.5
 
-## 메인화면
-- [x] 안드로이드 릴리즈 빌드 및 배포 준비 (APK 생성)
-- [x] iOS 기기(iPhone) 최신 버전 설치 및 검증
-- [x] 최초 설치 시 기본 이벤트 자동 생성
+## 수정화면 (EventEditPage) 개선
+- [x] **실시간 미리보기 수정**: 타이틀, 날짜, 옵션 변경 시 상단 PosterCard가 즉시 업데이트되지 않는 문제 수정.
+- [x] **알림 설정 토글 추가**: 당일포함/주말제외 옵션 하단에 '알림 켜기/끄기' 토글 추가.
+  - [x] `Event` 모델에 `isNotificationEnabled` 필드 추가.
+  - [x] DB 마이그레이션 (기존 데이터 default true).
 
-## 에디트 화면
-- [x] 다이어리 → 한줄메모 탭 이름 변경
+## 한줄메모 (Diary) 개선
+- [x] **달력 마커 표시**: 날짜 선택 달력(CustomCalendar)에 메모가 존재하는 날짜를 점(Mark)으로 표시.
+  - [x] `CustomCalendar` 위젯에 `markerDates` 파라미터 추가.
+  - [x] 날짜 그리드에 마커 렌더링 로직 구현.
+  - [x] `DiaryTab`에서 다이어리 엔트리 날짜 리스트 전달.
+  - [x] **UI 개선**: 마커 스타일 변경 (점 -> 색상 원) 및 기본 셀 크기(32x32) 복구.
+  - [x] **D-Day 표시**: 목표일(Target Date)에 붉은 테두리(Border) 표시로 구분.
 
-## 포스터카드
-- [x] 패딩 통일 및 확대 (16 → 20)
-- [x] D-Day 텍스트 형식 변경 (D -N, D +N)
-- [x] D-Day 텍스트 볼드 30% 감소 (w900 → w700)
+## (보류) 앱 이름 변경
+- [x] 앱 이름을 'Days+ (데이즈플러스)'로 변경.
+  - [x] iOS (`Info.plist` -> "Days+")
 
-## 할일 탭
-- [x] 빈 할일 텍스트 컬러 통일
-- [x] 보조 메시지 삭제
-- [x] TodoItem 배경색 제거
-- [x] 포스터카드에 할일 개수 표시
-- [x] 스와이프 삭제 배경색 변경
-
-- [x] Card 내부 Shadow/Clipping 문제 확인
-
-- [x] PosterCard 높이 185 확인 및 내부 여백 최적화
-- [x] 타이틀/날짜/할일 마크 고정 좌측 정렬 및 간격 재정비
-- [x] 우측 아이콘 위치 고정 (타이틀과 수평 정렬)
-- [x] D-Day 텍스트 크기 및 위치 가독성 확보 (잘림 현상 해결)
-- [x] FAB(+) 위치 및 크기 재점검 (D-Day 텍스트와 겹침 방지)
-- [x] TodoTab 빈 화면 텍스트 컬러 및 문구 수정 (v1 지침)
-- [x] EventDetailPage 스크롤 시 컨텐츠 겹침/가려짐 방지 처리 (Overlap Injector 확인)
-
-## UI 정교화 및 배너 광고
-- [x] "기념일 추가" 버튼 초미니멀 디자인(배경/테두리 제거) 및 글래스 바 디자인 반영
-- [x] 모든 화면(목표일, 상세, 수정, 설정, 결과) 하단 배너 광고 복구 및 표준화
-- [x] 배너 광고 영역 높이 고정 (60px) 및 로딩 시 레이아웃 덜컹거림 방지
-- [x] 안드로이드 에뮬레이터 및 iOS 시뮬레이터 동시 실행 확인
-
-## 위젯 및 정기 데이터 동기화
-- [x] 앱과 위젯 간 D-Day 계산 로직 동기화 (기점 날짜 통일 및 DateCalc 활용)
-- [x] 모든 화면 D-Day 텍스트 포맷 표준화 (공백 제거)
-
-## 릴리즈 및 배포
-- [x] Android 릴리즈 APK 빌드 완료 (`app-release.apk`)
-- [x] iOS 릴리즈 빌드 및 연결된 실기기 설치 완료
-
-## UI 개선 v2
-- [x] PosterCard 텍스트/아이콘 컬러 짙은 그레이로 통일
-- [x] 메인화면 "Days+" 타이틀 위치 하향 조정
-
-## 기능 개선 v3
-- [x] D-Day 상태에 따른 상세 페이지 탭 분리 (미래: 할일, 과거: 한줄메모)
-- [x] 탭 구조 최적화 (3탭 -> 2탭 고정: [기능 | 수정])
-- [x] 과거 날짜 도달 시 할일을 한줄메모로 자동 전환 및 보존 로직 추가
+## 배포 및 빌드 (Deployment)
+- [/] **iOS**: Simulator 실행 & iPhone Release 설치.
+  - [/] iOS Simulator 실행 (`flutter run`) - *Skipped (Device Not Found)*
+  - [x] iPhone Release 설치 (`flutter run --release`) - *Installed (Launch failed via CLI)*
+- [x] **Android**: Release APK 빌드 (`flutter build apk --release`)
+  - Path: `build/app/outputs/flutter-apk/app-release.apk`
