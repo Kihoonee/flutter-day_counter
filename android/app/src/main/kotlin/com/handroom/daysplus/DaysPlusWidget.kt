@@ -1,4 +1,4 @@
-package com.example.day_counter
+package com.handroom.daysplus
 
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
@@ -6,9 +6,9 @@ import android.content.Context
 import android.widget.RemoteViews
 import android.content.SharedPreferences
 import android.graphics.Color
-import com.example.day_counter.R
+import com.handroom.daysplus.R
 
-class DayCounterWidget : AppWidgetProvider() {
+class DaysPlusWidget : AppWidgetProvider() {
     override fun onUpdate(
         context: Context,
         appWidgetManager: AppWidgetManager,
@@ -37,6 +37,7 @@ internal fun updateAppWidget(
     val title = widgetData.getString("widget_title", "이벤트 없음")
     val dday = widgetData.getString("widget_dday", "-")
     val date = widgetData.getString("widget_date", "")
+    val layoutType = widgetData.getInt("widget_layout_type", 0) // 0: D-Day 강조, 1: 타이틀 강조
     
     // Default colors (White BG, Black FG)
     val defaultBg = "#FFFFFF"
@@ -50,14 +51,21 @@ internal fun updateAppWidget(
     var fgColor = Color.parseColor(defaultFg)
     
     try {
-        bgColor = Color.parseColor(bgString)
-        fgColor = Color.parseColor(fgString)
+        bgColor = Color.parseColor(if (bgString.startsWith("#")) bgString else "#$bgString")
+        fgColor = Color.parseColor(if (fgString.startsWith("#")) fgString else "#$fgString")
     } catch (e: Exception) {
         // Fallback to defaults on error
     }
 
+    // Select layout based on layoutType
+    val layoutId = if (layoutType == 1) {
+        R.layout.widget_layout_title
+    } else {
+        R.layout.widget_layout
+    }
+
     // Construct the RemoteViews object
-    val views = RemoteViews(context.packageName, R.layout.widget_layout)
+    val views = RemoteViews(context.packageName, layoutId)
     views.setTextViewText(R.id.widget_title, title)
     views.setTextViewText(R.id.widget_dday, dday)
     views.setTextViewText(R.id.widget_date, date)

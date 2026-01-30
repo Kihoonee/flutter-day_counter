@@ -63,6 +63,7 @@ class PosterCard extends StatelessWidget {
   final int iconIndex;
   final int todoCount;
   final String? photoPath;
+  final int widgetLayoutType;
   final VoidCallback? onTap;
 
   const PosterCard({
@@ -74,6 +75,7 @@ class PosterCard extends StatelessWidget {
     this.iconIndex = 0,
     this.todoCount = 0,
     this.photoPath,
+    this.widgetLayoutType = 0,
     this.onTap,
   });
 
@@ -135,150 +137,222 @@ class PosterCard extends StatelessWidget {
               // 3. Content Layout (Padding 20)
               Padding(
                 padding: const EdgeInsets.all(20),
-                child: Stack(
-                  children: [
-                    // Force Stack to fill available width and height
-                    const SizedBox.expand(),
+                child: widgetLayoutType == 0
+                    ? _buildDDayEmphasis(theme, fgColor, iconData, isPast)
+                    : _buildTitleEmphasis(theme, fgColor, iconData, isPast),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
-                    // Top-Left: Title & Date & Todo Badge (Always aligns left)
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Title
-                        Padding(
-                          padding: const EdgeInsets.only(right: 48.0), // Fixed space for icon
-                          child: Text(
-                            title,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: theme.textTheme.titleLarge?.copyWith(
-                              fontWeight: FontWeight.w700,
-                              fontSize: 22, 
-                              color: fgColor, 
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        
-                        // Date Line
-                        Text(
-                          dateLine,
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            fontSize: 14,
-                            color: fgColor.withOpacity(0.85),
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-
-                        // Todo Badge
-                        if (todoCount > 0) ...[
-                          const SizedBox(height: 8),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: fgColor.withOpacity(0.15),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                HugeIcon(
-                                  icon: HugeIcons.strokeRoundedTask01,
-                                  color: fgColor.withOpacity(0.8),
-                                  size: 14,
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  '$todoCount',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
-                                    color: fgColor.withOpacity(0.8),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-
-                    // Top-Right: Icon (Positioned absolutely so it doesn't move)
-                    Positioned(
-                      top: 0,
-                      right: 0,
-                      child: Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.3),
-                          shape: BoxShape.circle,
-                        ),
-                        child: HugeIcon(
-                          icon: iconData,
-                          color: fgColor,
-                          size: 24,
-                        ),
-                      ),
-                    ),
-
-                    // Bottom-Left: D-Day Text
-                    Positioned(
-                      bottom: 0,
-                      left: 0,
-                      child: Text(
-                        dText,
-                        textAlign: TextAlign.left,
-                        style: theme.textTheme.displaySmall?.copyWith( 
-                          // 사진이 있으면 폰트 크기 축소
-                          fontSize: photoPath != null ? 32 : 40,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: -1.0,
-                          height: 1.0,
-                          color: fgColor, 
-                        ),
-                      ),
-                    ),
-
-                    // Bottom-Right: Photo (정사각형) - 파일 존재할 때만 표시
-                    if (photoPath != null && photoPath!.isNotEmpty)
-                      Positioned(
-                        bottom: 0,
-                        right: 0,
-                        child: FutureBuilder<bool>(
-                          future: File(photoPath!).exists(),
-                          builder: (context, snapshot) {
-                            if (snapshot.data != true) {
-                              return const SizedBox.shrink();
-                            }
-                            return Container(
-                              width: 72,
-                              height: 72,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(12),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.15),
-                                    blurRadius: 4,
-                                    offset: const Offset(0, 2),
-                                  ),
-                                ],
-                              ),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(12),
-                                child: Image.file(
-                                  File(photoPath!),
-                                  key: ValueKey(photoPath),
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (_, __, ___) => const SizedBox.shrink(),
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                  ],
+  Widget _buildDDayEmphasis(ThemeData theme, Color fgColor, IconData iconData, bool isPast) {
+    return Stack(
+      children: [
+        const SizedBox.expand(),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(right: 48.0),
+              child: Text(
+                title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 22,
+                  color: fgColor,
                 ),
               ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              dateLine,
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontSize: 14,
+                color: fgColor.withOpacity(0.85),
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            if (todoCount > 0) _buildTodoBadge(fgColor),
+          ],
+        ),
+        Positioned(
+          top: 0,
+          right: 0,
+          child: _buildIcon(fgColor, iconData),
+        ),
+        Positioned(
+          bottom: 0,
+          left: 0,
+          child: _buildDDayText(theme, fgColor),
+        ),
+        if (photoPath != null && photoPath!.isNotEmpty)
+          Positioned(
+            bottom: 0,
+            right: 0,
+            child: _buildPhoto(),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildTitleEmphasis(ThemeData theme, Color fgColor, IconData iconData, bool isPast) {
+    return Stack(
+      children: [
+        const SizedBox.expand(),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Text(
+                title,
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.headlineMedium?.copyWith(
+                  fontWeight: FontWeight.w800,
+                  fontSize: 28,
+                  color: fgColor,
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _buildDDayText(theme, fgColor, fontSize: 20),
+                const SizedBox(width: 8),
+                Text(
+                  dateLine,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontSize: 14,
+                    color: fgColor.withOpacity(0.7),
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+            if (todoCount > 0) ...[
+               const SizedBox(height: 8),
+               _buildTodoBadge(fgColor),
+            ],
+          ],
+        ),
+        Positioned(
+          top: 0,
+          right: 0,
+          child: _buildIcon(fgColor, iconData),
+        ),
+        if (photoPath != null && photoPath!.isNotEmpty)
+          Positioned(
+            bottom: 0,
+            right: 0,
+            child: _buildPhoto(size: 60),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildIcon(Color fgColor, IconData iconData) {
+    return Container(
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.3),
+        shape: BoxShape.circle,
+      ),
+      child: HugeIcon(
+        icon: iconData,
+        color: fgColor,
+        size: 24,
+      ),
+    );
+  }
+
+  Widget _buildTodoBadge(Color fgColor) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 8.0),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+          color: fgColor.withOpacity(0.15),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            HugeIcon(
+              icon: HugeIcons.strokeRoundedTask01,
+              color: fgColor.withOpacity(0.8),
+              size: 14,
+            ),
+            const SizedBox(width: 4),
+            Text(
+              '$todoCount',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: fgColor.withOpacity(0.8),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDDayText(ThemeData theme, Color fgColor, {double? fontSize}) {
+    return Text(
+      dText,
+      textAlign: TextAlign.left,
+      style: theme.textTheme.displaySmall?.copyWith(
+        fontSize: fontSize ?? (photoPath != null ? 32 : 40),
+        fontWeight: FontWeight.w700,
+        letterSpacing: -1.0,
+        height: 1.0,
+        color: fgColor,
+      ),
+    );
+  }
+
+  Widget _buildPhoto({double size = 72}) {
+    return FutureBuilder<bool>(
+      future: File(photoPath!).exists(),
+      builder: (context, snapshot) {
+        if (snapshot.data != true) {
+          return const SizedBox.shrink();
+        }
+        return Container(
+          width: size,
+          height: size,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.15),
+                blurRadius: 4,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: Image.file(
+              File(photoPath!),
+              key: ValueKey(photoPath),
+              fit: BoxFit.cover,
+              errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+            ),
+          ),
+        );
+      },
+    );
+  }
             ],
           ),
         ),

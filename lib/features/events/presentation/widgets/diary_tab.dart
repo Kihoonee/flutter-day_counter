@@ -86,12 +86,12 @@ class DiaryTab extends ConsumerWidget {
                                   padding: const EdgeInsets.only(right: 20),
                                   margin: const EdgeInsets.only(bottom: 12),
                                   decoration: BoxDecoration(
-                                    color: theme.colorScheme.errorContainer,
+                                    color: theme.colorScheme.surfaceContainerHighest,
                                     borderRadius: BorderRadius.circular(16),
                                   ),
                                   child: HugeIcon(
                                     icon: HugeIcons.strokeRoundedDelete02,
-                                    color: theme.colorScheme.onErrorContainer,
+                                    color: theme.colorScheme.onSurfaceVariant,
                                   ),
                                 ),
                                 child: _DiaryCard(

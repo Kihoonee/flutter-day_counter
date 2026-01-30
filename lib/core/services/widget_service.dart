@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:home_widget/home_widget.dart';
 import '../../features/events/domain/event.dart';
@@ -5,12 +7,52 @@ import '../../features/events/presentation/widgets/poster_card.dart'; // To acce
 import '../utils/date_calc.dart';
 
 class WidgetService {
-  static const String appGroupId = 'group.com.kihoonee.daycounterv2'; 
-  static const String androidWidgetName = 'DayCounterWidget';
+  static const String appGroupId = 'group.com.handroom.daysplus'; 
+  static const String androidWidgetName = 'DaysPlusWidget';
 
   String _colorToHex(dynamic color) {
     if (color is! Color) return 'FFFFFF';
     return color.value.toRadixString(16).padLeft(8, '0').substring(2).toUpperCase();
+  }
+
+  /// Save events list as JSON for native widget configuration
+  Future<void> saveEventsList(List<Event> events) async {
+    try {
+      await HomeWidget.setAppGroupId(appGroupId);
+      
+      final eventsJson = events.map((e) {
+        final diff = DateCalc.diffDays(
+          base: DateTime.now(),
+          target: e.targetDate,
+          includeToday: e.includeToday,
+          excludeWeekends: e.excludeWeekends,
+        );
+        String dText;
+        if (diff == 0) {
+          dText = 'D-Day';
+        } else if (diff > 0) {
+          dText = 'D-$diff';
+        } else {
+          dText = 'D+${diff.abs()}';
+        }
+        
+        final pTheme = posterThemes[e.themeIndex % posterThemes.length];
+        return {
+          'id': e.id,
+          'title': e.title,
+          'date': '${e.targetDate.year}.${e.targetDate.month.toString().padLeft(2, '0')}.${e.targetDate.day.toString().padLeft(2, '0')}',
+          'dday': dText,
+          'bgColor': _colorToHex(pTheme.bg),
+          'fgColor': '4A4A4A',
+          'layoutType': e.widgetLayoutType,
+        };
+      }).toList();
+      
+      await HomeWidget.saveWidgetData('widget_events_list', jsonEncode(eventsJson));
+      print('WIDGET_SERVICE: Saved ${events.length} events for widget selection');
+    } catch (e) {
+      print('WIDGET_SERVICE: Error saving events list: $e');
+    }
   }
 
   Future<void> updateWidget(Event? event) async {
@@ -28,6 +70,7 @@ class WidgetService {
         await HomeWidget.saveWidgetData('widget_dday', '');
         await HomeWidget.saveWidgetData('widget_bg_color', 'FFFFFF');
         await HomeWidget.saveWidgetData('widget_fg_color', '000000');
+        await HomeWidget.saveWidgetData('widget_layout_type', 0);
         await HomeWidget.updateWidget(
             name: androidWidgetName, androidName: androidWidgetName, iOSName: androidWidgetName);
         return;
@@ -63,6 +106,7 @@ class WidgetService {
       await HomeWidget.saveWidgetData('widget_dday', dText);
       await HomeWidget.saveWidgetData('widget_bg_color', bgColorHex);
       await HomeWidget.saveWidgetData('widget_fg_color', fgColorHex);
+      await HomeWidget.saveWidgetData('widget_layout_type', event.widgetLayoutType);
       
       await HomeWidget.updateWidget(
           name: androidWidgetName, androidName: androidWidgetName, iOSName: androidWidgetName);

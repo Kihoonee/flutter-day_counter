@@ -9,10 +9,10 @@ import AppIntents
 import SwiftUI
 import WidgetKit
 
-struct DayCounterWidgetControl: ControlWidget {
+struct DaysPlusWidgetControl: ControlWidget {
     var body: some ControlWidgetConfiguration {
         StaticControlConfiguration(
-            kind: "com.kihoonee.daycounterv2.DayCounterWidget",
+            kind: "com.handroom.daysplus.DaysPlusWidget",
             provider: Provider()
         ) { value in
             ControlWidgetToggle(
@@ -28,7 +28,7 @@ struct DayCounterWidgetControl: ControlWidget {
     }
 }
 
-extension DayCounterWidgetControl {
+extension DaysPlusWidgetControl {
     struct Provider: ControlValueProvider {
         var previewValue: Bool {
             false

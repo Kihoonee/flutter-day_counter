@@ -1,89 +1,21 @@
-# 최신 OS 및 의존성 업데이트 계획
+# 사진 추가 항목 위치 변경 계획
 
-iOS/Android 최신 OS 지원 및 모든 패키지를 최신 버전으로 업데이트합니다.
+'새 이벤트' 등록 화면과 '이벤트 수정' 화면에서 '사진 추가' 항목이 아래쪽에 있어 발견하기 어렵다는 피드백을 반영하여, '이벤트 제목' 바로 아래로 위치를 조정합니다.
 
----
+## 제안된 변경 사항
 
-## 현재 플랫폼 설정
+### [Presentation Layer]
 
-| 플랫폼 | 현재 설정 | 권장 설정 |
-| :--- | :--- | :--- |
-| iOS | 15.0 | **16.0** (Flutter 최신 권장) |
-| Android minSdk | flutter.minSdkVersion | **24** (최신 Firebase/AdMob 요구) |
-| Android targetSdk | flutter.targetSdkVersion | **35** (Android 15) |
+#### [MODIFY] [event_edit_page.dart](file:///Users/kihoonee/flutter/day_counter/lib/features/events/presentation/pages/event_edit_page.dart)
+- `Column` 내부에 위치한 '사진 추가' 카드(`Card`) 섹션을 '이벤트 제목 입력' 카드 바로 다음으로 이동합니다.
+- 이동 후 적절한 간격(`SizedBox`)을 유지합니다.
 
----
+#### [MODIFY] [edit_tab.dart](file:///Users/kihoonee/flutter/day_counter/lib/features/events/presentation/widgets/edit_tab.dart)
+- `EditTab` 내의 '사진 추가' 카드 섹션을 '제목 입력' 카드 바로 하단으로 이동합니다.
 
-## Outdated Dependencies
+## 검증 계획
 
-### 🔴 Major Updates (Breaking Changes 가능)
-
-| 패키지 | 현재 | 최신 | 비고 |
-| :--- | :--- | :--- | :--- |
-| firebase_core | 3.15.2 | **4.4.0** | Firebase SDK 메이저 업데이트 |
-| firebase_analytics | 11.6.0 | **12.1.1** | |
-| firebase_messaging | 15.2.10 | **16.1.1** | |
-| firebase_remote_config | 5.5.0 | **6.1.4** | |
-| google_mobile_ads | 5.2.0 | **7.0.0** | AdMob SDK 메이저 업데이트 |
-| image_cropper | 8.1.0 | **11.0.0** | API 변경 가능 |
-| flutter_local_notifications | 19.5.0 | **20.0.0** | |
-| home_widget | 0.7.0 | **0.9.0** | |
-| hooks | 0.20.5 | **1.0.0** | |
-
-### 🟡 Minor/Patch Updates
-
-| 패키지 | 현재 | 최신 |
-| :--- | :--- | :--- |
-| dio | 5.9.0 | 5.9.1 |
-| path_provider | 2.1.3 | 2.1.5 |
-| sembast_web | 2.4.3 | 2.4.4 |
-| timezone | 0.10.1 | 0.11.0 |
-| riverpod_annotation | 4.0.0 | 4.0.1 |
-| freezed | 3.2.3 | 3.2.4 |
-| json_serializable | 6.11.2 | 6.11.4 |
-| riverpod_generator | 4.0.0+1 | 4.0.2 |
-
----
-
-## User Review Required
-
-> [!CAUTION]
-> **Major 업데이트**는 API 변경이 있을 수 있습니다. 특히:
-> - `firebase_core` 4.x: 초기화 방식 변경 가능
-> - `google_mobile_ads` 7.x: AdWidget 사용법 변경 가능
-> - `image_cropper` 11.x: 크롭 설정 API 변경
-
-**선택지:**
-1. **전체 업데이트**: 모든 패키지를 최신으로 (권장, 시간 소요)
-2. **Minor만 업데이트**: Breaking changes 없이 안전하게 업데이트
-3. **선택적 업데이트**: 특정 패키지만 지정
-
----
-
-## Proposed Changes
-
-### [Platform Configuration]
-
-#### [MODIFY] [Podfile](file:///Users/kihoonee/flutter/day_counter/ios/Podfile)
-- iOS deployment target: `15.0` → `16.0`
-
-#### [MODIFY] [build.gradle.kts](file:///Users/kihoonee/flutter/day_counter/android/app/build.gradle.kts)
-- 명시적 minSdk: `24`, targetSdk: `35`
-
----
-
-### [Dependencies]
-
-#### [MODIFY] [pubspec.yaml](file:///Users/kihoonee/flutter/day_counter/pubspec.yaml)
-- 모든 outdated 패키지 버전 업데이트
-- `dependency_overrides` 섹션 제거 (호환성 확인 후)
-
----
-
-## Verification Plan
-
-1. `flutter pub upgrade --major-versions`
-2. `flutter analyze` - 에러 확인
-3. `dart run build_runner build` - 코드 생성
-4. iOS/Android 빌드 테스트
-5. 앱 실행 및 기능 테스트
+### 수동 검증
+1. **새 이벤트 화면**: 제목 입력 후 바로 아래에 사진 추가 항목이 있는지 확인.
+2. **이벤트 수정 화면**: 상세 페이지의 '수정' 탭에서 사진 추가 항목의 위치가 제목 아래로 이동했는지 확인.
+3. **기능 확인**: 위치 이동 후에도 사진 선택, 변경, 삭제 기능이 정상 작동하는지 확인.

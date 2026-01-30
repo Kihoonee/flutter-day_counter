@@ -46,6 +46,9 @@ abstract class Event with _$Event {
     // 정렬 순서 (오름차순)
     @Default(0) int sortOrder,
 
+    // 위젯 레이아웃 타입 (0: D-Day 강조, 1: 타이틀 강조)
+    @Default(0) int widgetLayoutType,
+
   }) = _Event;
 
 

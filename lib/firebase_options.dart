@@ -67,7 +67,7 @@ class DefaultFirebaseOptions {
     projectId: 'mytodolist-32469',
     databaseURL: 'https://mytodolist-32469.firebaseio.com',
     storageBucket: 'mytodolist-32469.firebasestorage.app',
-    iosBundleId: 'com.kihoonee.daycounterv2',
+    iosBundleId: 'com.handroom.daysplus',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
@@ -77,7 +77,7 @@ class DefaultFirebaseOptions {
     projectId: 'mytodolist-32469',
     databaseURL: 'https://mytodolist-32469.firebaseio.com',
     storageBucket: 'mytodolist-32469.firebasestorage.app',
-    iosBundleId: 'com.kihoonee.daycounterv2',
+    iosBundleId: 'com.handroom.daysplus',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(

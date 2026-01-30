@@ -31,6 +31,7 @@ class _EventDetailPageState extends ConsumerState<EventDetailPage>
   bool? _previewIncludeToday;
   bool? _previewExcludeWeekends;
   String? _previewPhotoPath;
+  int? _previewWidgetLayoutType;
 
   @override
   void initState() {
@@ -117,6 +118,7 @@ class _EventDetailPageState extends ConsumerState<EventDetailPage>
                           iconIndex: _previewIconIndex ?? event.iconIndex,
                           todoCount: event.todos.length,
                           photoPath: _previewPhotoPath ?? event.photoPath,
+                          widgetLayoutType: _previewWidgetLayoutType ?? event.widgetLayoutType,
                         ),
                       ),
                     ),
@@ -167,6 +169,7 @@ class _EventDetailPageState extends ConsumerState<EventDetailPage>
                         onIconChanged: (i) => setState(() => _previewIconIndex = i),
                         onThemeChanged: (i) => setState(() => _previewThemeIndex = i),
                         onPhotoChanged: (p) => setState(() => _previewPhotoPath = p),
+                        onWidgetLayoutTypeChanged: (v) => setState(() => _previewWidgetLayoutType = v),
                       ),
                   ],
                 );

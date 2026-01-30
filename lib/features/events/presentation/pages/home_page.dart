@@ -16,7 +16,7 @@ class HomePage extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('DayCounter'),
+        title: const Text('Days+'),
         actions: [
           IconButton(
             onPressed: () => context.push('/events'),

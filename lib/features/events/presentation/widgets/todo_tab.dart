@@ -43,7 +43,7 @@ class _TodoTabState extends ConsumerState<TodoTab> {
     final updatedEvent = widget.event.copyWith(todos: updatedTodos);
 
     await ref.read(eventsProvider.notifier).upsert(updatedEvent);
-    
+
     if (!mounted) return;
     _controller.clear();
     _focusNode.requestFocus();
@@ -62,8 +62,9 @@ class _TodoTabState extends ConsumerState<TodoTab> {
   }
 
   Future<void> _removeTodo(TodoItem todo) async {
-    final updatedTodos =
-        widget.event.todos.where((t) => t.id != todo.id).toList();
+    final updatedTodos = widget.event.todos
+        .where((t) => t.id != todo.id)
+        .toList();
     final updatedEvent = widget.event.copyWith(todos: updatedTodos);
     await ref.read(eventsProvider.notifier).upsert(updatedEvent);
   }
@@ -74,7 +75,8 @@ class _TodoTabState extends ConsumerState<TodoTab> {
     final todos = widget.event.todos;
 
     // 미완료 항목을 위로, 완료 항목을 아래로 정렬
-    final sortedTodos = [...todos]..sort((a, b) {
+    final sortedTodos = [...todos]
+      ..sort((a, b) {
         if (a.isCompleted == b.isCompleted) {
           return b.createdAt.compareTo(a.createdAt); // 최신순
         }
@@ -108,10 +110,32 @@ class _TodoTabState extends ConsumerState<TodoTab> {
                                 controller: _controller,
                                 focusNode: _focusNode,
                                 decoration: InputDecoration(
-                                  hintText: '새로운 할 일...',
-                                  hintStyle: TextStyle(color: theme.colorScheme.outline.withOpacity(0.5)),
-                                  border: InputBorder.none,
-                                  contentPadding: const EdgeInsets.symmetric(vertical: 14),
+                                  hintText: '  할 일을 입력하세요',
+                                  hintStyle: TextStyle(
+                                    color: theme.colorScheme.outline
+                                        .withOpacity(0.5),
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide(
+                                      color: theme.colorScheme.outlineVariant,
+                                    ),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide(
+                                      color: theme.colorScheme.outlineVariant,
+                                    ),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide(
+                                      color: theme.colorScheme.outlineVariant,
+                                    ),
+                                  ),
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    vertical: 14,
+                                  ),
                                   isDense: true,
                                 ),
                                 onSubmitted: (_) => _addTodo(),
@@ -120,7 +144,7 @@ class _TodoTabState extends ConsumerState<TodoTab> {
                             IconButton(
                               onPressed: _addTodo,
                               icon: const HugeIcon(
-                                icon: HugeIcons.strokeRoundedAdd01, 
+                                icon: HugeIcons.strokeRoundedAdd01,
                                 color: Colors.black,
                                 size: 20,
                               ),
@@ -151,13 +175,17 @@ class _TodoTabState extends ConsumerState<TodoTab> {
                       HugeIcon(
                         icon: HugeIcons.strokeRoundedTask01,
                         size: 48,
-                        color: theme.colorScheme.outlineVariant.withOpacity(0.5),
+                        color: theme.colorScheme.outlineVariant.withOpacity(
+                          0.5,
+                        ),
                       ),
                       const SizedBox(height: 20),
                       Text(
                         '할 일을 추가해보세요',
                         style: theme.textTheme.titleMedium?.copyWith(
-                          color: theme.colorScheme.outline.withOpacity(0.5), // Softer color as per v1
+                          color: theme.colorScheme.outline.withOpacity(
+                            0.5,
+                          ), // Softer color as per v1
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -167,70 +195,79 @@ class _TodoTabState extends ConsumerState<TodoTab> {
               )
             else
               SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) {
-                    final todo = sortedTodos[index];
-                    return Dismissible(
-                      key: Key(todo.id),
-                      direction: DismissDirection.endToStart,
-                      onDismissed: (_) => _removeTodo(todo),
-                      background: Container(
-                        alignment: Alignment.centerRight,
-                        padding: const EdgeInsets.only(right: 20),
-                        margin: const EdgeInsets.only(bottom: 8, left: 16, right: 16),
-                        decoration: BoxDecoration(
-                           color: theme.colorScheme.surfaceContainerHighest,
-                           borderRadius: BorderRadius.circular(16),
+                delegate: SliverChildBuilderDelegate((context, index) {
+                  final todo = sortedTodos[index];
+                  return Dismissible(
+                    key: Key(todo.id),
+                    direction: DismissDirection.endToStart,
+                    onDismissed: (_) => _removeTodo(todo),
+                    background: Container(
+                      alignment: Alignment.centerRight,
+                      padding: const EdgeInsets.only(right: 20),
+                      margin: const EdgeInsets.only(
+                        bottom: 8,
+                        left: 16,
+                        right: 16,
+                      ),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.surfaceContainerHighest,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: HugeIcon(
+                        icon: HugeIcons.strokeRoundedDelete02,
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Card(
+                        elevation: 0,
+                        color: Colors.transparent,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
                         ),
-                          child: HugeIcon(
-                            icon: HugeIcons.strokeRoundedDelete02,
-                            color: theme.colorScheme.onSurfaceVariant,
+                        margin: const EdgeInsets.only(bottom: 8),
+                        child: CheckboxListTile(
+                          value: todo.isCompleted,
+                          onChanged: (_) => _toggleTodo(todo),
+                          dense: true, // Reduced height
+                          visualDensity: VisualDensity.compact, // More compact
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 0,
                           ),
-                        ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: Card(
-                          elevation: 0,
-                          color: Colors.transparent,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                          margin: const EdgeInsets.only(bottom: 8),
-                          child: CheckboxListTile(
-                            value: todo.isCompleted,
-                            onChanged: (_) => _toggleTodo(todo),
-                            dense: true, // Reduced height
-                            visualDensity: VisualDensity.compact, // More compact
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
-                            title: Text(
-                              todo.content,
-                              style: TextStyle(
-                                decoration: todo.isCompleted
-                                    ? TextDecoration.lineThrough
-                                    : null,
-                                color: todo.isCompleted
-                                    ? theme.colorScheme.outline
-                                    : theme.colorScheme.onSurface,
-                              ),
+                          title: Text(
+                            todo.content,
+                            style: TextStyle(
+                              decoration: todo.isCompleted
+                                  ? TextDecoration.lineThrough
+                                  : null,
+                              color: todo.isCompleted
+                                  ? theme.colorScheme.outline
+                                  : theme.colorScheme.onSurface,
                             ),
-                            controlAffinity: ListTileControlAffinity.leading,
-                            secondary: Text(
-                              DateFormat('yyyy.MM.dd').format(todo.createdAt),
-                              style: TextStyle(
-                                color: theme.colorScheme.onSurfaceVariant.withOpacity(0.5),
-                                fontSize: 12,
-                              ),
+                          ),
+                          controlAffinity: ListTileControlAffinity.leading,
+                          secondary: Text(
+                            DateFormat('yyyy.MM.dd').format(todo.createdAt),
+                            style: TextStyle(
+                              color: theme.colorScheme.onSurfaceVariant
+                                  .withOpacity(0.5),
+                              fontSize: 12,
                             ),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
                           ),
                         ),
                       ),
-                    );
-                  },
-                  childCount: sortedTodos.length,
-                ),
+                    ),
+                  );
+                }, childCount: sortedTodos.length),
               ),
           ],
         );
-      }
+      },
     );
   }
 }

@@ -21,6 +21,7 @@ class EditTab extends ConsumerStatefulWidget {
   final ValueChanged<bool>? onIncludeTodayChanged;
   final ValueChanged<bool>? onExcludeWeekendsChanged;
   final ValueChanged<String?>? onPhotoChanged;
+  final ValueChanged<int>? onWidgetLayoutTypeChanged;
   const EditTab({
     super.key,
     required this.event,
@@ -31,6 +32,7 @@ class EditTab extends ConsumerStatefulWidget {
     this.onIncludeTodayChanged,
     this.onExcludeWeekendsChanged,
     this.onPhotoChanged,
+    this.onWidgetLayoutTypeChanged,
   });
 
   @override
@@ -46,6 +48,7 @@ class _EditTabState extends ConsumerState<EditTab> {
   late int _themeIndex;
   late int _iconIndex;
   String? _photoPath;
+  late int _widgetLayoutType;
 
   final ImageService _imageService = ImageService();
   bool _initialized = false;
@@ -75,6 +78,7 @@ class _EditTabState extends ConsumerState<EditTab> {
     _themeIndex = e.themeIndex;
     _iconIndex = e.iconIndex;
     _photoPath = e.photoPath;
+    _widgetLayoutType = e.widgetLayoutType;
   }
 
   Future<void> _pickPhoto() async {
@@ -103,6 +107,63 @@ class _EditTabState extends ConsumerState<EditTab> {
     await _imageService.deleteImage(_photoPath);
     setState(() => _photoPath = null);
     widget.onPhotoChanged?.call(null);
+  }
+
+  void _showLayoutPicker(BuildContext context) {
+    final theme = Theme.of(context);
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Text(
+                '위젯 레이아웃 선택',
+                style: theme.textTheme.titleMedium,
+              ),
+            ),
+            ListTile(
+              leading: Icon(
+                Icons.today,
+                color: _widgetLayoutType == 0 ? theme.colorScheme.primary : null,
+              ),
+              title: const Text('D-Day 강조'),
+              subtitle: const Text('D-Day를 크게, 목표일은 타이틀 아래에 작게'),
+              trailing: _widgetLayoutType == 0
+                  ? Icon(Icons.check, color: theme.colorScheme.primary)
+                  : null,
+              onTap: () {
+                setState(() => _widgetLayoutType = 0);
+                widget.onWidgetLayoutTypeChanged?.call(0);
+                Navigator.pop(ctx);
+              },
+            ),
+            ListTile(
+              leading: Icon(
+                Icons.title,
+                color: _widgetLayoutType == 1 ? theme.colorScheme.primary : null,
+              ),
+              title: const Text('타이틀 강조'),
+              subtitle: const Text('타이틀을 크게 표시'),
+              trailing: _widgetLayoutType == 1
+                  ? Icon(Icons.check, color: theme.colorScheme.primary)
+                  : null,
+              onTap: () {
+                setState(() => _widgetLayoutType = 1);
+                widget.onWidgetLayoutTypeChanged?.call(1);
+                Navigator.pop(ctx);
+              },
+            ),
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildPhotoIcon(ThemeData theme) {
@@ -168,6 +229,112 @@ class _EditTabState extends ConsumerState<EditTab> {
                           setState(() {});
                           widget.onTitleChanged?.call(v);
                         },
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // 6. 사진 추가 (단순화된 UX) - 타이틀 하단으로 이동
+                    Card(
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: InkWell(
+                        onTap: () async {
+                          if (_photoPath == null || _photoPath!.isEmpty) {
+                            // 사진 없으면 바로 갤러리
+                            await _pickPhoto();
+                          } else {
+                            // 사진 있으면 ActionSheet
+                            final action = await showModalBottomSheet<String>(
+                              context: context,
+                              builder: (ctx) => SafeArea(
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    ListTile(
+                                      leading: const Icon(
+                                        Icons.photo_library_outlined,
+                                      ),
+                                      title: const Text('사진 변경'),
+                                      onTap: () => Navigator.pop(ctx, 'change'),
+                                    ),
+                                    ListTile(
+                                      leading: Icon(
+                                        Icons.delete_outline,
+                                        color: theme.colorScheme.error,
+                                      ),
+                                      title: Text(
+                                        '사진 삭제',
+                                        style: TextStyle(
+                                          color: theme.colorScheme.error,
+                                        ),
+                                      ),
+                                      onTap: () => Navigator.pop(ctx, 'delete'),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                            if (action == 'change') {
+                              await _pickPhoto();
+                            } else if (action == 'delete') {
+                              await _deletePhoto();
+                            }
+                          }
+                        },
+                        borderRadius: BorderRadius.circular(16),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Row(
+                            children: [
+                              // 사진 미리보기
+                              Container(
+                                width: 64,
+                                height: 64,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(12),
+                                  color:
+                                      theme.colorScheme.surfaceContainerHighest,
+                                  border: Border.all(
+                                    color: theme.colorScheme.outlineVariant
+                                        .withOpacity(0.3),
+                                  ),
+                                ),
+                                child: _photoPath != null && _photoPath!.isNotEmpty
+                                    ? FutureBuilder<bool>(
+                                        future: File(_photoPath!).exists(),
+                                        builder: (context, snapshot) {
+                                          if (snapshot.data == true) {
+                                            return ClipRRect(
+                                              borderRadius: BorderRadius.circular(11),
+                                              child: Image.file(
+                                                File(_photoPath!),
+                                                key: ValueKey(_photoPath),
+                                                fit: BoxFit.cover,
+                                                errorBuilder: (_, __, ___) =>
+                                                    _buildPhotoIcon(theme),
+                                              ),
+                                            );
+                                          }
+                                          return _buildPhotoIcon(theme);
+                                        },
+                                      )
+                                    : _buildPhotoIcon(theme),
+                              ),
+                              const SizedBox(width: 16),
+                              // 텍스트
+                              Expanded(
+                                child: Text(
+                                  '사진 추가',
+                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                    color: theme.colorScheme.onSurfaceVariant,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 24), // 간격 확보
@@ -308,112 +475,46 @@ class _EditTabState extends ConsumerState<EditTab> {
                     ),
                     const SizedBox(height: 16),
 
-                    // 6. 사진 추가 (단순화된 UX)
+                    // 2.5. 위젯 레이아웃 선택
                     Card(
                       elevation: 0,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: InkWell(
-                        onTap: () async {
-                          if (_photoPath == null || _photoPath!.isEmpty) {
-                            // 사진 없으면 바로 갤러리
-                            await _pickPhoto();
-                          } else {
-                            // 사진 있으면 ActionSheet
-                            final action = await showModalBottomSheet<String>(
-                              context: context,
-                              builder: (ctx) => SafeArea(
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    ListTile(
-                                      leading: const Icon(
-                                        Icons.photo_library_outlined,
-                                      ),
-                                      title: const Text('사진 변경'),
-                                      onTap: () => Navigator.pop(ctx, 'change'),
-                                    ),
-                                    ListTile(
-                                      leading: Icon(
-                                        Icons.delete_outline,
-                                        color: theme.colorScheme.error,
-                                      ),
-                                      title: Text(
-                                        '사진 삭제',
-                                        style: TextStyle(
-                                          color: theme.colorScheme.error,
-                                        ),
-                                      ),
-                                      onTap: () => Navigator.pop(ctx, 'delete'),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            );
-                            if (action == 'change') {
-                              await _pickPhoto();
-                            } else if (action == 'delete') {
-                              await _deletePhoto();
-                            }
-                          }
-                        },
+                        onTap: () => _showLayoutPicker(context),
                         borderRadius: BorderRadius.circular(16),
                         child: Padding(
-                          padding: const EdgeInsets.all(16),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 14,
+                          ),
                           child: Row(
                             children: [
-                              // 사진 미리보기
-                              Container(
-                                width: 64,
-                                height: 64,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(12),
-                                  color:
-                                      theme.colorScheme.surfaceContainerHighest,
-                                  border: Border.all(
-                                    color: theme.colorScheme.outlineVariant
-                                        .withOpacity(0.3),
-                                  ),
+                              Text(
+                                '위젯 레이아웃',
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  color: theme.hintColor,
                                 ),
-                                child: _photoPath != null && _photoPath!.isNotEmpty
-                                    ? FutureBuilder<bool>(
-                                        future: File(_photoPath!).exists(),
-                                        builder: (context, snapshot) {
-                                          if (snapshot.data == true) {
-                                            return ClipRRect(
-                                              borderRadius: BorderRadius.circular(11),
-                                              child: Image.file(
-                                                File(_photoPath!),
-                                                key: ValueKey(_photoPath),
-                                                fit: BoxFit.cover,
-                                                errorBuilder: (_, __, ___) =>
-                                                    _buildPhotoIcon(theme),
-                                              ),
-                                            );
-                                          }
-                                          return _buildPhotoIcon(theme);
-                                        },
-                                      )
-                                    : _buildPhotoIcon(theme),
                               ),
-                              const SizedBox(width: 16),
-                              // 텍스트
-                              Expanded(
-                                child: Text(
-                                  _photoPath != null && _photoPath!.isNotEmpty
-                                      ? '추억사진'
-                                      : '추억사진',
-                                  style: theme.textTheme.bodyMedium?.copyWith(
-                                    color: theme.colorScheme.onSurfaceVariant,
-                                  ),
-                                ),
+                              const Spacer(),
+                              Text(
+                                _widgetLayoutType == 0 ? 'D-Day 강조' : '타이틀 강조',
+                                style: theme.textTheme.bodyMedium,
+                              ),
+                              const SizedBox(width: 4),
+                              Icon(
+                                Icons.chevron_right,
+                                size: 20,
+                                color: theme.hintColor,
                               ),
                             ],
                           ),
                         ),
                       ),
                     ),
+                    const SizedBox(height: 16),
+
                     const SizedBox(height: 32),
 
                     // 저장 / 삭제 버튼
@@ -473,6 +574,7 @@ class _EditTabState extends ConsumerState<EditTab> {
                                 themeIndex: _themeIndex,
                                 iconIndex: _iconIndex,
                                 photoPath: _photoPath,
+                                widgetLayoutType: _widgetLayoutType,
                               );
 
                               await ref

@@ -46,7 +46,7 @@
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>GADApplicationIdentifier</key>
-	<string>ca-app-pub-3940256099942544~1458002511</string>
+	<string>ca-app-pub-1982911804853023~2158114538</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>이벤트 카드에 사진을 추가하기 위해 사진 라이브러리 접근이 필요합니다.</string>
 </dict>

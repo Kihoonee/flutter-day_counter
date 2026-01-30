@@ -9,9 +9,9 @@ import WidgetKit
 import SwiftUI
 
 @main
-struct DayCounterWidgetBundle: WidgetBundle {
+struct DaysPlusWidgetBundle: WidgetBundle {
     var body: some Widget {
-        DayCounterWidget()
-        DayCounterWidgetControl()
+        DaysPlusWidget()
+        DaysPlusWidgetControl()
     }
 }

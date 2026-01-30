@@ -1,8 +1,8 @@
-import 'package:day_counter/core/errors/exceptions.dart';
-import 'package:day_counter/core/errors/failures.dart';
-import 'package:day_counter/features/events/data/datasources/event_local_data_source.dart';
-import 'package:day_counter/features/events/data/repositories/event_repository_impl.dart';
-import 'package:day_counter/features/events/domain/event.dart';
+import 'package:days_plus/core/errors/exceptions.dart';
+import 'package:days_plus/core/errors/failures.dart';
+import 'package:days_plus/features/events/data/datasources/event_local_data_source.dart';
+import 'package:days_plus/features/events/data/repositories/event_repository_impl.dart';
+import 'package:days_plus/features/events/domain/event.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:mockito/annotations.dart';

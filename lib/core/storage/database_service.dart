@@ -32,7 +32,7 @@ class DatabaseService {
       }
       
       await dir.create(recursive: true);
-      final dbPath = join(dir.path, 'day_counter_v2.db'); // 새 파일명 사용
+      final dbPath = join(dir.path, 'days_plus.db'); // 새 파일명 사용
       
       print('DatabaseService: Opening database at path: $dbPath');
 

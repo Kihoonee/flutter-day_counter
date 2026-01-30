@@ -200,6 +200,10 @@ class EventsController extends AsyncNotifier<List<Event>> {
         (events) {
            // Get top event (sortOrder 0 or first)
            final sorted = [...events]..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
+           
+           // Sync full list for widget configuration
+           WidgetService().saveEventsList(sorted);
+           
            final top = sorted.firstOrNull;
            WidgetService().updateWidget(top);
         },

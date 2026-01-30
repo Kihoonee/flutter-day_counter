@@ -32,9 +32,9 @@
             android:value="2" />
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-3940256099942544~3347511713"/>
+            android:value="ca-app-pub-1982911804853023~7802157601"/>
 
-        <receiver android:name=".DayCounterWidget" android:exported="true">
+        <receiver android:name=".DaysPlusWidget" android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -42,6 +42,15 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/widget_info" />
         </receiver>
+
+        <activity 
+            android:name=".DaysPlusWidgetConfigureActivity"
+            android:exported="true"
+            android:theme="@style/NormalTheme">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE"/>
+            </intent-filter>
+        </activity>
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and

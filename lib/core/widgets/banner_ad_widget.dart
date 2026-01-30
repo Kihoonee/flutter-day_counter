@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import '../../utils/ad_helper.dart';
+import '../ads/ad_units.dart';
 
 class BannerAdWidget extends StatefulWidget {
   const BannerAdWidget({super.key});
@@ -21,7 +21,7 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
 
   void _loadAd() {
     _bannerAd = BannerAd(
-      adUnitId: AdHelper.bannerAdUnitId,
+      adUnitId: AdUnits.bannerId,
       request: const AdRequest(),
       size: AdSize.banner,
       listener: BannerAdListener(

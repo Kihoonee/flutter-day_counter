@@ -1,6 +1,6 @@
 {
-    "name": "day_counter",
-    "short_name": "day_counter",
+    "name": "Days+",
+    "short_name": "Days+",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

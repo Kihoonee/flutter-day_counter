@@ -1,109 +1,88 @@
-# 의존성 업데이트 완료 보고서
+# 위젯 개선사항 구현 완료
 
-iOS/Android 최신 OS 지원 및 모든 패키지를 최신 버전으로 업데이트했습니다.
+## 구현 내역
 
----
-
-## 업데이트 요약
-
-### 플랫폼 설정
-| 플랫폼 | 이전 | 이후 |
-| :--- | :--- | :--- |
-| iOS Deployment Target | 15.0 | **16.0** |
-| Android minSdk | flutter.minSdkVersion | **24** |
-| Android targetSdk | flutter.targetSdkVersion | **35** |
-
-### Major 의존성 변경
-| 패키지 | 이전 | 이후 |
-| :--- | :--- | :--- |
-| firebase_core | 3.15.2 | **4.4.0** |
-| firebase_analytics | 11.6.0 | **12.1.1** |
-| firebase_messaging | 15.2.10 | **16.1.1** |
-| firebase_remote_config | 5.5.0 | **6.1.4** |
-| google_mobile_ads | 5.2.0 | **7.0.0** |
-| flutter_local_notifications | 19.5.0 | **20.0.0** |
-| image_cropper | 8.1.0 | **11.0.0** |
-| home_widget | 0.7.0 | **0.9.0** |
-| hooks | 0.20.5 | **1.0.0** |
+### Phase 1: 안드로이드 폰트 자동 크기 조절 ✅
+- [widget_layout.xml](file:///Users/kihoonee/flutter/day_counter/android/app/src/main/res/layout/widget_layout.xml) → `ConstraintLayout` + `autoSizeTextType="uniform"` 적용
+- 위젯 크기 변경 시 텍스트 겹침 현상 해결
 
 ---
 
-## 코드 수정 필요했던 부분
+### Phase 2: 레이아웃 선택 기능 ✅
 
-### [notification_service.dart](file:///Users/kihoonee/flutter/day_counter/lib/core/services/notification_service.dart)
+| 레이아웃 | 설명 |
+|---|---|
+| **D-Day 강조** (기본) | D-Day 크게, 타이틀+목표일 상단 |
+| **타이틀 강조** | 타이틀 크게, D-Day+목표일 하단 |
 
-`flutter_local_notifications` 20.0.0에서 positional → named parameters로 변경:
-
-```diff
-- await plugin.initialize(initializationSettings);
-+ await plugin.initialize(settings: initializationSettings);
-
-- await plugin.zonedSchedule(id, title, body, date, details, ...);
-+ await plugin.zonedSchedule(id: id, title: title, body: body, 
-+   scheduledDate: date, notificationDetails: details, ...);
-
-- await plugin.cancel(id);
-+ await plugin.cancel(id: id);
-```
-
+**변경 파일:**
+- [event.dart](file:///Users/kihoonee/flutter/day_counter/lib/features/events/domain/event.dart) - `widgetLayoutType` 필드 추가
+- [event_edit_page.dart](file:///Users/kihoonee/flutter/day_counter/lib/features/events/presentation/pages/event_edit_page.dart) - 레이아웃 선택 팝업 UI
+- [widget_service.dart](file:///Users/kihoonee/flutter/day_counter/lib/core/services/widget_service.dart) - `widget_layout_type` 저장
+- [DaysPlusWidget.swift](file:///Users/kihoonee/flutter/day_counter/ios/DaysPlusWidget/DaysPlusWidget.swift) - 레이아웃 분기
+- [DaysPlusWidget.kt](file:///Users/kihoonee/flutter/day_counter/android/app/src/main/kotlin/com/handroom/daysplus/DaysPlusWidget.kt) - 레이아웃 분기
+- [widget_layout_title.xml](file:///Users/kihoonee/flutter/day_counter/android/app/src/main/res/layout/widget_layout_title.xml) - 타이틀 강조 레이아웃
 
 ---
 
-## 라이브러리 교체 (Verification)
+### Phase 3: 위젯 이벤트 선택 기능 ✅
 
-**[UPDATE] image_cropper → crop_your_image 교체**
-- 이유: Android 네이티브 크래시 이슈 해결 및 iOS/Android UI 통일
-- 변경사항:
-  - `image_cropper` 제거
-  - `crop_your_image` 추가
-  - `AndroidManfiest.xml`에서 `UCropActivity` 제거
-  - `AndroidManfiest.xml`에서 `UCropActivity` 제거
-  - `ImageService`를 Flutter Widget(`_CropPage`) 기반으로 재작성
+**Android:**
+- [DaysPlusWidgetConfigureActivity.kt](file:///Users/kihoonee/flutter/day_counter/android/app/src/main/kotlin/com/handroom/daysplus/DaysPlusWidgetConfigureActivity.kt) - 이벤트 선택 Activity
+- [widget_info.xml](file:///Users/kihoonee/flutter/day_counter/android/app/src/main/res/xml/widget_info.xml) - `android:configure` 속성 추가
+- [AndroidManifest.xml](file:///Users/kihoonee/flutter/day_counter/android/app/src/main/AndroidManifest.xml) - Activity 등록
 
-## 버그 수정 (Bug Fixes)
+**iOS:**
+- [SelectEventIntent.swift](file:///Users/kihoonee/flutter/day_counter/ios/DaysPlusWidget/SelectEventIntent.swift) - `AppIntentConfiguration` 구현
+- 위젯 편집 시 이벤트 선택 가능 (iOS 17+)
 
-### iOS 실시간 사진 미리보기 이슈 수정
-- **증상**: iOS에서 사진 변경 시 즉시 반영되지 않고 이전 이미지가 보이거나 변경되지 않음.
-- **원인**: 
-  1. `EventDetailPage`가 `EditTab`의 사진 변경 상태(`_photoPath`)를 전달받지 못해 `PosterCard`에 기존 경로(`event.photoPath`)를 계속 주입함.
-  2. Flutter `Image.file` 위젯이 동일 경로의 파일 내용 변경을 즉시 감지하지 못하고 캐싱된 이미지를 보여줌.
-- **해결**:
-  1. **State Lifting**: `EventDetailPage`에 `_previewPhotoPath` 상태 추가 및 `EditTab`의 `onPhotoChanged` 콜백 연결.
-  2. **Cache Eviction**: 사진 변경 시 이전 파일 경로에 대해 `FileImage(...).evict()` 호출로 캐시 삭제.
-  3. **Force Rebuild**: `PosterCard` 이미지 위젯에 `key: ValueKey(photoPath)`를 부여하여 강제 리빌드 유도.
+**Flutter:**
+- [widget_service.dart](file:///Users/kihoonee/flutter/day_counter/lib/core/services/widget_service.dart) - `saveEventsList()` 메서드 추가
 
-### 새 이벤트 등록 화면 사진 기능 추가
-- **요청**: 새 기념일 등록 시 사진을 추가하는 UI가 누락됨.
-- **해결**: `EventEditPage`에 `EditTab`과 동일한 사진 선택/크롭/삭제 로직 및 UI 구현. 이제 이벤트를 생성할 때부터 사진을 등록할 수 있습니다.
-
-### 앱 세로 모드 고정
-- **요청**: 앱을 세로 모드로 고정해달라.
-- **해결**: `main.dart` 도입부에 `SystemChrome.setPreferredOrientations`를 사용하여 가로 모드 회전을 방지했습니다.
-
-## 릴리즈 빌드 완료 (Release Builds)
-
-### Android
-- **APK 생성**: `build/app/outputs/flutter-apk/app-release.apk`
-- **상태**: 릴리즈 사이닝 키스토어 설정에 따라 서명됨 (설정되어 있다고 가정).
-
-### iOS
-- **설치**: Kihoonee iPhone (실기기)에 릴리즈 모드로 설치 및 실행 완료.
+---
 
 ## 빌드 검증
 
-| 플랫폼 | 상태 |
-| :--- | :--- |
-| iOS Simulator | ✅ 정상 실행 (Hot Restart) |
-| Android Emulator | ✅ 정상 실행 (Hot Restart) |
-| 사진 크롭 UI | ✅ Flutter Custom UI 적용 |
+| 플랫폼 | 결과 |
+|---|---|
+| Android | ✅ `flutter build apk --debug` 성공 |
+| iOS | ✅ `flutter build ios --debug --no-codesign` 성공 |
 
 ---
 
-## 추가 확인 필요 (선택사항)
+## 추가 수정 사항 (2026.01.30) ✅
 
-dependency_overrides에 아직 남아있는 항목:
-- `path_provider_foundation: 2.4.0` (최신 2.6.0)
-- `objective_c: 1.0.0` (최신 9.2.4)
+### 1. 위젯 노출 문제 해결
+- **Android**: `androidx.constraintlayout`이 앱 위젯에서 지원되지 않는 문제로 인해 레이아웃을 `RelativeLayout`으로 변경하여 호환성 확보.
+- **iOS**: 프로젝트 파일(`pbxproj`)에 `SelectEventIntent.swift`가 누락된 문제를 스크립트로 해결하여 위젯 타겟이 파일을 인식하도록 수정.
 
-> [!TIP]
-> 이 override들은 다른 패키지와의 호환성 이슈로 유지 중입니다. 향후 의존성이 안정화되면 제거 가능합니다.
+### 2. UI 일관성 개선
+- **이벤트 수정 페이지**: 레이아웃 선택 카드와 사진 추가 카드 사이의 간격을 다른 항목들과 동일하게 수정.
+- **다이어리 탭**: 한줄 메모 삭제 제스처 시의 배경색을 할 일 목록 삭제 시의 색상(연한 회색 계열)과 동일하게 변경.
+
+### 3. 수정 화면 UI 배치 조정 ✅
+- **사진 추가 항목 위치 변경**: '새 이벤트' 등록 화면(`EventEditPage`)과 '이벤트 수정' 화면(`EditTab`)에서 '사진 추가' 카드를 '이벤트 제목' 입력 필드 바로 아래로 이동하여 접근성을 개선.
+- **간격 최적화**: 섹션 이동 후 카드 간의 간격을 16px로 조정하여 시각적 일관성 유지.
+
+### 3. 수정 화면 기능 보완 및 프리뷰 연동 ✅
+- **이벤트 수정 화면(`EditTab` / `EventEditPage`)**: 새 이벤트 등록 화면과 동일하게 위젯 레이아웃(D-Day 강조 / 타이틀 강조) 변경 기능을 추가.
+- **실시간 프리뷰**: `PosterCard` 위젯을 업데이트하여 레이아웃 선택 시 상세 페이지 및 수정 페이지에서 즉시 스타일 변화가 보이도록 프리뷰 기능을 연동.
+- **데이터 저장**: 선택한 레이아웃 타입이 저장되어 실제 홈 화면 위젯에도 반영됨.
+
+---
+
+## 최종 검증 완료 (2026.01.30) ✅
+
+### 검증 환경
+- **iOS**: iPhone 17 Pro Simulator (iOS 18.2)
+- **Android**: Pixel_6_API_33 Emulator (Android 13)
+
+### 검증 결과
+1. **위젯 노출 및 선택**:
+   - iOS/Android 모두 위젯 갤러리에서 정상 노출 확인.
+   - 위젯 추가 시 이벤트 선택 및 레이아웃 반영 확인.
+2. **UI 레이아웃**:
+   - 'D-Day 강조' 및 '타이틀 강조' 레이아웃이 각 플랫폼 위젯에서 정상 렌더링됨.
+   - 레이아웃 선택 카드 상하 간격이 16px로 균일하게 적용됨.
+3. **색상 및 스타일**:
+   - 다이어리 한줄 메모 삭제 제스처 시 배경색(`surfaceContainerHighest`)이 할 일 목록과 동일하게 변경됨.

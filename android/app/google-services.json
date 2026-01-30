@@ -1,41 +1,21 @@
 {
   "project_info": {
-    "project_number": "318837711922",
-    "firebase_url": "https://mytodolist-32469.firebaseio.com",
-    "project_id": "mytodolist-32469",
-    "storage_bucket": "mytodolist-32469.firebasestorage.app"
+    "project_number": "905646499733",
+    "project_id": "daysplus-40068",
+    "storage_bucket": "daysplus-40068.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:318837711922:android:ff1caace1e78730399882b",
+        "mobilesdk_app_id": "1:905646499733:android:db44a40d694bf3e8adf89c",
         "android_client_info": {
-          "package_name": "com.example.day_counter"
+          "package_name": "com.handroom.daysplus"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyCCPwRHAsnZE1-n-Aw9FKOKk9PI7rx-22E"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": []
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:318837711922:android:1b5095bca1cc77ff99882b",
-        "android_client_info": {
-          "package_name": "com.kihoonee.mytodolist"
-        }
-      },
-      "oauth_client": [],
-      "api_key": [
-        {
-          "current_key": "AIzaSyCCPwRHAsnZE1-n-Aw9FKOKk9PI7rx-22E"
+          "current_key": "AIzaSyBkZSA_MsiFO2bPtN9xvMQpV7L6EJZng78"
         }
       ],
       "services": {
