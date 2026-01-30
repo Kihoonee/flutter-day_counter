@@ -38,6 +38,7 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
   final ImageService _imageService = ImageService();
 
   bool _initialized = false;
+  bool _isPickingPhoto = false;
 
   @override
   void dispose() {
@@ -80,15 +81,20 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
   }
 
   Future<void> _pickPhoto() async {
-    final path = await _imageService.pickAndCropImage(context);
-    
-    if (path != null) {
-      if (_photoPath != null && _photoPath!.isNotEmpty) {
-        await FileImage(File(_photoPath!)).evict();
-        await _imageService.deleteImage(_photoPath);
-      }
+    setState(() => _isPickingPhoto = true);
+    try {
+      final path = await _imageService.pickAndCropImage(context);
       
-      setState(() => _photoPath = path);
+      if (path != null) {
+        if (_photoPath != null && _photoPath!.isNotEmpty) {
+          await FileImage(File(_photoPath!)).evict();
+          await _imageService.deleteImage(_photoPath);
+        }
+        
+        setState(() => _photoPath = path);
+      }
+    } finally {
+      if (mounted) setState(() => _isPickingPhoto = false);
     }
   }
 
@@ -109,60 +115,6 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
     );
   }
 
-  void _showLayoutPicker(BuildContext context) {
-    final theme = Theme.of(context);
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      builder: (ctx) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Text(
-                '위젯 레이아웃 선택',
-                style: theme.textTheme.titleMedium,
-              ),
-            ),
-            ListTile(
-              leading: Icon(
-                Icons.today,
-                color: _widgetLayoutType == 0 ? theme.colorScheme.primary : null,
-              ),
-              title: const Text('D-Day 강조'),
-              subtitle: const Text('D-Day를 크게, 목표일은 타이틀 아래에 작게'),
-              trailing: _widgetLayoutType == 0
-                  ? Icon(Icons.check, color: theme.colorScheme.primary)
-                  : null,
-              onTap: () {
-                setState(() => _widgetLayoutType = 0);
-                Navigator.pop(ctx);
-              },
-            ),
-            ListTile(
-              leading: Icon(
-                Icons.title,
-                color: _widgetLayoutType == 1 ? theme.colorScheme.primary : null,
-              ),
-              title: const Text('타이틀 강조'),
-              subtitle: const Text('타이틀을 크게 표시'),
-              trailing: _widgetLayoutType == 1
-                  ? Icon(Icons.check, color: theme.colorScheme.primary)
-                  : null,
-              onTap: () {
-                setState(() => _widgetLayoutType = 1);
-                Navigator.pop(ctx);
-              },
-            ),
-            const SizedBox(height: 16),
-          ],
-        ),
-      ),
-    );
-  }
 
 
   @override
@@ -170,7 +122,7 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
     final theme = Theme.of(context);
     final eventsState = ref.watch(eventsProvider);
 
-    return Scaffold(
+    final scaffold = Scaffold(
       appBar: AppBar(
         title: Text(widget.eventId == null ? '새 이벤트' : '이벤트 수정'),
       ),
@@ -240,7 +192,6 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
                         ),
                         onChanged: (_) => setState(() {}),
                       ),
-                    ),
                     ),
                     const SizedBox(height: 16),
 
@@ -333,7 +284,7 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
                                 child: Text(
                                   '사진 추가',
                                   style: theme.textTheme.bodyMedium?.copyWith(
-                                    color: theme.colorScheme.onSurfaceVariant,
+                                    color: theme.hintColor,
                                   ),
                                 ),
                               ),
@@ -342,7 +293,7 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 16),
 
                     // 2. 아이콘 & 테마 선택
                     Card(
@@ -432,15 +383,6 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
                           Divider(height: 1, color: theme.colorScheme.outlineVariant.withOpacity(0.2)),
                           SwitchListTile(
                             title: Text(
-                              '주말 제외 (평일만 계산)',
-                              style: theme.textTheme.bodyMedium,
-                            ),
-                            value: _excludeWeekends,
-                            onChanged: (v) => setState(() => _excludeWeekends = v),
-                          ),
-                          Divider(height: 1, color: theme.colorScheme.outlineVariant.withOpacity(0.2)),
-                          SwitchListTile(
-                            title: Text(
                               '알림 켜기',
                               style: theme.textTheme.bodyMedium,
                             ),
@@ -448,41 +390,6 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
                             onChanged: (v) => setState(() => _isNotificationEnabled = v),
                           ),
                         ],
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-
-                    // 2.5. 위젯 레이아웃 선택
-                    Card(
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                      child: InkWell(
-                        onTap: () => _showLayoutPicker(context),
-                        borderRadius: BorderRadius.circular(16),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                          child: Row(
-                            children: [
-                              Text(
-                                '위젯 레이아웃',
-                                style: theme.textTheme.bodyMedium?.copyWith(
-                                  color: theme.hintColor,
-                                ),
-                              ),
-                              const Spacer(),
-                              Text(
-                                _widgetLayoutType == 0 ? 'D-Day 강조' : '타이틀 강조',
-                                style: theme.textTheme.bodyMedium,
-                              ),
-                              const SizedBox(width: 4),
-                              Icon(
-                                Icons.chevron_right,
-                                size: 20,
-                                color: theme.hintColor,
-                              ),
-                            ],
-                          ),
-                        ),
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -551,6 +458,25 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
         top: false,
         child: _BannerSlot(),
       ),
+    );
+
+    // Stack으로 감싸서 로딩 오버레이 추가
+    return Stack(
+      children: [
+        scaffold,
+        // 사진 선택 중 로딩 오버레이
+        if (_isPickingPhoto)
+          const ModalBarrier(
+            dismissible: false,
+            color: Colors.black54,
+          ),
+        if (_isPickingPhoto)
+          const Center(
+            child: CircularProgressIndicator(
+              color: Colors.white,
+            ),
+          ),
+      ],
     );
   }
 }

@@ -157,6 +157,10 @@ class _CropPageState extends State<_CropPage> {
               controller: _controller,
               image: widget.imageBytes,
               aspectRatio: 1, // 정사각형 강제
+              initialRectBuilder: InitialRectBuilder.withSizeAndRatio(
+                size: 0.5, // 초기 크롭 영역을 이미지의 50%로 설정
+                aspectRatio: 1.0,
+              ),
               withCircleUi: false,
               baseColor: Colors.black,
               maskColor: Colors.black.withValues(alpha: 0.7),
