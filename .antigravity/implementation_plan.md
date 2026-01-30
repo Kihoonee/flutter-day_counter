@@ -1,21 +1,88 @@
-# 사진 추가 항목 위치 변경 계획
+# 위젯 개선 Phase 2 구현 계획
 
-'새 이벤트' 등록 화면과 '이벤트 수정' 화면에서 '사진 추가' 항목이 아래쪽에 있어 발견하기 어렵다는 피드백을 반영하여, '이벤트 제목' 바로 아래로 위치를 조정합니다.
+## 요구사항 정리
 
-## 제안된 변경 사항
+| # | 요구사항 | 플랫폼 |
+|---|----------|--------|
+| 1 | 위젯 텍스트 반투명 해제 | Android/iOS |
+| 2 | 위젯 배경 alpha 0.8으로 변경 | Android/iOS |
+| 3 | D-day 폰트 크기 = 타이틀의 110% | Android/iOS |
+| 4 | 타이틀 위치 상단으로 | Android |
+| 5 | D-day 위치 하단으로 | Android |
+| 6 | 이벤트 선택화면 잘림 수정 | Android |
+| 7 | 이벤트 선택화면 세로모드 고정 | Flutter |
+| 8 | 자동 첫번째 이벤트 위젯 로직 제거 | Flutter |
+| 9 | image-3.png 이슈 분석 | Flutter |
 
-### [Presentation Layer]
+---
 
-#### [MODIFY] [event_edit_page.dart](file:///Users/kihoonee/flutter/day_counter/lib/features/events/presentation/pages/event_edit_page.dart)
-- `Column` 내부에 위치한 '사진 추가' 카드(`Card`) 섹션을 '이벤트 제목 입력' 카드 바로 다음으로 이동합니다.
-- 이동 후 적절한 간격(`SizedBox`)을 유지합니다.
+## 제안된 변경사항
 
-#### [MODIFY] [edit_tab.dart](file:///Users/kihoonee/flutter/day_counter/lib/features/events/presentation/widgets/edit_tab.dart)
-- `EditTab` 내의 '사진 추가' 카드 섹션을 '제목 입력' 카드 바로 하단으로 이동합니다.
+### Android 위젯 레이아웃
+
+#### [MODIFY] [widget_layout.xml](file:///Users/kihoonee/flutter/day_counter/android/app/src/main/res/layout/widget_layout.xml)
+- 배경 alpha: `0.7` → `0.8`
+- 타이틀 텍스트 색상 100% 불투명 유지 (현재 OK)
+- D-day 폰트 크기: `34sp` → `18sp` (타이틀 16sp의 110%)
+- 타이틀 상단 패딩 축소, D-day 하단 마진 추가
+
+#### [MODIFY] [widget_layout_title.xml](file:///Users/kihoonee/flutter/day_counter/android/app/src/main/res/layout/widget_layout_title.xml)
+- 배경 alpha: `0.7` → `0.8`
+- 폰트 비율 조정
+
+---
+
+### iOS 위젯 SwiftUI
+
+#### [MODIFY] [DaysPlusWidget.swift](file:///Users/kihoonee/flutter/day_counter/ios/DaysPlusWidget/DaysPlusWidget.swift)
+- 배경색에 `.opacity(0.8)` 적용
+- D-day 폰트 크기를 타이틀의 110%로 조정 (16 → 18)
+- 날짜 텍스트 opacity 0.8 → 1.0 (불투명)
+
+---
+
+### DaysPlusWidget.kt (Android)
+
+#### [MODIFY] [DaysPlusWidget.kt](file:///Users/kihoonee/flutter/day_counter/android/app/src/main/kotlin/com/handroom/daysplus/DaysPlusWidget.kt)
+- `dateColor` alpha 204 → 255 (날짜도 불투명)
+
+---
+
+### Flutter 위젯 서비스
+
+#### [MODIFY] [event_controller.dart](file:///Users/kihoonee/flutter/day_counter/lib/features/events/application/event_controller.dart)
+- `_updateWidget()` 메서드에서 `WidgetService().updateWidget(top)` 호출 제거
+- `saveEventsList(sorted)`만 유지하여 위젯 선택 목록만 동기화
+
+---
+
+### 이벤트 선택 화면 (image-2.png 이슈)
+
+> **분석결과**: Android 위젯 이벤트 선택은 시스템 UI가 처리하므로 Flutter에서 제어 불가. 잘림 현상은 이벤트 제목이 길 때 발생하는 것으로 보임.
+
+#### [MODIFY] DisplayRepresentation 조정 필요 (iOS)
+`SelectEventIntent.swift`에서 subtitle 포맷 조정:
+```swift
+DisplayRepresentation(title: "\(title)", subtitle: "\(date) | \(dDay)")
+```
+
+---
+
+### image-3.png 이슈 분석
+
+> **분석결과**: 스크린샷은 이벤트 상세 페이지 헤더의 카드를 보여줍니다. 이 카드는 **Layout Type 1 (TitleEmphasis)**를 사용 중이며:
+> - 제목이 중앙에 크게 표시
+> - D-Day와 날짜가 하단에 나란히 표시
+>
+> 이것은 `_buildTitleEmphasis` 메서드의 의도된 디자인입니다. **레이아웃 이상 없음**.
+>
+> 단, 변경 희망 시 수정 가능합니다.
+
+---
 
 ## 검증 계획
 
-### 수동 검증
-1. **새 이벤트 화면**: 제목 입력 후 바로 아래에 사진 추가 항목이 있는지 확인.
-2. **이벤트 수정 화면**: 상세 페이지의 '수정' 탭에서 사진 추가 항목의 위치가 제목 아래로 이동했는지 확인.
-3. **기능 확인**: 위치 이동 후에도 사진 선택, 변경, 삭제 기능이 정상 작동하는지 확인.
+1. Android 에뮬레이터에서 위젯 추가 후 배경 투명도 및 텍스트 가독성 확인
+2. iOS 시뮬레이터에서 위젯 추가 후 동일 확인
+3. 이벤트 목록에 여러 개 추가 후 위젯이 자동으로 첫번째 이벤트를 표시하지 않는지 확인
+4. 위젯 이벤트 선택 시 목록이 잘리지 않는지 확인
