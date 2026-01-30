@@ -138,3 +138,39 @@ AdMob 광고 유형별 구현 가이드:
 - [전면 광고](/.agent/skills/admob-skill/references/interstitial-ads.md)
 - [앱 오픈 광고](/.agent/skills/admob-skill/references/app-open-ads.md)
 - [네이티브 광고](/.agent/skills/admob-skill/references/native-ads.md)
+
+
+
+
+
+
+ios 광고 단위 id
+
+appopen-ios
+ca-app-pub-1982911804853023/8076715698
+
+banner-ios
+ca-app-pub-1982911804853023/7909968814
+
+fullscreen-ios
+ca-app-pub-1982911804853023/8586618058
+
+native-ios
+ca-app-pub-1982911804853023/2117812006
+
+
+
+
+android 광고 단위 id
+
+appopen-aos
+ca-app-pub-1982911804853023/9198225679
+
+banner-aos
+ca-app-pub-1982911804853023/4633068782
+
+fullscreen-aos
+ca-app-pub-1982911804853023/5577311339
+
+native-aos
+ca-app-pub-1982911804853023/4684265592
