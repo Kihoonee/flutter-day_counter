@@ -17,15 +17,40 @@ class AdUnits {
         : 'ca-app-pub-1982911804853023/7909968814';
   }
 
-  // 전면 광고 ID
+  // 전면 광고 ID (Fullscreen)
   static String get interstitialId {
     if (isTestMode) {
       return Platform.isAndroid
           ? 'ca-app-pub-3940256099942544/1033173712'
           : 'ca-app-pub-3940256099942544/4411468910';
     }
-    // TODO: 실제 전면 광고 ID 발급 시 교체하세요.
-    return bannerId; 
+    return Platform.isAndroid
+        ? 'ca-app-pub-1982911804853023/5577311339'
+        : 'ca-app-pub-1982911804853023/8586618058';
+  }
+
+  // 앱 오픈 광고 ID
+  static String get appOpenId {
+    if (isTestMode) {
+      return Platform.isAndroid
+          ? 'ca-app-pub-3940256099942544/3419835294'
+          : 'ca-app-pub-3940256099942544/5662855259';
+    }
+    return Platform.isAndroid
+        ? 'ca-app-pub-1982911804853023/9198225679'
+        : 'ca-app-pub-1982911804853023/8076715698';
+  }
+
+  // 네이티브 광고 ID
+  static String get nativeId {
+    if (isTestMode) {
+      return Platform.isAndroid
+          ? 'ca-app-pub-3940256099942544/2247696110'
+          : 'ca-app-pub-3940256099942544/3986624511';
+    }
+    return Platform.isAndroid
+        ? 'ca-app-pub-1982911804853023/4684265592'
+        : 'ca-app-pub-1982911804853023/2117812006';
   }
 
   // 보상형 광고 ID
