@@ -87,9 +87,7 @@ class _TodoTabState extends ConsumerState<TodoTab> {
       builder: (context) {
         return CustomScrollView(
           slivers: [
-            SliverOverlapInjector(
-              handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
-            ),
+
             // 할 일 입력 필드
             SliverToBoxAdapter(
               child: Padding(

@@ -90,91 +90,77 @@ class _EventDetailPageState extends ConsumerState<EventDetailPage>
         final dateLine = DateFormat('yyyy.MM.dd').format(targetDate);
 
         return Scaffold(
-          body: NestedScrollView(
-            headerSliverBuilder: (context, innerBoxIsScrolled) => [
-              SliverOverlapAbsorber(
-                handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
-                sliver: SliverAppBar(
-                  pinned: true,
-                  expandedHeight: 320, // Slightly reduced for better balance
-                  forceElevated: innerBoxIsScrolled,
-                  backgroundColor: theme.scaffoldBackgroundColor,
-                  elevation: 0,
-                  flexibleSpace: FlexibleSpaceBar(
-                    collapseMode: CollapseMode.pin, // Fixed to prevent squishing
-                    background: SafeArea(
-                      child: Padding(
-                        padding: const EdgeInsets.only(
-                          top: kToolbarHeight,
-                          left: 16,
-                          right: 16,
-                          bottom: 64, // Space for TabBar
-                        ),
-                        child: PosterCard(
-                          title: _previewTitle ?? event.title,
-                          dateLine: dateLine,
-                          dText: _dText(diff),
-                          themeIndex: _previewThemeIndex ?? event.themeIndex,
-                          iconIndex: _previewIconIndex ?? event.iconIndex,
-                          todoCount: event.todos.length,
-                          photoPath: _previewPhotoPath ?? event.photoPath,
-                          widgetLayoutType: _previewWidgetLayoutType ?? event.widgetLayoutType,
-                        ),
-                      ),
-                    ),
-                  ),
-                  bottom: PreferredSize(
-                     preferredSize: const Size.fromHeight(48),
-                     child: Container(
-                       decoration: BoxDecoration(
-                         color: theme.scaffoldBackgroundColor,
-                         border: Border(
-                           bottom: BorderSide(
-                             color: theme.colorScheme.outlineVariant.withOpacity(0.3),
-                             width: 0.5,
-                           ),
-                         ),
-                       ),
-                       child: TabBar(
-                        controller: _tabController,
-                        labelColor: theme.colorScheme.primary,
-                        unselectedLabelColor: theme.colorScheme.onSurfaceVariant,
-                        indicatorColor: theme.colorScheme.primary,
-                        indicatorWeight: 3,
-                        tabs: [
-                          Tab(text: isPast ? '한줄메모' : '할 일'),
-                          const Tab(text: '수정'),
-                        ],
-                      ),
-                     ),
-                  ),
+          appBar: AppBar(
+            backgroundColor: theme.scaffoldBackgroundColor,
+            elevation: 0,
+          ),
+          body: Column(
+            children: [
+              // 1. 고정된 PosterCard (스크롤되지 않음)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: SizedBox(
+                height: 185,
+                child: PosterCard(
+                  title: _previewTitle ?? event.title,
+                  dateLine: dateLine,
+                  dText: _dText(diff),
+                  themeIndex: _previewThemeIndex ?? event.themeIndex,
+                  iconIndex: _previewIconIndex ?? event.iconIndex,
+                  todoCount: event.todos.length,
+                  photoPath: _previewPhotoPath ?? event.photoPath,
+                  widgetLayoutType: _previewWidgetLayoutType ?? event.widgetLayoutType,
                 ),
               ),
-            ],
-            body: Builder(
-              builder: (BuildContext context) {
-                return TabBarView(
+              ),
+              const SizedBox(height: 8),
+              // 2. 고정된 TabBar (스크롤되지 않음)
+              Container(
+                decoration: BoxDecoration(
+                  color: theme.scaffoldBackgroundColor,
+                  border: Border(
+                    bottom: BorderSide(
+                      color: theme.colorScheme.outlineVariant.withValues(alpha: 0.3),
+                      width: 0.5,
+                    ),
+                  ),
+                ),
+                child: TabBar(
+                  controller: _tabController,
+                  labelColor: theme.colorScheme.primary,
+                  unselectedLabelColor: theme.colorScheme.onSurfaceVariant,
+                  indicatorColor: theme.colorScheme.primary,
+                  indicatorWeight: 3,
+                  tabs: [
+                    Tab(text: isPast ? '한줄메모' : '할 일'),
+                    const Tab(text: '수정'),
+                  ],
+                ),
+              ),
+              // 3. 스크롤 가능한 TabBarView (탭 내용만 스크롤)
+              Expanded(
+                child: TabBarView(
                   controller: _tabController,
                   children: [
                     if (isPast)
                       DiaryTab(eventId: event.id)
                     else
                       TodoTab(event: event),
-                      EditTab(
-                        event: event,
-                        onTitleChanged: (v) => setState(() => _previewTitle = v),
-                        onDateChanged: (v) => setState(() => _previewTargetDate = v),
-                        onIncludeTodayChanged: (v) => setState(() => _previewIncludeToday = v),
-                        onExcludeWeekendsChanged: (v) => setState(() => _previewExcludeWeekends = v),
-                        onIconChanged: (i) => setState(() => _previewIconIndex = i),
-                        onThemeChanged: (i) => setState(() => _previewThemeIndex = i),
-                        onPhotoChanged: (p) => setState(() => _previewPhotoPath = p),
-                        onWidgetLayoutTypeChanged: (v) => setState(() => _previewWidgetLayoutType = v),
-                      ),
+                    EditTab(
+                      event: event,
+                      onTitleChanged: (v) => setState(() => _previewTitle = v),
+                      onDateChanged: (v) => setState(() => _previewTargetDate = v),
+                      onIncludeTodayChanged: (v) => setState(() => _previewIncludeToday = v),
+                      onExcludeWeekendsChanged: (v) => setState(() => _previewExcludeWeekends = v),
+                      onIconChanged: (i) => setState(() => _previewIconIndex = i),
+                      onThemeChanged: (i) => setState(() => _previewThemeIndex = i),
+                      onPhotoChanged: (p) => setState(() => _previewPhotoPath = p),
+                      onWidgetLayoutTypeChanged: (v) => setState(() => _previewWidgetLayoutType = v),
+                    ),
                   ],
-                );
-              },
-            ),
+                ),
+              ),
+            ],
           ),
           bottomNavigationBar: const SafeArea(
             child: SizedBox(
@@ -187,5 +173,3 @@ class _EventDetailPageState extends ConsumerState<EventDetailPage>
     );
   }
 }
-
-

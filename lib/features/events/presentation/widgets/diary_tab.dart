@@ -36,9 +36,7 @@ class DiaryTab extends ConsumerWidget {
               builder: (context) {
                 return CustomScrollView(
                   slivers: [
-                    SliverOverlapInjector(
-                      handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
-                    ),
+
                     if (entries.isEmpty)
                       SliverFillRemaining(
                         hasScrollBody: false,

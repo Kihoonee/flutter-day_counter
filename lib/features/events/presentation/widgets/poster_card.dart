@@ -134,12 +134,10 @@ class PosterCard extends StatelessWidget {
                 ),
               ),
 
-              // 3. Content Layout (Padding 20)
+              // 3. Content Layout (Padding 20) - Always use D-Day emphasis
               Padding(
                 padding: const EdgeInsets.all(20),
-                child: widgetLayoutType == 0
-                    ? _buildDDayEmphasis(theme, fgColor, iconData, isPast)
-                    : _buildTitleEmphasis(theme, fgColor, iconData, isPast),
+                child: _buildDDayEmphasis(theme, fgColor, iconData, isPast),
               ),
             ],
           ),
@@ -148,7 +146,7 @@ class PosterCard extends StatelessWidget {
     );
   }
 
-  Widget _buildDDayEmphasis(ThemeData theme, Color fgColor, IconData iconData, bool isPast) {
+  Widget _buildDDayEmphasis(ThemeData theme, Color fgColor, dynamic iconData, bool isPast) {
     return Stack(
       children: [
         const SizedBox.expand(),
@@ -200,7 +198,7 @@ class PosterCard extends StatelessWidget {
     );
   }
 
-  Widget _buildTitleEmphasis(ThemeData theme, Color fgColor, IconData iconData, bool isPast) {
+  Widget _buildTitleEmphasis(ThemeData theme, Color fgColor, dynamic iconData, bool isPast) {
     return Stack(
       children: [
         const SizedBox.expand(),
@@ -259,7 +257,7 @@ class PosterCard extends StatelessWidget {
     );
   }
 
-  Widget _buildIcon(Color fgColor, IconData iconData) {
+  Widget _buildIcon(Color fgColor, dynamic iconData) {
     return Container(
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
@@ -351,12 +349,6 @@ class PosterCard extends StatelessWidget {
           ),
         );
       },
-    );
-  }
-            ],
-          ),
-        ),
-      ),
     );
   }
 }
