@@ -96,17 +96,10 @@ struct DaysPlusWidgetEntryView : View {
     var body: some View {
         ZStack {
             Color(hex: entry.bgColor)
-            
-            if entry.layoutType == 0 {
-                // Layout 0: D-Day 강조
-                ddayEmphasisLayout
-            } else {
-                // Layout 1: 타이틀 강조
-                titleEmphasisLayout
-            }
+            ddayEmphasisLayout // Always use D-Day layout
         }
         .containerBackground(for: .widget) {
-             Color(hex: entry.bgColor)
+            Color(hex: entry.bgColor).opacity(0.8)
         }
     }
     
@@ -122,7 +115,7 @@ struct DaysPlusWidgetEntryView : View {
                     
                     Text(entry.targetDate)
                         .font(.system(size: 11, weight: .medium))
-                        .foregroundColor(Color(hex: entry.fgColor).opacity(0.8))
+                        .foregroundColor(Color(hex: entry.fgColor))
                 }
                 Spacer()
             }
@@ -132,9 +125,8 @@ struct DaysPlusWidgetEntryView : View {
             HStack {
                 Spacer()
                 Text(entry.dDay)
-                    .font(.system(size: 34, weight: .heavy, design: .rounded))
+                    .font(.system(size: 18, weight: .heavy, design: .rounded))
                     .foregroundColor(Color(hex: entry.fgColor))
-                    .minimumScaleFactor(0.5)
                     .lineLimit(1)
             }
         }
@@ -157,12 +149,12 @@ struct DaysPlusWidgetEntryView : View {
             HStack {
                 Text(entry.targetDate)
                     .font(.system(size: 12, weight: .medium))
-                    .foregroundColor(Color(hex: entry.fgColor).opacity(0.8))
+                    .foregroundColor(Color(hex: entry.fgColor))
                 
                 Spacer()
                 
                 Text(entry.dDay)
-                    .font(.system(size: 14, weight: .bold))
+                    .font(.system(size: 16, weight: .bold))
                     .foregroundColor(Color(hex: entry.fgColor))
             }
         }

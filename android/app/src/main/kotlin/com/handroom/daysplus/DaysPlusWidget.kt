@@ -57,12 +57,8 @@ internal fun updateAppWidget(
         // Fallback to defaults on error
     }
 
-    // Select layout based on layoutType
-    val layoutId = if (layoutType == 1) {
-        R.layout.widget_layout_title
-    } else {
-        R.layout.widget_layout
-    }
+    // Always use D-Day emphasis layout
+    val layoutId = R.layout.widget_layout
 
     // Construct the RemoteViews object
     val views = RemoteViews(context.packageName, layoutId)
@@ -74,7 +70,7 @@ internal fun updateAppWidget(
     views.setTextColor(R.id.widget_title, fgColor)
     views.setTextColor(R.id.widget_dday, fgColor)
     // Date is slightly transparent (80% opacity of fgColor)
-    val dateColor = Color.argb(204, Color.red(fgColor), Color.green(fgColor), Color.blue(fgColor))
+    val dateColor = Color.argb(255, Color.red(fgColor), Color.green(fgColor), Color.blue(fgColor))
     views.setTextColor(R.id.widget_date, dateColor)
 
     // Apply Background Color (Tinting the shape drawable)
