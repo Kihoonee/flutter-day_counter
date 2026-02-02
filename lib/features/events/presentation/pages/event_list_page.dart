@@ -6,7 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 import '../../../../core/utils/date_calc.dart';
-import '../../../../core/widgets/banner_ad_widget.dart';
+import '../../../../core/utils/date_calc.dart';
 import '../../application/event_controller.dart';
 import '../../domain/event.dart';
 import '../widgets/poster_card.dart';
@@ -38,6 +38,18 @@ class EventListPage extends ConsumerWidget {
           ),
         ),
         centerTitle: true,
+        actions: [
+          IconButton(
+            onPressed: () => context.push('/settings'),
+            icon: HugeIcon(
+              icon: HugeIcons.strokeRoundedSettings01,
+              color: theme.colorScheme.onSurface,
+              size: 24,
+            ),
+            tooltip: '설정',
+          ),
+          const SizedBox(width: 8),
+        ],
         backgroundColor: theme.scaffoldBackgroundColor.withOpacity(0.95), // Fixed subtle bg
         elevation: 0,
         scrolledUnderElevation: 0,
@@ -63,7 +75,7 @@ class EventListPage extends ConsumerWidget {
               return ReorderableListView.builder(
                 padding: EdgeInsets.only(
                   top: MediaQuery.of(context).padding.top + 56 + 16, // Match toolbarHeight
-                  bottom: 160, // Space for Bottom Bar
+                  bottom: 100, // Space for Bottom Bar
                   left: 16,
                   right: 16,
                 ),
@@ -162,11 +174,6 @@ class EventListPage extends ConsumerWidget {
                         ),
                       ),
                     ),
-                    // Banner Slot
-                    const Padding(
-                      padding: EdgeInsets.only(bottom: 8),
-                      child: _BannerSlot(),
-                    ),
                   ],
                 ),
               ),
@@ -211,14 +218,5 @@ class _Empty extends StatelessWidget {
         ),
       ),
     );
-  }
-}
-
-class _BannerSlot extends StatelessWidget {
-  const _BannerSlot();
-
-  @override
-  Widget build(BuildContext context) {
-    return const BannerAdWidget();
   }
 }
