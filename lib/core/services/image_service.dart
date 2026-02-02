@@ -1,7 +1,8 @@
-import 'dart:io';
+import 'dart:io' as io;
 import 'dart:typed_data';
 
 import 'package:crop_your_image/crop_your_image.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as p;
@@ -18,6 +19,10 @@ class ImageService {
   /// 성공 시 저장된 이미지 경로 반환, 취소/실패 시 null
   /// 크롭 취소 시 다시 갤러리 피커로 돌아감
   Future<String?> pickAndCropImage(BuildContext context) async {
+    if (kIsWeb) {
+      debugPrint('ImageService: pickAndCropImage is not supported on Web');
+      return null;
+    }
     try {
       debugPrint('ImageService: pickAndCropImage start');
       
@@ -38,7 +43,7 @@ class ImageService {
         debugPrint('ImageService: Picked file: ${pickedFile.path}');
 
         // 2. 이미지 바이트 로드
-        final imageBytes = await File(pickedFile.path).readAsBytes();
+        final imageBytes = await io.File(pickedFile.path).readAsBytes();
         debugPrint('ImageService: Loaded bytes: ${imageBytes.length}');
 
         // 3. 크롭 페이지로 이동
@@ -57,7 +62,7 @@ class ImageService {
           debugPrint('ImageService: Crop cancelled - reopening gallery');
           // 임시 파일 정리
           try {
-            await File(pickedFile.path).delete();
+            await io.File(pickedFile.path).delete();
           } catch (_) {}
           continue; // 크롭 취소 → 다시 갤러리 열기
         }
@@ -69,7 +74,7 @@ class ImageService {
 
         // 5. 원본 캐시 파일 삭제
         try {
-          await File(pickedFile.path).delete();
+          await io.File(pickedFile.path).delete();
         } catch (_) {}
 
         return savedPath;
@@ -83,7 +88,7 @@ class ImageService {
   /// 크롭된 이미지를 앱 문서 디렉토리에 저장
   Future<String> _saveToAppDirectory(Uint8List imageBytes) async {
     final directory = await getApplicationDocumentsDirectory();
-    final imagesDir = Directory(p.join(directory.path, 'event_photos'));
+    final imagesDir = io.Directory(p.join(directory.path, 'event_photos'));
 
     if (!await imagesDir.exists()) {
       await imagesDir.create(recursive: true);
@@ -92,17 +97,17 @@ class ImageService {
     final fileName = '${_uuid.v4()}.jpg';
     final destinationPath = p.join(imagesDir.path, fileName);
 
-    await File(destinationPath).writeAsBytes(imageBytes);
+    await io.File(destinationPath).writeAsBytes(imageBytes);
 
     return destinationPath;
   }
 
   /// 이벤트 삭제 시 연결된 사진 파일 삭제
   Future<void> deleteImage(String? photoPath) async {
-    if (photoPath == null || photoPath.isEmpty) return;
+    if (kIsWeb || photoPath == null || photoPath.isEmpty) return;
 
     try {
-      final file = File(photoPath);
+      final file = io.File(photoPath);
       if (await file.exists()) {
         await file.delete();
         debugPrint('ImageService: Deleted image at $photoPath');

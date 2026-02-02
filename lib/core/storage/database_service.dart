@@ -1,9 +1,6 @@
-import 'dart:io';
-import 'package:flutter/foundation.dart';
-import 'package:path/path.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:sembast/sembast.dart';
-import 'package:sembast/sembast_io.dart';
+import 'db_factory.dart';
+import 'db_path.dart';
 
 class DatabaseService {
   static final DatabaseService _instance = DatabaseService._internal();
@@ -23,23 +20,12 @@ class DatabaseService {
     try {
       print('DatabaseService: Initializing database...');
       
-      // iOS: Documents 대신 Library 디렉토리 사용 (안전성 향상)
-      Directory dir;
-      if (Platform.isIOS) {
-        dir = await getLibraryDirectory();
-      } else {
-        dir = await getApplicationDocumentsDirectory();
-      }
-      
-      await dir.create(recursive: true);
-      final dbPath = join(dir.path, 'days_plus.db'); // 새 파일명 사용
-      
+      final dbPath = await getDatabasePath('days_plus.db');
       print('DatabaseService: Opening database at path: $dbPath');
 
-      // IO Factory 명시적 사용
-      final factory = databaseFactoryIo;
-      
+      final factory = await getDatabaseFactory();
       final db = await factory.openDatabase(dbPath);
+      
       print('DatabaseService: Database opened successfully.');
       return db;
     } catch (e, st) {
