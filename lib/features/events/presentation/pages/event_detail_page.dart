@@ -29,7 +29,6 @@ class _EventDetailPageState extends ConsumerState<EventDetailPage>
   String? _previewTitle;
   DateTime? _previewTargetDate;
   bool? _previewIncludeToday;
-  bool? _previewExcludeWeekends;
   String? _previewPhotoPath;
   int? _previewWidgetLayoutType;
 
@@ -77,13 +76,11 @@ class _EventDetailPageState extends ConsumerState<EventDetailPage>
 
         final targetDate = _previewTargetDate ?? event.targetDate;
         final includeToday = _previewIncludeToday ?? event.includeToday;
-        final excludeWeekends = _previewExcludeWeekends ?? event.excludeWeekends;
         
         final diff = DateCalc.diffDays(
           base: DateTime.now(),
           target: targetDate,
           includeToday: includeToday,
-          excludeWeekends: excludeWeekends,
         );
 
         final isPast = diff < 0;
@@ -159,7 +156,6 @@ class _EventDetailPageState extends ConsumerState<EventDetailPage>
                         onTitleChanged: (v) => setState(() => _previewTitle = v),
                         onDateChanged: (v) => setState(() => _previewTargetDate = v),
                         onIncludeTodayChanged: (v) => setState(() => _previewIncludeToday = v),
-                        onExcludeWeekendsChanged: (v) => setState(() => _previewExcludeWeekends = v),
                         onIconChanged: (i) => setState(() => _previewIconIndex = i),
                         onThemeChanged: (i) => setState(() => _previewThemeIndex = i),
                         onPhotoChanged: (p) => setState(() => _previewPhotoPath = p),

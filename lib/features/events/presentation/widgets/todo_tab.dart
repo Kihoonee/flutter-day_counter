@@ -204,7 +204,6 @@ class _TodoTabState extends ConsumerState<TodoTab> {
                       base: todo.createdAt,
                       target: widget.event.targetDate,
                       includeToday: widget.event.includeToday,
-                      excludeWeekends: widget.event.excludeWeekends,
                     );
                     if (!grouped.containsKey(diff)) grouped[diff] = [];
                     grouped[diff]!.add(todo);

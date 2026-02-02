@@ -100,7 +100,6 @@ class DiaryTab extends ConsumerWidget {
                                       base: entry.date,
                                       target: event.targetDate,
                                       includeToday: event.includeToday,
-                                      excludeWeekends: event.excludeWeekends,
                                     );
                                     String dDayText;
                                     if (diff == 0) {

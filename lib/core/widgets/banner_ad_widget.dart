@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import '../ads/ad_units.dart';
@@ -16,10 +17,17 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
   @override
   void initState() {
     super.initState();
-    _loadAd();
+    if (kIsWeb) return;
+    // AdMob 초기화 대기를 위해 약간의 지연 후 로드
+    Future.delayed(const Duration(milliseconds: 1000), () {
+      if (mounted) _loadAd();
+    });
   }
 
   void _loadAd() {
+    if (kIsWeb) return;
+    if (_bannerAd != null) return;
+
     _bannerAd = BannerAd(
       adUnitId: AdUnits.bannerId,
       request: const AdRequest(),
@@ -33,10 +41,21 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
           setState(() {
             _isAdLoaded = true;
           });
+          debugPrint('BannerAdWidget: BannerAd loaded successfully.');
         },
         onAdFailedToLoad: (ad, error) {
-          debugPrint('BannerAd failed to load: $error');
+          debugPrint('BannerAdWidget: BannerAd failed to load: $error');
           ad.dispose();
+          _bannerAd = null;
+          if (mounted) {
+            setState(() {
+              _isAdLoaded = false;
+            });
+            // 3초 후 재시도
+            Future.delayed(const Duration(seconds: 3), () {
+              if (mounted) _loadAd();
+            });
+          }
         },
       ),
     )..load();
@@ -65,7 +84,7 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
               child: AdWidget(ad: _bannerAd!),
             )
           : Text(
-              'Ads', // Subtle placeholder
+              'Days+', // Subtle placeholder
               style: TextStyle(
                 color: theme.hintColor.withOpacity(0.2),
                 fontSize: 10,

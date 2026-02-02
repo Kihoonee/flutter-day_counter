@@ -26,7 +26,6 @@ class WidgetService {
           base: DateTime.now(),
           target: e.targetDate,
           includeToday: e.includeToday,
-          excludeWeekends: e.excludeWeekends,
         );
         String dText;
         if (diff == 0) {
@@ -47,7 +46,6 @@ class WidgetService {
           'fgColor': '4A4A4A',
           'layoutType': e.widgetLayoutType,
           'includeToday': e.includeToday,
-          'excludeWeekends': e.excludeWeekends,
         };
       }).toList();
       
@@ -80,7 +78,6 @@ class WidgetService {
         await HomeWidget.saveWidgetData('widget_fg_color', '000000');
         await HomeWidget.saveWidgetData('widget_layout_type', 0);
         await HomeWidget.saveWidgetData('widget_include_today', false);
-        await HomeWidget.saveWidgetData('widget_exclude_weekends', false);
         await HomeWidget.updateWidget(
             name: androidWidgetName, androidName: androidWidgetName, iOSName: androidWidgetName);
         return;
@@ -92,7 +89,6 @@ class WidgetService {
         base: now,
         target: event.targetDate,
         includeToday: event.includeToday,
-        excludeWeekends: event.excludeWeekends,
       );
 
       String dText;
@@ -118,7 +114,6 @@ class WidgetService {
       await HomeWidget.saveWidgetData('widget_fg_color', fgColorHex);
       await HomeWidget.saveWidgetData('widget_layout_type', event.widgetLayoutType);
       await HomeWidget.saveWidgetData('widget_include_today', event.includeToday);
-      await HomeWidget.saveWidgetData('widget_exclude_weekends', event.excludeWeekends);
       
       await HomeWidget.updateWidget(
           name: androidWidgetName, androidName: androidWidgetName, iOSName: androidWidgetName);

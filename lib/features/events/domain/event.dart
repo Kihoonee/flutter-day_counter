@@ -21,9 +21,6 @@ abstract class Event with _$Event {
     // 당일 포함
     @Default(false) bool includeToday,
 
-    // 주말 제외
-    @Default(false) bool excludeWeekends,
-
     // 알림 켜기/끄기
     @Default(true) bool isNotificationEnabled,
 

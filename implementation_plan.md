@@ -33,6 +33,18 @@ Scaffold(
 )
 ```
 
+### [Global] Banner Ad Optimization
+
+- [MODIFY] [router.dart](file:///Users/kihoonee/flutter/day_counter/lib/app/router.dart)
+    - `ShellRoute`를 추가하여 모든 페이지를 감싸는 글로벌 레이아웃 구현.
+    - 하단에 가로로 고정된 `BannerAdWidget` 배치.
+- [MODIFY] 각 페이지 파일 ([event_list_page.dart](file:///Users/kihoonee/flutter/day_counter/lib/features/events/presentation/pages/event_list_page.dart), [event_detail_page.dart](file:///Users/kihoonee/flutter/day_counter/lib/features/events/presentation/pages/event_detail_page.dart) 등)
+    - 기존의 개별 배너 위젯 제거.
+- [MODIFY] [banner_ad_widget.dart](file:///Users/kihoonee/flutter/day_counter/lib/core/widgets/banner_ad_widget.dart)
+    - 전역으로 유지될 수 있도록 `SizedBox` 크기 및 로딩 로직 최적화.
+
+---
+
 ## Verification Plan
 - **수동 테스트**: 시뮬레이터에서 앱 실행 후 상세 페이지 진입.
 - **체크 포인트**:

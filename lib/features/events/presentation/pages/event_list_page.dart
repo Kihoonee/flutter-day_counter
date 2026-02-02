@@ -6,7 +6,6 @@ import 'package:intl/intl.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 import '../../../../core/utils/date_calc.dart';
-import '../../../../core/utils/date_calc.dart';
 import '../../application/event_controller.dart';
 import '../../domain/event.dart';
 import '../widgets/poster_card.dart';
@@ -108,7 +107,6 @@ class EventListPage extends ConsumerWidget {
                     base: DateTime.now(),
                     target: e.targetDate,
                     includeToday: e.includeToday,
-                    excludeWeekends: e.excludeWeekends,
                   );
 
                   final dateLine = DateFormat('yyyy.MM.dd').format(e.targetDate);

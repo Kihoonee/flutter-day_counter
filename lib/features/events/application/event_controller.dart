@@ -75,7 +75,6 @@ class EventsController extends AsyncNotifier<List<Event>> {
         base: now,
         target: e.targetDate,
         includeToday: e.includeToday,
-        excludeWeekends: e.excludeWeekends,
       );
 
       // 과거(D+N)이면서 할일이 있는 경우 전환
@@ -207,5 +206,15 @@ class EventsController extends AsyncNotifier<List<Event>> {
         },
       );
     } catch (_) {}
+  }
+
+  Future<void> rescheduleAllNotifications() async {
+    final list = state.asData?.value;
+    if (list == null) return;
+    
+    for (final e in list) {
+      await NotificationService().scheduleEvent(e);
+    }
+    debugPrint('EventsController: Rescheduled all [\${list.length}] event notifications.');
   }
 }

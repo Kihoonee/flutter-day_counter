@@ -2,22 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../../../core/services/notification_service.dart';
+import '../../application/event_controller.dart';
 import '../../../../app/theme_provider.dart';
 
-class SettingsPage extends StatefulWidget {
+class SettingsPage extends ConsumerStatefulWidget {
   const SettingsPage({super.key});
 
   @override
-  State<SettingsPage> createState() => _SettingsPageState();
+  ConsumerState<SettingsPage> createState() => _SettingsPageState();
 }
 
-class _SettingsPageState extends State<SettingsPage> {
+class _SettingsPageState extends ConsumerState<SettingsPage> {
   static const kIncludeTodayDefault = 'default_includeToday';
-  static const kExcludeWeekendsDefault = 'default_excludeWeekends';
+  static const kGlobalNotifications = 'global_notifications_enabled';
 
   bool _loading = true;
   bool _includeToday = false;
-  bool _excludeWeekends = false;
+  bool _globalNotifications = true;
 
   @override
   void initState() {
@@ -29,7 +31,7 @@ class _SettingsPageState extends State<SettingsPage> {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       _includeToday = prefs.getBool(kIncludeTodayDefault) ?? true;
-      _excludeWeekends = prefs.getBool(kExcludeWeekendsDefault) ?? false;
+      _globalNotifications = prefs.getBool(kGlobalNotifications) ?? true;
       _loading = false;
     });
   }
@@ -37,8 +39,14 @@ class _SettingsPageState extends State<SettingsPage> {
   Future<void> _save() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(kIncludeTodayDefault, _includeToday);
-    await prefs.setBool(kExcludeWeekendsDefault, _excludeWeekends);
-    if (!mounted) return;
+    await prefs.setBool(kGlobalNotifications, _globalNotifications);
+    
+    // 알림 설정이 변경되었을 경우 즉시 반영
+    await NotificationService().updateGlobalPreference(_globalNotifications);
+    if (_globalNotifications) {
+      // 켜진 경우 모든 이벤트 재등록 요철
+      await ref.read(eventsProvider.notifier).rescheduleAllNotifications();
+    }
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(const SnackBar(content: Text('설정이 저장되었습니다.')));
@@ -153,30 +161,31 @@ class _SettingsPageState extends State<SettingsPage> {
                       ),
                       _card(
                         context,
-                        title: '기본값',
-                        icon: HugeIcons.strokeRoundedCheckmarkCircle01,
+                        title: '알림 및 기본값',
+                        icon: HugeIcons.strokeRoundedNotification03,
                         child: Column(
                           children: [
                             SwitchListTile(
                               title: Text(
-                                '당일 포함',
+                                '전역 알림 설정',
+                                style: theme.textTheme.bodyLarge?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              subtitle: const Text('꺼두면 모든 이벤트의 알림이 울리지 않습니다.'),
+                              value: _globalNotifications,
+                              onChanged: (v) => setState(() => _globalNotifications = v),
+                            ),
+                            const Divider(height: 1),
+                            SwitchListTile(
+                              title: Text(
+                                '새 이벤트 당일 포함',
                                 style: theme.textTheme.bodyLarge?.copyWith(
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
                               value: _includeToday,
                               onChanged: (v) => setState(() => _includeToday = v),
-                            ),
-                            const Divider(height: 1),
-                            SwitchListTile(
-                              title: Text(
-                                '주말 제외',
-                                style: theme.textTheme.bodyLarge?.copyWith(
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              value: _excludeWeekends,
-                              onChanged: (v) => setState(() => _excludeWeekends = v),
                             ),
                           ],
                         ),

@@ -18,8 +18,7 @@ mixin _$Event {
  String get id; String get title;// 기준일
  DateTime get baseDate;// 목표일
  DateTime get targetDate;// 당일 포함
- bool get includeToday;// 주말 제외
- bool get excludeWeekends;// 알림 켜기/끄기
+ bool get includeToday;// 알림 켜기/끄기
  bool get isNotificationEnabled;// 카드 테마(0~n)
  int get themeIndex;// 아이콘(0~n)
  int get iconIndex;// 사진 경로 (로컬 앱 디렉토리)
@@ -41,16 +40,16 @@ $EventCopyWith<Event> get copyWith => _$EventCopyWithImpl<Event>(this as Event, 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Event&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.baseDate, baseDate) || other.baseDate == baseDate)&&(identical(other.targetDate, targetDate) || other.targetDate == targetDate)&&(identical(other.includeToday, includeToday) || other.includeToday == includeToday)&&(identical(other.excludeWeekends, excludeWeekends) || other.excludeWeekends == excludeWeekends)&&(identical(other.isNotificationEnabled, isNotificationEnabled) || other.isNotificationEnabled == isNotificationEnabled)&&(identical(other.themeIndex, themeIndex) || other.themeIndex == themeIndex)&&(identical(other.iconIndex, iconIndex) || other.iconIndex == iconIndex)&&(identical(other.photoPath, photoPath) || other.photoPath == photoPath)&&const DeepCollectionEquality().equals(other.todos, todos)&&const DeepCollectionEquality().equals(other.diaryEntries, diaryEntries)&&(identical(other.sortOrder, sortOrder) || other.sortOrder == sortOrder)&&(identical(other.widgetLayoutType, widgetLayoutType) || other.widgetLayoutType == widgetLayoutType));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Event&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.baseDate, baseDate) || other.baseDate == baseDate)&&(identical(other.targetDate, targetDate) || other.targetDate == targetDate)&&(identical(other.includeToday, includeToday) || other.includeToday == includeToday)&&(identical(other.isNotificationEnabled, isNotificationEnabled) || other.isNotificationEnabled == isNotificationEnabled)&&(identical(other.themeIndex, themeIndex) || other.themeIndex == themeIndex)&&(identical(other.iconIndex, iconIndex) || other.iconIndex == iconIndex)&&(identical(other.photoPath, photoPath) || other.photoPath == photoPath)&&const DeepCollectionEquality().equals(other.todos, todos)&&const DeepCollectionEquality().equals(other.diaryEntries, diaryEntries)&&(identical(other.sortOrder, sortOrder) || other.sortOrder == sortOrder)&&(identical(other.widgetLayoutType, widgetLayoutType) || other.widgetLayoutType == widgetLayoutType));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,title,baseDate,targetDate,includeToday,excludeWeekends,isNotificationEnabled,themeIndex,iconIndex,photoPath,const DeepCollectionEquality().hash(todos),const DeepCollectionEquality().hash(diaryEntries),sortOrder,widgetLayoutType);
+int get hashCode => Object.hash(runtimeType,id,title,baseDate,targetDate,includeToday,isNotificationEnabled,themeIndex,iconIndex,photoPath,const DeepCollectionEquality().hash(todos),const DeepCollectionEquality().hash(diaryEntries),sortOrder,widgetLayoutType);
 
 @override
 String toString() {
-  return 'Event(id: $id, title: $title, baseDate: $baseDate, targetDate: $targetDate, includeToday: $includeToday, excludeWeekends: $excludeWeekends, isNotificationEnabled: $isNotificationEnabled, themeIndex: $themeIndex, iconIndex: $iconIndex, photoPath: $photoPath, todos: $todos, diaryEntries: $diaryEntries, sortOrder: $sortOrder, widgetLayoutType: $widgetLayoutType)';
+  return 'Event(id: $id, title: $title, baseDate: $baseDate, targetDate: $targetDate, includeToday: $includeToday, isNotificationEnabled: $isNotificationEnabled, themeIndex: $themeIndex, iconIndex: $iconIndex, photoPath: $photoPath, todos: $todos, diaryEntries: $diaryEntries, sortOrder: $sortOrder, widgetLayoutType: $widgetLayoutType)';
 }
 
 
@@ -61,7 +60,7 @@ abstract mixin class $EventCopyWith<$Res>  {
   factory $EventCopyWith(Event value, $Res Function(Event) _then) = _$EventCopyWithImpl;
 @useResult
 $Res call({
- String id, String title, DateTime baseDate, DateTime targetDate, bool includeToday, bool excludeWeekends, bool isNotificationEnabled, int themeIndex, int iconIndex, String? photoPath, List<TodoItem> todos, List<DiaryEntry> diaryEntries, int sortOrder, int widgetLayoutType
+ String id, String title, DateTime baseDate, DateTime targetDate, bool includeToday, bool isNotificationEnabled, int themeIndex, int iconIndex, String? photoPath, List<TodoItem> todos, List<DiaryEntry> diaryEntries, int sortOrder, int widgetLayoutType
 });
 
 
@@ -78,14 +77,13 @@ class _$EventCopyWithImpl<$Res>
 
 /// Create a copy of Event
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? title = null,Object? baseDate = null,Object? targetDate = null,Object? includeToday = null,Object? excludeWeekends = null,Object? isNotificationEnabled = null,Object? themeIndex = null,Object? iconIndex = null,Object? photoPath = freezed,Object? todos = null,Object? diaryEntries = null,Object? sortOrder = null,Object? widgetLayoutType = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? title = null,Object? baseDate = null,Object? targetDate = null,Object? includeToday = null,Object? isNotificationEnabled = null,Object? themeIndex = null,Object? iconIndex = null,Object? photoPath = freezed,Object? todos = null,Object? diaryEntries = null,Object? sortOrder = null,Object? widgetLayoutType = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
 as String,baseDate: null == baseDate ? _self.baseDate : baseDate // ignore: cast_nullable_to_non_nullable
 as DateTime,targetDate: null == targetDate ? _self.targetDate : targetDate // ignore: cast_nullable_to_non_nullable
 as DateTime,includeToday: null == includeToday ? _self.includeToday : includeToday // ignore: cast_nullable_to_non_nullable
-as bool,excludeWeekends: null == excludeWeekends ? _self.excludeWeekends : excludeWeekends // ignore: cast_nullable_to_non_nullable
 as bool,isNotificationEnabled: null == isNotificationEnabled ? _self.isNotificationEnabled : isNotificationEnabled // ignore: cast_nullable_to_non_nullable
 as bool,themeIndex: null == themeIndex ? _self.themeIndex : themeIndex // ignore: cast_nullable_to_non_nullable
 as int,iconIndex: null == iconIndex ? _self.iconIndex : iconIndex // ignore: cast_nullable_to_non_nullable
@@ -179,10 +177,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String title,  DateTime baseDate,  DateTime targetDate,  bool includeToday,  bool excludeWeekends,  bool isNotificationEnabled,  int themeIndex,  int iconIndex,  String? photoPath,  List<TodoItem> todos,  List<DiaryEntry> diaryEntries,  int sortOrder,  int widgetLayoutType)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String title,  DateTime baseDate,  DateTime targetDate,  bool includeToday,  bool isNotificationEnabled,  int themeIndex,  int iconIndex,  String? photoPath,  List<TodoItem> todos,  List<DiaryEntry> diaryEntries,  int sortOrder,  int widgetLayoutType)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Event() when $default != null:
-return $default(_that.id,_that.title,_that.baseDate,_that.targetDate,_that.includeToday,_that.excludeWeekends,_that.isNotificationEnabled,_that.themeIndex,_that.iconIndex,_that.photoPath,_that.todos,_that.diaryEntries,_that.sortOrder,_that.widgetLayoutType);case _:
+return $default(_that.id,_that.title,_that.baseDate,_that.targetDate,_that.includeToday,_that.isNotificationEnabled,_that.themeIndex,_that.iconIndex,_that.photoPath,_that.todos,_that.diaryEntries,_that.sortOrder,_that.widgetLayoutType);case _:
   return orElse();
 
 }
@@ -200,10 +198,10 @@ return $default(_that.id,_that.title,_that.baseDate,_that.targetDate,_that.inclu
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String title,  DateTime baseDate,  DateTime targetDate,  bool includeToday,  bool excludeWeekends,  bool isNotificationEnabled,  int themeIndex,  int iconIndex,  String? photoPath,  List<TodoItem> todos,  List<DiaryEntry> diaryEntries,  int sortOrder,  int widgetLayoutType)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String title,  DateTime baseDate,  DateTime targetDate,  bool includeToday,  bool isNotificationEnabled,  int themeIndex,  int iconIndex,  String? photoPath,  List<TodoItem> todos,  List<DiaryEntry> diaryEntries,  int sortOrder,  int widgetLayoutType)  $default,) {final _that = this;
 switch (_that) {
 case _Event():
-return $default(_that.id,_that.title,_that.baseDate,_that.targetDate,_that.includeToday,_that.excludeWeekends,_that.isNotificationEnabled,_that.themeIndex,_that.iconIndex,_that.photoPath,_that.todos,_that.diaryEntries,_that.sortOrder,_that.widgetLayoutType);case _:
+return $default(_that.id,_that.title,_that.baseDate,_that.targetDate,_that.includeToday,_that.isNotificationEnabled,_that.themeIndex,_that.iconIndex,_that.photoPath,_that.todos,_that.diaryEntries,_that.sortOrder,_that.widgetLayoutType);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -220,10 +218,10 @@ return $default(_that.id,_that.title,_that.baseDate,_that.targetDate,_that.inclu
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String title,  DateTime baseDate,  DateTime targetDate,  bool includeToday,  bool excludeWeekends,  bool isNotificationEnabled,  int themeIndex,  int iconIndex,  String? photoPath,  List<TodoItem> todos,  List<DiaryEntry> diaryEntries,  int sortOrder,  int widgetLayoutType)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String title,  DateTime baseDate,  DateTime targetDate,  bool includeToday,  bool isNotificationEnabled,  int themeIndex,  int iconIndex,  String? photoPath,  List<TodoItem> todos,  List<DiaryEntry> diaryEntries,  int sortOrder,  int widgetLayoutType)?  $default,) {final _that = this;
 switch (_that) {
 case _Event() when $default != null:
-return $default(_that.id,_that.title,_that.baseDate,_that.targetDate,_that.includeToday,_that.excludeWeekends,_that.isNotificationEnabled,_that.themeIndex,_that.iconIndex,_that.photoPath,_that.todos,_that.diaryEntries,_that.sortOrder,_that.widgetLayoutType);case _:
+return $default(_that.id,_that.title,_that.baseDate,_that.targetDate,_that.includeToday,_that.isNotificationEnabled,_that.themeIndex,_that.iconIndex,_that.photoPath,_that.todos,_that.diaryEntries,_that.sortOrder,_that.widgetLayoutType);case _:
   return null;
 
 }
@@ -235,7 +233,7 @@ return $default(_that.id,_that.title,_that.baseDate,_that.targetDate,_that.inclu
 @JsonSerializable()
 
 class _Event implements Event {
-  const _Event({required this.id, required this.title, required this.baseDate, required this.targetDate, this.includeToday = false, this.excludeWeekends = false, this.isNotificationEnabled = true, this.themeIndex = 0, this.iconIndex = 0, this.photoPath, final  List<TodoItem> todos = const [], final  List<DiaryEntry> diaryEntries = const [], this.sortOrder = 0, this.widgetLayoutType = 0}): _todos = todos,_diaryEntries = diaryEntries;
+  const _Event({required this.id, required this.title, required this.baseDate, required this.targetDate, this.includeToday = false, this.isNotificationEnabled = true, this.themeIndex = 0, this.iconIndex = 0, this.photoPath, final  List<TodoItem> todos = const [], final  List<DiaryEntry> diaryEntries = const [], this.sortOrder = 0, this.widgetLayoutType = 0}): _todos = todos,_diaryEntries = diaryEntries;
   factory _Event.fromJson(Map<String, dynamic> json) => _$EventFromJson(json);
 
 @override final  String id;
@@ -246,8 +244,6 @@ class _Event implements Event {
 @override final  DateTime targetDate;
 // 당일 포함
 @override@JsonKey() final  bool includeToday;
-// 주말 제외
-@override@JsonKey() final  bool excludeWeekends;
 // 알림 켜기/끄기
 @override@JsonKey() final  bool isNotificationEnabled;
 // 카드 테마(0~n)
@@ -294,16 +290,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Event&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.baseDate, baseDate) || other.baseDate == baseDate)&&(identical(other.targetDate, targetDate) || other.targetDate == targetDate)&&(identical(other.includeToday, includeToday) || other.includeToday == includeToday)&&(identical(other.excludeWeekends, excludeWeekends) || other.excludeWeekends == excludeWeekends)&&(identical(other.isNotificationEnabled, isNotificationEnabled) || other.isNotificationEnabled == isNotificationEnabled)&&(identical(other.themeIndex, themeIndex) || other.themeIndex == themeIndex)&&(identical(other.iconIndex, iconIndex) || other.iconIndex == iconIndex)&&(identical(other.photoPath, photoPath) || other.photoPath == photoPath)&&const DeepCollectionEquality().equals(other._todos, _todos)&&const DeepCollectionEquality().equals(other._diaryEntries, _diaryEntries)&&(identical(other.sortOrder, sortOrder) || other.sortOrder == sortOrder)&&(identical(other.widgetLayoutType, widgetLayoutType) || other.widgetLayoutType == widgetLayoutType));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Event&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.baseDate, baseDate) || other.baseDate == baseDate)&&(identical(other.targetDate, targetDate) || other.targetDate == targetDate)&&(identical(other.includeToday, includeToday) || other.includeToday == includeToday)&&(identical(other.isNotificationEnabled, isNotificationEnabled) || other.isNotificationEnabled == isNotificationEnabled)&&(identical(other.themeIndex, themeIndex) || other.themeIndex == themeIndex)&&(identical(other.iconIndex, iconIndex) || other.iconIndex == iconIndex)&&(identical(other.photoPath, photoPath) || other.photoPath == photoPath)&&const DeepCollectionEquality().equals(other._todos, _todos)&&const DeepCollectionEquality().equals(other._diaryEntries, _diaryEntries)&&(identical(other.sortOrder, sortOrder) || other.sortOrder == sortOrder)&&(identical(other.widgetLayoutType, widgetLayoutType) || other.widgetLayoutType == widgetLayoutType));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,title,baseDate,targetDate,includeToday,excludeWeekends,isNotificationEnabled,themeIndex,iconIndex,photoPath,const DeepCollectionEquality().hash(_todos),const DeepCollectionEquality().hash(_diaryEntries),sortOrder,widgetLayoutType);
+int get hashCode => Object.hash(runtimeType,id,title,baseDate,targetDate,includeToday,isNotificationEnabled,themeIndex,iconIndex,photoPath,const DeepCollectionEquality().hash(_todos),const DeepCollectionEquality().hash(_diaryEntries),sortOrder,widgetLayoutType);
 
 @override
 String toString() {
-  return 'Event(id: $id, title: $title, baseDate: $baseDate, targetDate: $targetDate, includeToday: $includeToday, excludeWeekends: $excludeWeekends, isNotificationEnabled: $isNotificationEnabled, themeIndex: $themeIndex, iconIndex: $iconIndex, photoPath: $photoPath, todos: $todos, diaryEntries: $diaryEntries, sortOrder: $sortOrder, widgetLayoutType: $widgetLayoutType)';
+  return 'Event(id: $id, title: $title, baseDate: $baseDate, targetDate: $targetDate, includeToday: $includeToday, isNotificationEnabled: $isNotificationEnabled, themeIndex: $themeIndex, iconIndex: $iconIndex, photoPath: $photoPath, todos: $todos, diaryEntries: $diaryEntries, sortOrder: $sortOrder, widgetLayoutType: $widgetLayoutType)';
 }
 
 
@@ -314,7 +310,7 @@ abstract mixin class _$EventCopyWith<$Res> implements $EventCopyWith<$Res> {
   factory _$EventCopyWith(_Event value, $Res Function(_Event) _then) = __$EventCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String title, DateTime baseDate, DateTime targetDate, bool includeToday, bool excludeWeekends, bool isNotificationEnabled, int themeIndex, int iconIndex, String? photoPath, List<TodoItem> todos, List<DiaryEntry> diaryEntries, int sortOrder, int widgetLayoutType
+ String id, String title, DateTime baseDate, DateTime targetDate, bool includeToday, bool isNotificationEnabled, int themeIndex, int iconIndex, String? photoPath, List<TodoItem> todos, List<DiaryEntry> diaryEntries, int sortOrder, int widgetLayoutType
 });
 
 
@@ -331,14 +327,13 @@ class __$EventCopyWithImpl<$Res>
 
 /// Create a copy of Event
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? title = null,Object? baseDate = null,Object? targetDate = null,Object? includeToday = null,Object? excludeWeekends = null,Object? isNotificationEnabled = null,Object? themeIndex = null,Object? iconIndex = null,Object? photoPath = freezed,Object? todos = null,Object? diaryEntries = null,Object? sortOrder = null,Object? widgetLayoutType = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? title = null,Object? baseDate = null,Object? targetDate = null,Object? includeToday = null,Object? isNotificationEnabled = null,Object? themeIndex = null,Object? iconIndex = null,Object? photoPath = freezed,Object? todos = null,Object? diaryEntries = null,Object? sortOrder = null,Object? widgetLayoutType = null,}) {
   return _then(_Event(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
 as String,baseDate: null == baseDate ? _self.baseDate : baseDate // ignore: cast_nullable_to_non_nullable
 as DateTime,targetDate: null == targetDate ? _self.targetDate : targetDate // ignore: cast_nullable_to_non_nullable
 as DateTime,includeToday: null == includeToday ? _self.includeToday : includeToday // ignore: cast_nullable_to_non_nullable
-as bool,excludeWeekends: null == excludeWeekends ? _self.excludeWeekends : excludeWeekends // ignore: cast_nullable_to_non_nullable
 as bool,isNotificationEnabled: null == isNotificationEnabled ? _self.isNotificationEnabled : isNotificationEnabled // ignore: cast_nullable_to_non_nullable
 as bool,themeIndex: null == themeIndex ? _self.themeIndex : themeIndex // ignore: cast_nullable_to_non_nullable
 as int,iconIndex: null == iconIndex ? _self.iconIndex : iconIndex // ignore: cast_nullable_to_non_nullable

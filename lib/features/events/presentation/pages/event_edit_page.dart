@@ -27,7 +27,6 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
   final _title = TextEditingController();
   DateTime _target = DateTime.now().add(const Duration(days: 1));
   bool _includeToday = true;
-  bool _excludeWeekends = false;
   bool _isNotificationEnabled = true;
   int _themeIndex = 0;
   int _iconIndex = 0;
@@ -50,12 +49,10 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
     final prefs = await SharedPreferences.getInstance();
     // settings_page.dart와 동일한 키를 사용합니다.
     final includeToday = prefs.getBool('default_includeToday') ?? true;
-    final excludeWeekends = prefs.getBool('default_excludeWeekends') ?? false;
     
     if (mounted) {
       setState(() {
         _includeToday = includeToday;
-        _excludeWeekends = excludeWeekends;
       });
     }
   }
@@ -71,7 +68,6 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
     _title.text = event.title;
     _target = event.targetDate;
     _includeToday = event.includeToday;
-    _excludeWeekends = event.excludeWeekends;
     _isNotificationEnabled = event.isNotificationEnabled;
     _themeIndex = event.themeIndex;
     _iconIndex = event.iconIndex;
@@ -140,7 +136,6 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
                 base: DateTime.now(), // Create preview using Today
                 target: _target,
                 includeToday: _includeToday,
-                excludeWeekends: _excludeWeekends,
               );
 
               return Column(
@@ -416,7 +411,6 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
                                   baseDate: DateTime.now(), // 기준일은 항상 오늘
                                   targetDate: _target,
                                   includeToday: _includeToday,
-                                  excludeWeekends: _excludeWeekends,
                                   isNotificationEnabled: _isNotificationEnabled,
                                   themeIndex: _themeIndex,
                                   iconIndex: _iconIndex,

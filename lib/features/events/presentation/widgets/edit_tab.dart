@@ -19,7 +19,6 @@ class EditTab extends ConsumerStatefulWidget {
   final ValueChanged<String>? onTitleChanged;
   final ValueChanged<DateTime>? onDateChanged;
   final ValueChanged<bool>? onIncludeTodayChanged;
-  final ValueChanged<bool>? onExcludeWeekendsChanged;
   final ValueChanged<String?>? onPhotoChanged;
   final ValueChanged<int>? onWidgetLayoutTypeChanged;
   const EditTab({
@@ -30,7 +29,6 @@ class EditTab extends ConsumerStatefulWidget {
     this.onTitleChanged,
     this.onDateChanged,
     this.onIncludeTodayChanged,
-    this.onExcludeWeekendsChanged,
     this.onPhotoChanged,
     this.onWidgetLayoutTypeChanged,
   });
@@ -43,7 +41,6 @@ class _EditTabState extends ConsumerState<EditTab> {
   late TextEditingController _title;
   late DateTime _target;
   late bool _includeToday;
-  late bool _excludeWeekends;
   late bool _isNotificationEnabled;
   late int _themeIndex;
   late int _iconIndex;
@@ -73,7 +70,6 @@ class _EditTabState extends ConsumerState<EditTab> {
     _title.text = e.title;
     _target = e.targetDate;
     _includeToday = e.includeToday;
-    _excludeWeekends = e.excludeWeekends;
     _isNotificationEnabled = e.isNotificationEnabled;
     _themeIndex = e.themeIndex;
     _iconIndex = e.iconIndex;
@@ -413,7 +409,6 @@ class _EditTabState extends ConsumerState<EditTab> {
                       baseDate: DateTime.now(),
                       targetDate: _target,
                       includeToday: _includeToday,
-                      excludeWeekends: _excludeWeekends,
                       isNotificationEnabled: _isNotificationEnabled,
                       themeIndex: _themeIndex,
                       iconIndex: _iconIndex,

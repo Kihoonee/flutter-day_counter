@@ -3,6 +3,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:flutter_timezone/flutter_timezone.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../features/events/domain/event.dart';
 
 class NotificationService {
@@ -49,11 +50,39 @@ class NotificationService {
     _isInitialized = true;
   }
 
+  /// 전역 알림 설정이 변경되었을 때 호출
+  Future<void> updateGlobalPreference(bool enabled) async {
+    if (kIsWeb) return;
+    if (!_isInitialized) await init();
+
+    if (!enabled) {
+      // 전역 알림이 꺼지면 모든 예약된 알림 취소
+      await flutterLocalNotificationsPlugin.cancelAll();
+      debugPrint('NotificationService: Global notifications disabled. Cancelled all.');
+    } else {
+      // 전역 알림이 켜지면 필요한 알림 재등록 로직은 
+      // 앱을 다시 그리거나 EventController에서 다시 훑어주는 것이 안전함.
+      // 하지만 여기서는 명시적으로 '전체 재스케줄링'이 필요하다고 알리는 용도.
+      debugPrint('NotificationService: Global notifications enabled. Please reschedule events.');
+    }
+  }
+
   Future<void> scheduleEvent(Event event) async {
     if (kIsWeb) return;
     if (!_isInitialized) await init();
 
+    // 1. 기존 알림 취소
     await cancelEvent(event.id);
+
+    // 2. 전체 알림 설정 확인
+    final prefs = await SharedPreferences.getInstance();
+    final globalEnabled = prefs.getBool('global_notifications_enabled') ?? true;
+
+    // 3. 전역 혹은 개별 설정이 꺼져있으면 스케줄링 건너뜀
+    if (!globalEnabled || !event.isNotificationEnabled) {
+      debugPrint('NotificationService: Skipping schedule for [${event.title}]. Global: $globalEnabled, Event: ${event.isNotificationEnabled}');
+      return;
+    }
 
     final now = tz.TZDateTime.now(tz.local);
     final target = tz.TZDateTime.from(event.targetDate, tz.local);
