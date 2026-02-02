@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -45,8 +46,12 @@ class _AppBootstrapState extends State<AppBootstrap> {
       print('AppBootstrap: Init Database...');
       final db = await DatabaseService().database;
 
-      print('AppBootstrap: Init Notifications...');
-      await NotificationService().init();
+      if (!kIsWeb) {
+        print('AppBootstrap: Init Notifications...');
+        await NotificationService().init();
+      } else {
+        print('AppBootstrap: Notifications skipped on Web.');
+      }
       
       print('AppBootstrap: Initialization successful.');
 
