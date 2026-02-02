@@ -40,21 +40,6 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
   @override
   void initState() {
     super.initState();
-    if (widget.eventId == null) {
-      _loadDefaults();
-    }
-  }
-
-  Future<void> _loadDefaults() async {
-    final prefs = await SharedPreferences.getInstance();
-    // settings_page.dart와 동일한 키를 사용합니다.
-    final includeToday = prefs.getBool('default_includeToday') ?? true;
-    
-    if (mounted) {
-      setState(() {
-        _includeToday = includeToday;
-      });
-    }
   }
 
   @override

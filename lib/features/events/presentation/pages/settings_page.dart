@@ -14,12 +14,16 @@ class SettingsPage extends ConsumerStatefulWidget {
 }
 
 class _SettingsPageState extends ConsumerState<SettingsPage> {
-  static const kIncludeTodayDefault = 'default_includeToday';
   static const kGlobalNotifications = 'global_notifications_enabled';
+  static const kGlobalNotificationsDDay = 'global_notifications_dday';
+  static const kGlobalNotificationsDMinus1 = 'global_notifications_dminus1';
+  static const kGlobalNotificationsAnniv = 'global_notifications_anniv';
 
   bool _loading = true;
-  bool _includeToday = false;
   bool _globalNotifications = true;
+  bool _globalNotificationsDDay = true;
+  bool _globalNotificationsDMinus1 = true;
+  bool _globalNotificationsAnniv = true;
 
   @override
   void initState() {
@@ -30,16 +34,20 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   Future<void> _load() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      _includeToday = prefs.getBool(kIncludeTodayDefault) ?? true;
       _globalNotifications = prefs.getBool(kGlobalNotifications) ?? true;
+      _globalNotificationsDDay = prefs.getBool(kGlobalNotificationsDDay) ?? true;
+      _globalNotificationsDMinus1 = prefs.getBool(kGlobalNotificationsDMinus1) ?? true;
+      _globalNotificationsAnniv = prefs.getBool(kGlobalNotificationsAnniv) ?? true;
       _loading = false;
     });
   }
 
   Future<void> _save() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(kIncludeTodayDefault, _includeToday);
     await prefs.setBool(kGlobalNotifications, _globalNotifications);
+    await prefs.setBool(kGlobalNotificationsDDay, _globalNotificationsDDay);
+    await prefs.setBool(kGlobalNotificationsDMinus1, _globalNotificationsDMinus1);
+    await prefs.setBool(kGlobalNotificationsAnniv, _globalNotificationsAnniv);
     
     // 알림 설정이 변경되었을 경우 즉시 반영
     await NotificationService().updateGlobalPreference(_globalNotifications);
@@ -161,7 +169,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                       ),
                       _card(
                         context,
-                        title: '알림 및 기본값',
+                        title: '알림 설정',
                         icon: HugeIcons.strokeRoundedNotification03,
                         child: Column(
                           children: [
@@ -172,21 +180,30 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
-                              subtitle: const Text('꺼두면 모든 이벤트의 알림이 울리지 않습니다.'),
+                              subtitle: const Text('꺼두면 모든 알림이 울리지 않습니다.'),
                               value: _globalNotifications,
                               onChanged: (v) => setState(() => _globalNotifications = v),
                             ),
-                            const Divider(height: 1),
-                            SwitchListTile(
-                              title: Text(
-                                '새 이벤트 당일 포함',
-                                style: theme.textTheme.bodyLarge?.copyWith(
-                                  fontWeight: FontWeight.w600,
-                                ),
+                            if (_globalNotifications) ...[
+                              const Divider(height: 1),
+                              SwitchListTile(
+                                title: const Text('D-Day 알림'),
+                                value: _globalNotificationsDDay,
+                                onChanged: (v) => setState(() => _globalNotificationsDDay = v),
                               ),
-                              value: _includeToday,
-                              onChanged: (v) => setState(() => _includeToday = v),
-                            ),
+                              const Divider(height: 1),
+                              SwitchListTile(
+                                title: const Text('D-1 알림'),
+                                value: _globalNotificationsDMinus1,
+                                onChanged: (v) => setState(() => _globalNotificationsDMinus1 = v),
+                              ),
+                              const Divider(height: 1),
+                              SwitchListTile(
+                                title: const Text('기념일 알림 (+100일 단위)'),
+                                value: _globalNotificationsAnniv,
+                                onChanged: (v) => setState(() => _globalNotificationsAnniv = v),
+                              ),
+                            ],
                           ],
                         ),
                       ),

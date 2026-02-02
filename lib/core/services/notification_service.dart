@@ -76,28 +76,35 @@ class NotificationService {
 
     // 2. 전체 알림 설정 확인
     final prefs = await SharedPreferences.getInstance();
-    final globalEnabled = prefs.getBool('global_notifications_enabled') ?? true;
-
-    // 3. 전역 혹은 개별 설정이 꺼져있으면 스케줄링 건너뜀
-    if (!globalEnabled || !event.isNotificationEnabled) {
-      debugPrint('NotificationService: Skipping schedule for [${event.title}]. Global: $globalEnabled, Event: ${event.isNotificationEnabled}');
+    
+    // 알림 전체 마스터 스위치 또는 이벤트 개별 알림 확인
+    final masterEnabled = prefs.getBool('global_notifications_enabled') ?? true;
+    if (!masterEnabled || !event.isNotificationEnabled) {
+      debugPrint('NotificationService: Skipping schedule for [${event.title}]. Master: $masterEnabled, Event: ${event.isNotificationEnabled}');
       return;
     }
+
+    // 세분화된 설정 확인
+    final ddayEnabled = prefs.getBool('global_notifications_dday') ?? true;
+    final dminus1Enabled = prefs.getBool('global_notifications_dminus1') ?? true;
+    final annivEnabled = prefs.getBool('global_notifications_anniv') ?? true;
 
     final now = tz.TZDateTime.now(tz.local);
     final target = tz.TZDateTime.from(event.targetDate, tz.local);
     final targetDay9AM = tz.TZDateTime(tz.local, target.year, target.month, target.day, 9, 0, 0);
 
     if (targetDay9AM.isAfter(now)) {
-      await _schedule(
-        id: _generateId(event.id, 'dday'),
-        title: '${event.title} D-Day!',
-        body: '오늘은 ${event.title} 날입니다.',
-        scheduledDate: targetDay9AM,
-      );
+      if (ddayEnabled) {
+        await _schedule(
+          id: _generateId(event.id, 'dday'),
+          title: '${event.title} D-Day!',
+          body: '오늘은 ${event.title} 날입니다.',
+          scheduledDate: targetDay9AM,
+        );
+      }
 
       final dMinus1 = targetDay9AM.subtract(const Duration(days: 1));
-      if (dMinus1.isAfter(now)) {
+      if (dminus1Enabled && dMinus1.isAfter(now)) {
         await _schedule(
           id: _generateId(event.id, 'dminus1'),
           title: '${event.title} D-1',
@@ -106,19 +113,21 @@ class NotificationService {
         );
       }
     } else {
-      final diff = now.difference(targetDay9AM).inDays;
-      int nextMilestone = ((diff / 100).ceil()) * 100;
-      if (nextMilestone == diff) nextMilestone += 100;
-      if (nextMilestone <= 0) nextMilestone = 100;
+      if (annivEnabled) {
+        final diff = now.difference(targetDay9AM).inDays;
+        int nextMilestone = ((diff / 100).ceil()) * 100;
+        if (nextMilestone == diff) nextMilestone += 100;
+        if (nextMilestone <= 0) nextMilestone = 100;
 
-      final nextDate = targetDay9AM.add(Duration(days: nextMilestone));
-      
-      await _schedule(
-        id: _generateId(event.id, 'anniv'),
-        title: '${event.title} +$nextMilestone일',
-        body: '시작한 지 $nextMilestone일이 되었습니다.',
-        scheduledDate: nextDate,
-      );
+        final nextDate = targetDay9AM.add(Duration(days: nextMilestone));
+        
+        await _schedule(
+          id: _generateId(event.id, 'anniv'),
+          title: '${event.title} +$nextMilestone일',
+          body: '시작한 지 $nextMilestone일이 되었습니다.',
+          scheduledDate: nextDate,
+        );
+      }
     }
   }
 
