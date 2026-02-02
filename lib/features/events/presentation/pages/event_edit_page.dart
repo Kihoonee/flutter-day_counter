@@ -357,21 +357,27 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
                           ),
                           const SizedBox(height: 16),
 
-                          // 5. 옵션
+                          // 5. 옵션 - 당일 포함 (그룹 분리)
+                          Card(
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                            child: SwitchListTile(
+                              title: Text(
+                                '당일 포함 (1일차 시작)',
+                                style: theme.textTheme.bodyMedium,
+                              ),
+                              value: _includeToday,
+                              onChanged: (v) => setState(() => _includeToday = v),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+
+                          // 6. 옵션 - 알림 (그룹 분리)
                           Card(
                             elevation: 0,
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)), // 기본 Card 컬러
                             child: Column(
                               children: [
-                                SwitchListTile(
-                                  title: Text(
-                                    '당일 포함 (1일차 시작)',
-                                    style: theme.textTheme.bodyMedium,
-                                  ),
-                                  value: _includeToday,
-                                  onChanged: (v) => setState(() => _includeToday = v),
-                                ),
-                                Divider(height: 1, color: theme.colorScheme.outlineVariant.withOpacity(0.2)),
                                 SwitchListTile(
                                   title: Text(
                                     '알림 켜기',
@@ -387,7 +393,7 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
                                         _notifyDMinus1 = false;
                                         _notifyAnniv = false;
                                       } else {
-                                        // 부모 켜지면 기본적으로 모두 켬 (또는 이전 상태 유지? 일단 모두 켬)
+                                        // 부모 켜지면 기본적으로 모두 켬
                                         _notifyDDay = true;
                                         _notifyDMinus1 = true;
                                         _notifyAnniv = true;
@@ -395,7 +401,7 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
                                     });
                                   },
                                 ),
-                                Divider(height: 1, color: theme.colorScheme.outlineVariant.withOpacity(0.1)),
+                                Divider(height: 1, color: theme.colorScheme.outlineVariant.withValues(alpha: 0.1)),
                                 SwitchListTile(
                                   title: const Text('D-Day 알림', style: TextStyle(fontSize: 14)),
                                   value: _notifyDDay,
@@ -411,7 +417,7 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
                                   },
                                   dense: true,
                                 ),
-                                Divider(height: 1, color: theme.colorScheme.outlineVariant.withOpacity(0.05)),
+                                Divider(height: 1, color: theme.colorScheme.outlineVariant.withValues(alpha: 0.05)),
                                 SwitchListTile(
                                   title: const Text('D-1 알림', style: TextStyle(fontSize: 14)),
                                   value: _notifyDMinus1,
@@ -427,7 +433,7 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
                                   },
                                   dense: true,
                                 ),
-                                Divider(height: 1, color: theme.colorScheme.outlineVariant.withOpacity(0.05)),
+                                Divider(height: 1, color: theme.colorScheme.outlineVariant.withValues(alpha: 0.05)),
                                 SwitchListTile(
                                   title: const Text('기념일 알림 (+100일 단위)', style: TextStyle(fontSize: 14)),
                                   value: _notifyAnniv,

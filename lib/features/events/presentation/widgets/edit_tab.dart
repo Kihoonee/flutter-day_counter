@@ -42,8 +42,11 @@ class _EditTabState extends ConsumerState<EditTab> {
   late DateTime _target;
   late bool _includeToday;
   late bool _isNotificationEnabled;
-  late int _themeIndex;
-  late int _iconIndex;
+  late bool _notifyDDay;
+  late bool _notifyDMinus1;
+  late bool _notifyAnniv;
+  int _themeIndex = 0;
+  int _iconIndex = 0;
   String? _photoPath;
   late int _widgetLayoutType;
 
@@ -71,6 +74,9 @@ class _EditTabState extends ConsumerState<EditTab> {
     _target = e.targetDate;
     _includeToday = e.includeToday;
     _isNotificationEnabled = e.isNotificationEnabled;
+    _notifyDDay = e.notifyDDay;
+    _notifyDMinus1 = e.notifyDMinus1;
+    _notifyAnniv = e.notifyAnniv;
     _themeIndex = e.themeIndex;
     _iconIndex = e.iconIndex;
     _photoPath = e.photoPath;
@@ -331,31 +337,107 @@ class _EditTabState extends ConsumerState<EditTab> {
           ),
           const SizedBox(height: 16),
 
-          // 5. Options
+          // 5. 옵션 - 당일 포함 (그룹 분리)
           Card(
             elevation: 0,
             shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16)),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: SwitchListTile(
+              title: Text('당일 포함 (1일차 시작)',
+                  style: theme.textTheme.bodyMedium),
+              value: _includeToday,
+              onChanged: (v) {
+                setState(() => _includeToday = v);
+                widget.onIncludeTodayChanged?.call(v);
+              },
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // 6. 옵션 - 알림 (그룹 분리)
+          Card(
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
             child: Column(
               children: [
                 SwitchListTile(
-                  title: Text('당일 포함 (1일차 시작)',
-                      style: theme.textTheme.bodyMedium),
-                  value: _includeToday,
+                  title: Text('알림 켜기', style: theme.textTheme.bodyMedium),
+                  value: _isNotificationEnabled,
                   onChanged: (v) {
-                    setState(() => _includeToday = v);
-                    widget.onIncludeTodayChanged?.call(v);
+                    setState(() {
+                      _isNotificationEnabled = v;
+                      if (!v) {
+                        _notifyDDay = false;
+                        _notifyDMinus1 = false;
+                        _notifyAnniv = false;
+                      } else {
+                        _notifyDDay = true;
+                        _notifyDMinus1 = true;
+                        _notifyAnniv = true;
+                      }
+                    });
                   },
                 ),
                 Divider(
-                    height: 1,
-                    color: theme.colorScheme.outlineVariant
-                        .withOpacity(0.2)),
+                  height: 1,
+                  color: theme.colorScheme.outlineVariant.withValues(alpha: 0.1),
+                ),
                 SwitchListTile(
-                  title: Text('알림 켜기', style: theme.textTheme.bodyMedium),
-                  value: _isNotificationEnabled,
-                  onChanged: (v) =>
-                      setState(() => _isNotificationEnabled = v),
+                  title: const Text('D-Day 알림', style: TextStyle(fontSize: 14)),
+                  value: _notifyDDay,
+                  onChanged: (v) {
+                    setState(() {
+                      _notifyDDay = v;
+                      if (v) {
+                        _isNotificationEnabled = true;
+                      } else if (!_notifyDMinus1 && !_notifyAnniv) {
+                        _isNotificationEnabled = false;
+                      }
+                    });
+                  },
+                  dense: true,
+                ),
+                Divider(
+                  height: 1,
+                  color: theme.colorScheme.outlineVariant.withValues(alpha: 0.05),
+                ),
+                SwitchListTile(
+                  title: const Text('D-1 알림', style: TextStyle(fontSize: 14)),
+                  value: _notifyDMinus1,
+                  onChanged: (v) {
+                    setState(() {
+                      _notifyDMinus1 = v;
+                      if (v) {
+                        _isNotificationEnabled = true;
+                      } else if (!_notifyDDay && !_notifyAnniv) {
+                        _isNotificationEnabled = false;
+                      }
+                    });
+                  },
+                  dense: true,
+                ),
+                Divider(
+                  height: 1,
+                  color: theme.colorScheme.outlineVariant.withValues(alpha: 0.05),
+                ),
+                SwitchListTile(
+                  title: const Text('기념일 알림 (+100일 단위)',
+                      style: TextStyle(fontSize: 14)),
+                  value: _notifyAnniv,
+                  onChanged: (v) {
+                    setState(() {
+                      _notifyAnniv = v;
+                      if (v) {
+                        _isNotificationEnabled = true;
+                      } else if (!_notifyDDay && !_notifyDMinus1) {
+                        _isNotificationEnabled = false;
+                      }
+                    });
+                  },
+                  dense: true,
                 ),
               ],
             ),
@@ -410,6 +492,9 @@ class _EditTabState extends ConsumerState<EditTab> {
                       targetDate: _target,
                       includeToday: _includeToday,
                       isNotificationEnabled: _isNotificationEnabled,
+                      notifyDDay: _notifyDDay,
+                      notifyDMinus1: _notifyDMinus1,
+                      notifyAnniv: _notifyAnniv,
                       themeIndex: _themeIndex,
                       iconIndex: _iconIndex,
                       photoPath: _photoPath,
