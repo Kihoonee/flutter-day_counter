@@ -1,23 +1,40 @@
-# 위젯 레이아웃 선택 기능 제거
+# 워크스루: 전역 알림 설정 및 주말 제외 기능 제거
 
-## 변경 요약
+사용하지 않는 '주말 제외' 기능을 완전히 제거하고, 설정 페이지에 '전역 알림 설정'을 추가하여 앱 전체의 알림을 한 번에 제어할 수 있도록 구현했습니다.
 
-사용자 요청에 따라 위젯 레이아웃 선택 기능을 완전히 제거했습니다.  
-**D-Day 강조 레이아웃**만 사용하도록 단순화되었습니다.
+## 주요 변경 사항
 
-## 수정된 파일
+### 1. 도메인 및 비즈니스 로직 정리
+- [x] **주말 제외 기능 제거**: `Event` 모델에서 `excludeWeekends` 필드를 제거하고 관련 코드를 삭제했습니다.
+- [x] **DateCalc 단순화**: 날짜 차이 계산 로직에서 주말 제외 처리를 제거하여 성능과 코드를 개선했습니다.
 
-### Flutter (UI 제거)
-- [edit_tab.dart](file:///Users/kihoonee/flutter/day_counter/lib/features/events/presentation/widgets/edit_tab.dart): `_showLayoutPicker` 메서드 및 레이아웃 선택 카드 UI 제거
-- [event_edit_page.dart](file:///Users/kihoonee/flutter/day_counter/lib/features/events/presentation/pages/event_edit_page.dart): `_showLayoutPicker` 메서드 및 레이아웃 선택 카드 UI 제거
-- [poster_card.dart](file:///Users/kihoonee/flutter/day_counter/lib/features/events/presentation/widgets/poster_card.dart): 항상 D-Day 레이아웃 사용
+### 2. 전역 알림 설정 구현
+- [x] **설정 UI 추가**: `SettingsPage`에 '전역 알림 설정' 스위치를 추가했습니다.
+- [x] **전역 제어 로직**: 
+  - 설정이 OFF 되어 있으면 모든 이벤트의 개별 알림 설정이 ON 이라도 알림이 울리지 않습니다.
+  - 전역 설정을 끄면 예약된 모든 알림을 즉시 취소합니다.
+  - 전역 설정을 켜면 알림 설정이 ON인 모든 이벤트의 알림을 자동으로 다시 예약합니다.
 
-### Android Native
-- [DaysPlusWidget.kt](file:///Users/kihoonee/flutter/day_counter/android/app/src/main/kotlin/com/handroom/daysplus/DaysPlusWidget.kt): 레이아웃 타입 분기 제거, 항상 `widget_layout.xml` 사용
+### 3. UI/UX 일관성 유지
+- [x] **이벤트 추가/수정 화면**: '주말 제외' 옵션을 제거하고 설정을 깔끔하게 정리했습니다.
+- [x] **메모/할일 탭**: 날짜 차이(D-Day) 표시 로직에서 주말 제외 옵션 제거를 반영했습니다.
+- [x] **홈 화면 위젯**: 위젯 데이터 동기화 로직에서도 주말 제외 항목을 제거했습니다.
 
-### iOS Native
-- [DaysPlusWidget.swift](file:///Users/kihoonee/flutter/day_counter/ios/DaysPlusWidget/DaysPlusWidget.swift): 조건부 레이아웃 분기 제거, 항상 `ddayEmphasisLayout` 사용
+## 기술적 상세
 
-## 검증
-- ✅ Android 에뮬레이터 Hot Reload 진행 중
-- ✅ 빌드 에러 없음
+| 항목 | 상세 내용 |
+| :--- | :--- |
+| **알림 서비스** | `NotificationService`에서 `SharedPreferences`를 통해 전역 설정을 확인 후 스케줄링 여부 결정 |
+| **상태 관리** | `EventsController`에 `rescheduleAllNotifications` 메서드를 추가하여 설정 변경 시 일괄 처리 |
+| **영속성** | `global_notifications_enabled` 키를 사용하여 사용자의 알림 선호도 저장 |
+
+## 빌드 및 검증 과정 중 해결된 사항
+- [x] **컴파일 에러 수정**: `event_controller.dart`의 문자열 보간 구문 오류 및 `debugPrint` 누락 임포트를 해결했습니다.
+- [x] **타입 안정성 확보**: `settings_page.dart`의 아이콘 타입 캐스팅 이슈를 해결했습니다.
+- [x] **테스트 동기화**: `Event` 모델 변경에 따라 깨졌던 `event_repository_impl_test.dart`를 업데이트했습니다.
+- [x] **기기 실행**: 안드로이드 에뮬레이터 및 iOS 시뮬레이터에서 정상적으로 실행됨을 최종 확인했습니다.
+
+## 검증 결과
+- `EventsController`에서 `excludeWeekends` 없이 날짜가 정확히 계산됨을 확인했습니다.
+- 설정 페이지에서 알림을 끌 때 `NotificationService: Global notifications disabled. Cancelled all.` 로그와 함께 알림이 취소됨을 확인했습니다.
+- 설정 페이지에서 알림을 다시 켤 때 모든 활성 이벤트의 알림이 재등록됨을 확인했습니다.

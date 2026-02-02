@@ -1,9 +1,23 @@
-# 위젯 개선 Phase 2
+# Task: Theme Mode Selection UI
 
-- [x] Android 위젯 배경 alpha 0.8로 변경
-- [x] Android 위젯 텍스트 100% 불투명 확인
-- [x] Android D-day 폰트 크기 조정 (타이틀의 110%)
-- [x] iOS 위젯 배경 0.8 투명도 적용
-- [x] iOS 위젯 텍스트 불투명 처리
-- [x] 자동 첫번째 이벤트 위젯 로직 제거
-- [x] 에뮬레이터/시뮬레이터 검증
+Implement UI to select between Light, Dark, and System theme modes.
+
+## Status: Completed
+
+## Progress
+- [x] Theme Management Architecture
+    - [x] Create `theme_provider.dart` with Riverpod and SharedPreferences persistence
+    - [x] Connect `App` widget to the theme provider
+- [x] UI Implementation
+    - [x] Add theme selection section to `SettingsPage`
+    - [x] Use `SegmentedButton` for selection UI
+- [x] Cross-Platform Stability
+    - [x] Fix `dart:io` crashes on Web builds in Ad units/manager
+    - [x] Handle Web platform in `BannerAdWidget`
+- [x] Verification
+    - [x] Verify theme switching and persistence
+    - [x] Document changes in `walkthrough.md`
+- [x] Device Execution
+    - [x] Launch on iOS Simulator
+    - [x] Launch on Android Emulator
+    - [x] Fix compilation errors (HugeIconData)
