@@ -26,7 +26,6 @@ void main() {
     baseDate: DateTime(2023, 1, 1),
     targetDate: DateTime(2023, 12, 31),
     includeToday: false,
-    excludeWeekends: false,
     themeIndex: 0,
   );
 
