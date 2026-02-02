@@ -119,10 +119,10 @@ class _EditTabState extends ConsumerState<EditTab> {
 
   Widget _buildPhotoIcon(ThemeData theme) {
     return Center(
-      child: Icon(
-        Icons.add_photo_alternate_outlined,
+      child: HugeIcon(
+        icon: HugeIcons.strokeRoundedImageAdd02,
         color: theme.colorScheme.onSurfaceVariant.withOpacity(0.5),
-        size: 28,
+        size: 24,
       ),
     );
   }
@@ -156,7 +156,7 @@ class _EditTabState extends ConsumerState<EditTab> {
                 hintText: '이벤트 제목을 입력하세요',
                 labelStyle: TextStyle(color: theme.hintColor),
                 hintStyle: TextStyle(
-                  color: theme.hintColor.withOpacity(0.5),
+                  color: theme.colorScheme.onSurfaceVariant,
                   fontSize: 16,
                 ),
                 border: InputBorder.none,
@@ -364,7 +364,7 @@ class _EditTabState extends ConsumerState<EditTab> {
             child: Column(
               children: [
                 SwitchListTile(
-                  title: Text('알림 켜기', style: theme.textTheme.bodyMedium),
+                  title: Text('알림 켜기', style: TextStyle(fontSize: 14)),
                   value: _isNotificationEnabled,
                   onChanged: (v) {
                     setState(() {
@@ -386,7 +386,8 @@ class _EditTabState extends ConsumerState<EditTab> {
                   color: theme.colorScheme.outlineVariant.withValues(alpha: 0.1),
                 ),
                 SwitchListTile(
-                  title: const Text('D-Day 알림', style: TextStyle(fontSize: 14)),
+                  //title: const Text('D-Day 알림', style: TextStyle(fontSize: 14)),
+                  title: Text('D-Day 알림', style: theme.textTheme.bodyMedium),
                   value: _notifyDDay,
                   onChanged: (v) {
                     setState(() {
@@ -405,7 +406,7 @@ class _EditTabState extends ConsumerState<EditTab> {
                   color: theme.colorScheme.outlineVariant.withValues(alpha: 0.05),
                 ),
                 SwitchListTile(
-                  title: const Text('D-1 알림', style: TextStyle(fontSize: 14)),
+                  title: Text('D-1 알림', style: theme.textTheme.bodyMedium),
                   value: _notifyDMinus1,
                   onChanged: (v) {
                     setState(() {
@@ -424,8 +425,8 @@ class _EditTabState extends ConsumerState<EditTab> {
                   color: theme.colorScheme.outlineVariant.withValues(alpha: 0.05),
                 ),
                 SwitchListTile(
-                  title: const Text('기념일 알림 (+100일 단위)',
-                      style: TextStyle(fontSize: 14)),
+                  title: Text('기념일 알림 (+100일 단위)',
+                      style: theme.textTheme.bodyMedium),
                   value: _notifyAnniv,
                   onChanged: (v) {
                     setState(() {

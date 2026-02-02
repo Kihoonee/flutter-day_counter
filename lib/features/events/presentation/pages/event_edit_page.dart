@@ -87,7 +87,7 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
     return Center(
       child: HugeIcon(
         icon: HugeIcons.strokeRoundedImageAdd02,
-        color: theme.colorScheme.primary.withOpacity(0.5),
+        color: theme.colorScheme.onSurfaceVariant.withOpacity(0.5),
         size: 24,
       ),
     );
@@ -170,7 +170,7 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
                                 hintText: '이벤트 제목을 입력하세요',
                                 labelStyle: TextStyle(color: theme.hintColor), // Gray color
                                 hintStyle: TextStyle(
-                                  color: theme.hintColor.withOpacity(0.5), 
+                                  color: theme.colorScheme.onSurfaceVariant, 
                                   fontSize: 16, // Smaller font size
                                 ),
                                 border: InputBorder.none,
@@ -275,7 +275,7 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
                                       child: Text(
                                         '사진 추가',
                                         style: theme.textTheme.bodyMedium?.copyWith(
-                                          color: theme.hintColor,
+                                          color: theme.colorScheme.onSurfaceVariant,
                                         ),
                                       ),
                                     ),
@@ -302,9 +302,7 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
                                           width: 60, // Fixed width for alignment
                                           child: Text(
                                             '아이콘',
-                                            style: theme.textTheme.bodyMedium?.copyWith(
-                                              color: theme.hintColor, // Gray label
-                                            ),
+                                            style: theme.textTheme.bodyMedium,
                                           ),
                                         ),
                                         Expanded(
@@ -325,9 +323,7 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
                                           width: 60, // Fixed width for alignment
                                           child: Text(
                                             '테마',
-                                            style: theme.textTheme.bodyMedium?.copyWith(
-                                              color: theme.hintColor, // Gray label
-                                            ),
+                                            style: theme.textTheme.bodyMedium,
                                           ),
                                         ),
                                         Expanded(
@@ -381,7 +377,7 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
                                 SwitchListTile(
                                   title: Text(
                                     '알림 켜기',
-                                    style: theme.textTheme.bodyMedium,
+                                    style: TextStyle(fontSize: 14),
                                   ),
                                   value: _isNotificationEnabled,
                                   onChanged: (v) {
@@ -403,7 +399,7 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
                                 ),
                                 Divider(height: 1, color: theme.colorScheme.outlineVariant.withValues(alpha: 0.1)),
                                 SwitchListTile(
-                                  title: const Text('D-Day 알림', style: TextStyle(fontSize: 14)),
+                                  title: Text('D-Day 알림', style: theme.textTheme.bodyMedium),
                                   value: _notifyDDay,
                                   onChanged: (v) {
                                     setState(() {
@@ -419,7 +415,7 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
                                 ),
                                 Divider(height: 1, color: theme.colorScheme.outlineVariant.withValues(alpha: 0.05)),
                                 SwitchListTile(
-                                  title: const Text('D-1 알림', style: TextStyle(fontSize: 14)),
+                                  title: Text('D-1 알림', style: theme.textTheme.bodyMedium),
                                   value: _notifyDMinus1,
                                   onChanged: (v) {
                                     setState(() {
@@ -435,7 +431,7 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
                                 ),
                                 Divider(height: 1, color: theme.colorScheme.outlineVariant.withValues(alpha: 0.05)),
                                 SwitchListTile(
-                                  title: const Text('기념일 알림 (+100일 단위)', style: TextStyle(fontSize: 14)),
+                                  title: Text('기념일 알림 (+100일 단위)', style: theme.textTheme.bodyMedium),
                                   value: _notifyAnniv,
                                   onChanged: (v) {
                                     setState(() {
