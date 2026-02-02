@@ -28,7 +28,7 @@ class _SettingsPageState extends State<SettingsPage> {
   Future<void> _load() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      _includeToday = prefs.getBool(kIncludeTodayDefault) ?? false;
+      _includeToday = prefs.getBool(kIncludeTodayDefault) ?? true;
       _excludeWeekends = prefs.getBool(kExcludeWeekendsDefault) ?? false;
       _loading = false;
     });
@@ -182,18 +182,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         ),
                       ),
                       const SizedBox(height: 12),
-                      _card(
-                        context,
-                        title: '데이터',
-                        icon: HugeIcons.strokeRoundedDatabase,
-                        child: Column(
-                          children: [
-                            _actionRow(context, '내보내기 (추후)', enabled: false, onTap: () {}),
-                            const Divider(height: 1),
-                            _actionRow(context, '가져오기 (추후)', enabled: false, onTap: () {}),
-                          ],
-                        ),
-                      ),
+                      const SizedBox(height: 12),
                       const SizedBox(height: 32),
                       SizedBox(
                         width: double.infinity,

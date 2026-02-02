@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 import 'package:hugeicons/hugeicons.dart';
 
@@ -36,6 +37,28 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
   final ImageService _imageService = ImageService();
   bool _initialized = false;
   bool _isPickingPhoto = false;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.eventId == null) {
+      _loadDefaults();
+    }
+  }
+
+  Future<void> _loadDefaults() async {
+    final prefs = await SharedPreferences.getInstance();
+    // settings_page.dart와 동일한 키를 사용합니다.
+    final includeToday = prefs.getBool('default_includeToday') ?? true;
+    final excludeWeekends = prefs.getBool('default_excludeWeekends') ?? false;
+    
+    if (mounted) {
+      setState(() {
+        _includeToday = includeToday;
+        _excludeWeekends = excludeWeekends;
+      });
+    }
+  }
 
   @override
   void dispose() {
