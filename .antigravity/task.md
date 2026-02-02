@@ -1,22 +1,20 @@
-# Task: Remove 'Include Today' from Settings
+# Task: Per-Event Granular Notifications
 
-The user wants to remove the "Include Today" default setting configuration from the Settings page. This means the app will rely on a hardcoded default (likely `true`) for new events, simplifying the settings menu.
+Refactor granular notification settings to be managed per-event instead of globally. Settings page will only retain the master global switch.
 
 ## Status: Completed
 
 ## Progress
-- [x] Remove 'Include Today' from `SettingsPage`
-    - [x] Remove UI toggle
-    - [x] Remove state and persistence logic
-- [x] Refine Global Notifications in `SettingsPage`
-    - [x] Add granular toggles (D-Day, D-1, 100일 단위)
-    - [x] Update state and persistence logic for each type
-- [x] Update `NotificationService`
-    - [x] Respect granular global settings in `scheduleEvent`
+- [x] Update `Event` Model
+    - [x] Add `notifyDDay`, `notifyDMinus1`, `notifyAnniv` fields
 - [x] Update `EventEditPage`
-    - [x] Remove dependency on `default_includeToday` preference
-    - [x] Set default value to `true`
+    - [x] Add granular notification toggles to the UI
+    - [x] Handle state and persistence for these new fields
+- [x] Simplify `SettingsPage`
+    - [x] Remove granular global toggles
+    - [x] Retain only the master global switch
+- [x] Update `NotificationService`
+    - [x] Check both master global switch AND per-event granular settings
 - [x] Verification
-    - [x] Verify Settings page UI
-    - [x] Verify granular notification scheduling
-    - [x] Verify new event creation defaults
+    - [x] Verify per-event notification scheduling logic
+    - [x] Verify UI flow in both Settings and Edit pages

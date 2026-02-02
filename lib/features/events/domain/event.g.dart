@@ -28,6 +28,9 @@ _Event _$EventFromJson(Map<String, dynamic> json) => _Event(
       const [],
   sortOrder: (json['sortOrder'] as num?)?.toInt() ?? 0,
   widgetLayoutType: (json['widgetLayoutType'] as num?)?.toInt() ?? 0,
+  notifyDDay: json['notifyDDay'] as bool? ?? true,
+  notifyDMinus1: json['notifyDMinus1'] as bool? ?? true,
+  notifyAnniv: json['notifyAnniv'] as bool? ?? true,
 );
 
 Map<String, dynamic> _$EventToJson(_Event instance) => <String, dynamic>{
@@ -44,4 +47,7 @@ Map<String, dynamic> _$EventToJson(_Event instance) => <String, dynamic>{
   'diaryEntries': instance.diaryEntries.map((e) => e.toJson()).toList(),
   'sortOrder': instance.sortOrder,
   'widgetLayoutType': instance.widgetLayoutType,
+  'notifyDDay': instance.notifyDDay,
+  'notifyDMinus1': instance.notifyDMinus1,
+  'notifyAnniv': instance.notifyAnniv,
 };

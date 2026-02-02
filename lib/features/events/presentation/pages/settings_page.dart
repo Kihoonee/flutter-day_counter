@@ -15,15 +15,9 @@ class SettingsPage extends ConsumerStatefulWidget {
 
 class _SettingsPageState extends ConsumerState<SettingsPage> {
   static const kGlobalNotifications = 'global_notifications_enabled';
-  static const kGlobalNotificationsDDay = 'global_notifications_dday';
-  static const kGlobalNotificationsDMinus1 = 'global_notifications_dminus1';
-  static const kGlobalNotificationsAnniv = 'global_notifications_anniv';
 
   bool _loading = true;
   bool _globalNotifications = true;
-  bool _globalNotificationsDDay = true;
-  bool _globalNotificationsDMinus1 = true;
-  bool _globalNotificationsAnniv = true;
 
   @override
   void initState() {
@@ -35,9 +29,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       _globalNotifications = prefs.getBool(kGlobalNotifications) ?? true;
-      _globalNotificationsDDay = prefs.getBool(kGlobalNotificationsDDay) ?? true;
-      _globalNotificationsDMinus1 = prefs.getBool(kGlobalNotificationsDMinus1) ?? true;
-      _globalNotificationsAnniv = prefs.getBool(kGlobalNotificationsAnniv) ?? true;
       _loading = false;
     });
   }
@@ -45,9 +36,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   Future<void> _save() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(kGlobalNotifications, _globalNotifications);
-    await prefs.setBool(kGlobalNotificationsDDay, _globalNotificationsDDay);
-    await prefs.setBool(kGlobalNotificationsDMinus1, _globalNotificationsDMinus1);
-    await prefs.setBool(kGlobalNotificationsAnniv, _globalNotificationsAnniv);
     
     // 알림 설정이 변경되었을 경우 즉시 반영
     await NotificationService().updateGlobalPreference(_globalNotifications);
@@ -171,40 +159,16 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                         context,
                         title: '알림 설정',
                         icon: HugeIcons.strokeRoundedNotification03,
-                        child: Column(
-                          children: [
-                            SwitchListTile(
-                              title: Text(
-                                '전역 알림 설정',
-                                style: theme.textTheme.bodyLarge?.copyWith(
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              subtitle: const Text('꺼두면 모든 알림이 울리지 않습니다.'),
-                              value: _globalNotifications,
-                              onChanged: (v) => setState(() => _globalNotifications = v),
+                        child: SwitchListTile(
+                          title: Text(
+                            '전역 알림 설정',
+                            style: theme.textTheme.bodyLarge?.copyWith(
+                              fontWeight: FontWeight.w600,
                             ),
-                            if (_globalNotifications) ...[
-                              const Divider(height: 1),
-                              SwitchListTile(
-                                title: const Text('D-Day 알림'),
-                                value: _globalNotificationsDDay,
-                                onChanged: (v) => setState(() => _globalNotificationsDDay = v),
-                              ),
-                              const Divider(height: 1),
-                              SwitchListTile(
-                                title: const Text('D-1 알림'),
-                                value: _globalNotificationsDMinus1,
-                                onChanged: (v) => setState(() => _globalNotificationsDMinus1 = v),
-                              ),
-                              const Divider(height: 1),
-                              SwitchListTile(
-                                title: const Text('기념일 알림 (+100일 단위)'),
-                                value: _globalNotificationsAnniv,
-                                onChanged: (v) => setState(() => _globalNotificationsAnniv = v),
-                              ),
-                            ],
-                          ],
+                          ),
+                          subtitle: const Text('꺼두면 모든 알림이 울리지 않습니다.'),
+                          value: _globalNotifications,
+                          onChanged: (v) => setState(() => _globalNotifications = v),
                         ),
                       ),
                       const SizedBox(height: 12),

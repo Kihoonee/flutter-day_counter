@@ -46,6 +46,10 @@ abstract class Event with _$Event {
     // 위젯 레이아웃 타입 (0: D-Day 강조, 1: 타이틀 강조)
     @Default(0) int widgetLayoutType,
 
+    // 세분화된 알림 설정
+    @Default(true) bool notifyDDay,
+    @Default(true) bool notifyDMinus1,
+    @Default(true) bool notifyAnniv,
   }) = _Event;
 
 

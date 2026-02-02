@@ -84,17 +84,12 @@ class NotificationService {
       return;
     }
 
-    // 세분화된 설정 확인
-    final ddayEnabled = prefs.getBool('global_notifications_dday') ?? true;
-    final dminus1Enabled = prefs.getBool('global_notifications_dminus1') ?? true;
-    final annivEnabled = prefs.getBool('global_notifications_anniv') ?? true;
-
     final now = tz.TZDateTime.now(tz.local);
     final target = tz.TZDateTime.from(event.targetDate, tz.local);
     final targetDay9AM = tz.TZDateTime(tz.local, target.year, target.month, target.day, 9, 0, 0);
 
     if (targetDay9AM.isAfter(now)) {
-      if (ddayEnabled) {
+      if (event.notifyDDay) {
         await _schedule(
           id: _generateId(event.id, 'dday'),
           title: '${event.title} D-Day!',
@@ -104,7 +99,7 @@ class NotificationService {
       }
 
       final dMinus1 = targetDay9AM.subtract(const Duration(days: 1));
-      if (dminus1Enabled && dMinus1.isAfter(now)) {
+      if (event.notifyDMinus1 && dMinus1.isAfter(now)) {
         await _schedule(
           id: _generateId(event.id, 'dminus1'),
           title: '${event.title} D-1',
@@ -113,7 +108,7 @@ class NotificationService {
         );
       }
     } else {
-      if (annivEnabled) {
+      if (event.notifyAnniv) {
         final diff = now.difference(targetDay9AM).inDays;
         int nextMilestone = ((diff / 100).ceil()) * 100;
         if (nextMilestone == diff) nextMilestone += 100;

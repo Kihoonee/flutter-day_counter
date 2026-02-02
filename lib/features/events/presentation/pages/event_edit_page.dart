@@ -28,6 +28,9 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
   DateTime _target = DateTime.now().add(const Duration(days: 1));
   bool _includeToday = true;
   bool _isNotificationEnabled = true;
+  bool _notifyDDay = true;
+  bool _notifyDMinus1 = true;
+  bool _notifyAnniv = true;
   int _themeIndex = 0;
   int _iconIndex = 0;
   String? _photoPath;
@@ -58,6 +61,9 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
     _iconIndex = event.iconIndex;
     _photoPath = event.photoPath;
     _widgetLayoutType = event.widgetLayoutType;
+    _notifyDDay = event.notifyDDay;
+    _notifyDMinus1 = event.notifyDMinus1;
+    _notifyAnniv = event.notifyAnniv;
     _initialized = true;
   }
 
@@ -374,6 +380,29 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
                                   value: _isNotificationEnabled,
                                   onChanged: (v) => setState(() => _isNotificationEnabled = v),
                                 ),
+                                if (_isNotificationEnabled) ...[
+                                  Divider(height: 1, color: theme.colorScheme.outlineVariant.withOpacity(0.1)),
+                                  SwitchListTile(
+                                    title: const Text('D-Day 알림', style: TextStyle(fontSize: 14)),
+                                    value: _notifyDDay,
+                                    onChanged: (v) => setState(() => _notifyDDay = v),
+                                    dense: true,
+                                  ),
+                                  Divider(height: 1, color: theme.colorScheme.outlineVariant.withOpacity(0.05)),
+                                  SwitchListTile(
+                                    title: const Text('D-1 알림', style: TextStyle(fontSize: 14)),
+                                    value: _notifyDMinus1,
+                                    onChanged: (v) => setState(() => _notifyDMinus1 = v),
+                                    dense: true,
+                                  ),
+                                  Divider(height: 1, color: theme.colorScheme.outlineVariant.withOpacity(0.05)),
+                                  SwitchListTile(
+                                    title: const Text('기념일 알림 (+100일 단위)', style: TextStyle(fontSize: 14)),
+                                    value: _notifyAnniv,
+                                    onChanged: (v) => setState(() => _notifyAnniv = v),
+                                    dense: true,
+                                  ),
+                                ],
                               ],
                             ),
                           ),
@@ -403,6 +432,9 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
                                   todos: todos,
                                   diaryEntries: diaryEntries,
                                   widgetLayoutType: _widgetLayoutType,
+                                  notifyDDay: _notifyDDay,
+                                  notifyDMinus1: _notifyDMinus1,
+                                  notifyAnniv: _notifyAnniv,
                                 );
 
                                 await ref.read(eventsProvider.notifier).upsert(e);
