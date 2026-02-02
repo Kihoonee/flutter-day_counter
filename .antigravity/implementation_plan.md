@@ -1,31 +1,26 @@
-# 알림 설정 개별화 (Per-Event Granularity)
+# 알림 설정 개별화 및 부모-자식 관계 로직 개선
 
-사용자 요청에 따라 전역 설정에 있던 세분화된 알림 옵션(D-Day, D-1, 기념일)을 개별 이벤트 설정으로 이동합니다.
-설정 페이지는 전체 알림의 On/Off를 제어하는 마스터 스위치만 유지하여 UX를 간소화하고 유연성을 높입니다.
+사용자의 피드백에 따라 이벤트 수정/생성 페이지의 알림 설정을 개선합니다. 세분화된 알림 옵션은 항상 노출되며, 마스터 스위치와 유기적으로 연동됩니다.
 
 ## 변경 사항
 
-### [도메인 모델]
-#### [MODIFY] [event.dart](file:///Users/kihoonee/flutter/day_counter/lib/features/events/domain/event.dart)
-- `notifyDDay`, `notifyDMinus1`, `notifyAnniv` 필드 추가 (기본값: `true`).
-
 ### [이벤트 수정/생성 페이지]
 #### [MODIFY] [event_edit_page.dart](file:///Users/kihoonee/flutter/day_counter/lib/features/events/presentation/pages/event_edit_page.dart)
-- 개별 알림 스위치 하단에 세분화된 옵션(D-Day, D-1, 기념일) UI 추가.
-- 새로 추가된 필드들에 대한 상태 관리 및 저장 로직 구현.
+- **UI 개선**: `if (_isNotificationEnabled)` 조건을 제거하여 세부 알림 옵션이 항상 보이도록 수정합니다.
+- **부모-자식 로직 구현**:
+    - **알림 켜기(부모)**를 끄면 모든 세부 알림(자식: D-Day, D-1, 기념일)이 자동으로 **Off**가 됩니다.
+    - **세부 알림(자식)** 중 하나라도 켜면 **알림 켜기(부모)**가 자동으로 **On**이 됩니다.
+- **UI 상시 노출**: `if (_isNotificationEnabled)` 조건을 제거하여 부모 스위치가 꺼져 있어도 자식 스위치들을 볼 수 있게 수정합니다.
+- **수정 페이지 확인**: 기존 이벤트를 불러올 때(`_initFrom`) 모든 필드가 올바르게 로드되는지 확인합니다.
 
-### [설정 페이지]
+### [설정 페이지 & 알림 서비스]
 #### [MODIFY] [settings_page.dart](file:///Users/kihoonee/flutter/day_counter/lib/features/events/presentation/pages/settings_page.dart)
-- 세분화된 전역 알림 토글들 제거.
-- 마스터 "전역 알림 설정"만 유지.
-
-### [알림 서비스]
-#### [MODIFY] [notification_service.dart](file:///Users/kihoonee/flutter/day_counter/lib/core/services/notification_service.dart)
-- `scheduleEvent`에서 마스터 전역 설정을 먼저 확인한 후, **해당 이벤트의 개별 알림 옵션**을 확인하여 스케줄링.
+- 전역 알림을 다시 **On**으로 바꿀 때, 각 이벤트의 개별 세부 설정값을 참조하여 알림이 다시 스케줄링되도록 보장합니다. (이미 `rescheduleAllNotifications`를 호출하고 있으므로 해당 로직을 재점검합니다.)
 
 ## 검증 계획
 
 ### 자동/수동 검증
-- **설정 페이지 UI 확인**: 심플하게 마스터 스위치만 남았는지 확인.
-- **이벤트 편집 UI 확인**: 각 이벤트마다 알림 타이밍을 다르게 설정할 수 있는지 확인.
-- **알림 예약 로그 확인**: 특정 이벤트에서 D-1만 껐을 때 해당 알림이 제외되는지 확인.
+- **로직 확인**: 마스터 스위치를 껐을 때 하위 스위치들이 같이 꺼지는지 확인.
+- **로직 확인**: 마스터가 꺼진 상태에서 하위 스위치를 하나라도 켰을 때 마스터가 같이 켜지는지 확인.
+- **UI 유지**: 마스터를 꺼도 하위 메뉴가 사라지지 않고 그대로 남아있는지 확인.
+- **수정 모드 확인**: 기존 이벤트를 수정할 때도 세부 알림 설정이 잘 보이는지 확인.

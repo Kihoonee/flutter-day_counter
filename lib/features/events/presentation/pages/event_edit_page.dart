@@ -378,31 +378,71 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
                                     style: theme.textTheme.bodyMedium,
                                   ),
                                   value: _isNotificationEnabled,
-                                  onChanged: (v) => setState(() => _isNotificationEnabled = v),
+                                  onChanged: (v) {
+                                    setState(() {
+                                      _isNotificationEnabled = v;
+                                      if (!v) {
+                                        // 부모 꺼지면 자식 모두 끔
+                                        _notifyDDay = false;
+                                        _notifyDMinus1 = false;
+                                        _notifyAnniv = false;
+                                      } else {
+                                        // 부모 켜지면 기본적으로 모두 켬 (또는 이전 상태 유지? 일단 모두 켬)
+                                        _notifyDDay = true;
+                                        _notifyDMinus1 = true;
+                                        _notifyAnniv = true;
+                                      }
+                                    });
+                                  },
                                 ),
-                                if (_isNotificationEnabled) ...[
-                                  Divider(height: 1, color: theme.colorScheme.outlineVariant.withOpacity(0.1)),
-                                  SwitchListTile(
-                                    title: const Text('D-Day 알림', style: TextStyle(fontSize: 14)),
-                                    value: _notifyDDay,
-                                    onChanged: (v) => setState(() => _notifyDDay = v),
-                                    dense: true,
-                                  ),
-                                  Divider(height: 1, color: theme.colorScheme.outlineVariant.withOpacity(0.05)),
-                                  SwitchListTile(
-                                    title: const Text('D-1 알림', style: TextStyle(fontSize: 14)),
-                                    value: _notifyDMinus1,
-                                    onChanged: (v) => setState(() => _notifyDMinus1 = v),
-                                    dense: true,
-                                  ),
-                                  Divider(height: 1, color: theme.colorScheme.outlineVariant.withOpacity(0.05)),
-                                  SwitchListTile(
-                                    title: const Text('기념일 알림 (+100일 단위)', style: TextStyle(fontSize: 14)),
-                                    value: _notifyAnniv,
-                                    onChanged: (v) => setState(() => _notifyAnniv = v),
-                                    dense: true,
-                                  ),
-                                ],
+                                Divider(height: 1, color: theme.colorScheme.outlineVariant.withOpacity(0.1)),
+                                SwitchListTile(
+                                  title: const Text('D-Day 알림', style: TextStyle(fontSize: 14)),
+                                  value: _notifyDDay,
+                                  onChanged: (v) {
+                                    setState(() {
+                                      _notifyDDay = v;
+                                      if (v) {
+                                        _isNotificationEnabled = true;
+                                      } else if (!_notifyDMinus1 && !_notifyAnniv) {
+                                        _isNotificationEnabled = false; // 모두 꺼지면 부모도 끔
+                                      }
+                                    });
+                                  },
+                                  dense: true,
+                                ),
+                                Divider(height: 1, color: theme.colorScheme.outlineVariant.withOpacity(0.05)),
+                                SwitchListTile(
+                                  title: const Text('D-1 알림', style: TextStyle(fontSize: 14)),
+                                  value: _notifyDMinus1,
+                                  onChanged: (v) {
+                                    setState(() {
+                                      _notifyDMinus1 = v;
+                                      if (v) {
+                                        _isNotificationEnabled = true;
+                                      } else if (!_notifyDDay && !_notifyAnniv) {
+                                        _isNotificationEnabled = false; // 모두 꺼지면 부모도 끔
+                                      }
+                                    });
+                                  },
+                                  dense: true,
+                                ),
+                                Divider(height: 1, color: theme.colorScheme.outlineVariant.withOpacity(0.05)),
+                                SwitchListTile(
+                                  title: const Text('기념일 알림 (+100일 단위)', style: TextStyle(fontSize: 14)),
+                                  value: _notifyAnniv,
+                                  onChanged: (v) {
+                                    setState(() {
+                                      _notifyAnniv = v;
+                                      if (v) {
+                                        _isNotificationEnabled = true;
+                                      } else if (!_notifyDDay && !_notifyDMinus1) {
+                                        _isNotificationEnabled = false; // 모두 꺼지면 부모도 끔
+                                      }
+                                    });
+                                  },
+                                  dense: true,
+                                ),
                               ],
                             ),
                           ),

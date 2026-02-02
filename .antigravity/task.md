@@ -5,16 +5,13 @@ Refactor granular notification settings to be managed per-event instead of globa
 ## Status: Completed
 
 ## Progress
-- [x] Update `Event` Model
-    - [x] Add `notifyDDay`, `notifyDMinus1`, `notifyAnniv` fields
-- [x] Update `EventEditPage`
-    - [x] Add granular notification toggles to the UI
-    - [x] Handle state and persistence for these new fields
-- [x] Simplify `SettingsPage`
-    - [x] Remove granular global toggles
-    - [x] Retain only the master global switch
-- [x] Update `NotificationService`
-    - [x] Check both master global switch AND per-event granular settings
+- [x] Refine `EventEditPage` Toggle Logic
+    - [x] Make granular toggles always visible (remove conditional visibility)
+    - [x] Parent -> Child: Turning off parent turns off all children
+    - [x] Child -> Parent: Turning on any child turns on the parent
+- [x] Refine Global Notification Rescheduling
+    - [x] Ensure `SettingsPage` correctly triggers rescheduling when Global ON
+    - [x] Verify `NotificationService` respects per-event settings during mass reschedule
 - [x] Verification
-    - [x] Verify per-event notification scheduling logic
-    - [x] Verify UI flow in both Settings and Edit pages
+    - [x] Test Parent-Child UI interaction in Edit Page
+    - [x] Test Global Off -> On behavior and check scheduled notifications
