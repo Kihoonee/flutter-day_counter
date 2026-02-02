@@ -4,6 +4,8 @@ import 'package:uuid/uuid.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../core/utils/date_calc.dart';
+
 import '../../application/event_controller.dart';
 import '../../domain/event.dart';
 import '../../domain/todo_item.dart';
@@ -183,7 +185,7 @@ class _TodoTabState extends ConsumerState<TodoTab> {
                         style: theme.textTheme.titleMedium?.copyWith(
                           color: theme.colorScheme.outline.withOpacity(
                             0.5,
-                          ), // Softer color as per v1
+                          ),
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -191,22 +193,118 @@ class _TodoTabState extends ConsumerState<TodoTab> {
                   ),
                 ),
               )
-            else
-              SliverList(
-                delegate: SliverChildBuilderDelegate((context, index) {
-                  final todo = sortedTodos[index];
-                  return Dismissible(
+            else ...[
+              // Grouping Logic
+              Builder(
+                builder: (context) {
+                  // 1. Group by D-Day diff
+                  final Map<int, List<TodoItem>> grouped = {};
+                  for (var todo in todos) {
+                    final diff = DateCalc.diffDays(
+                      base: todo.createdAt,
+                      target: widget.event.targetDate,
+                      includeToday: widget.event.includeToday,
+                      excludeWeekends: widget.event.excludeWeekends,
+                    );
+                    if (!grouped.containsKey(diff)) grouped[diff] = [];
+                    grouped[diff]!.add(todo);
+                  }
+
+                  // 2. Sort keys (D-Day gap)
+                  // "D-Day가 클수록 아래로" -> Gap 1 (D-1) -> Gap 100 (D-100)
+                  // Note: diff values: D-10 => 10, D-1 => 1. D-Day => 0. D+1 => -1?
+                  // DateCalc behavior needs check. Usually diffDays(base, target) returns target - base.
+                  // If base < target (D-minus), returns positive? Let's assume standard behavior.
+                  // Let's rely on standard logic: Closest (Small Diff) to Furthest (Large Diff).
+                  // But we also have "Future" vs "Past".
+                  // Let's sort by absolute value or just raw logic.
+                  // I'll assume Newest Created (Start of timeline) -> Oldest (End)?
+                  // Actually, let's sort keys descending?
+                  // If I created on D-100 (long ago), and D-1 (yesterday).
+                  // I probably want to see D-1 items first.
+                  // D-1 => Diff is 1. D-100 => Diff is 100.
+                  // Sort: 1 -> 100. Ascending.
+                  
+                  final keys = grouped.keys.toList()..sort((a, b) {
+                     // Sort by closeness to D-Day (small number first)?
+                     // Or Newest Date first?
+                     // diffDays returns (target - base).
+                     // D-10 means target is 10 days after base. diff = 10.
+                     // D-1 means diff = 1.
+                     // Sort: 1, 10... (Ascending) -> Recent items top. 
+                     return a.compareTo(b);
+                  });
+
+                  return SliverList( // Wrap all groups in one list or use multiple slivers?
+                    // We can't return a list of slivers from Builder here easily without a specialized widget.
+                    // Instead, we should return a specific generic Sliver.
+                    // Actually, simpler approach:
+                    // Flatten the list into [Header, Item, Item, Header, Item...]
+                    // This avoids multiple Slivers and complexities.
+                    
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) {
+                         // We need to map linear index to group/item
+                         // Pre-calculate flat list
+                         final List<dynamic> flatList = [];
+                         for (var diff in keys) {
+                           flatList.add(diff); // Header marker (int)
+                           final items = grouped[diff]!;
+                           // Sort items within group? created desc
+                           items.sort((a,b) => b.createdAt.compareTo(a.createdAt));
+                           flatList.addAll(items);
+                         }
+                         
+                         final item = flatList[index];
+
+                         // Header
+                         if (item is int) {
+                           final diff = item;
+                           String label;
+                           if (diff == 0) label = 'D-Day';
+                           else if (diff > 0) label = 'D-$diff';
+                           else label = 'D+${diff.abs()}';
+                           
+                           return Padding(
+                             padding: const EdgeInsets.fromLTRB(24, 24, 16, 8),
+                             child: Row(
+                               children: [
+                                 Container(
+                                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                   decoration: BoxDecoration(
+                                     color: theme.colorScheme.primaryContainer,
+                                     borderRadius: BorderRadius.circular(8),
+                                   ),
+                                   child: Text(
+                                     label,
+                                     style: TextStyle(
+                                       color: theme.colorScheme.onPrimaryContainer,
+                                       fontWeight: FontWeight.bold,
+                                       fontSize: 12,
+                                     ),
+                                   ),
+                                 ),
+                                 const SizedBox(width: 8),
+                                 Expanded(
+                                   child: Divider(
+                                     color: theme.colorScheme.outlineVariant.withOpacity(0.5),
+                                   ),
+                                 ),
+                               ],
+                             ),
+                           );
+                         }
+                         
+                         // Todo Item
+                         final todo = item as TodoItem;
+                         return Dismissible(
                     key: Key(todo.id),
                     direction: DismissDirection.endToStart,
                     onDismissed: (_) => _removeTodo(todo),
                     background: Container(
                       alignment: Alignment.centerRight,
                       padding: const EdgeInsets.only(right: 20),
-                      margin: const EdgeInsets.only(
-                        bottom: 8,
-                        left: 16,
-                        right: 16,
-                      ),
+                      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                       decoration: BoxDecoration(
                         color: theme.colorScheme.surfaceContainerHighest,
                         borderRadius: BorderRadius.circular(16),
@@ -224,16 +322,13 @@ class _TodoTabState extends ConsumerState<TodoTab> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
                         ),
-                        margin: const EdgeInsets.only(bottom: 8),
+                        margin: const EdgeInsets.only(bottom: 4), // Reduced margin
                         child: CheckboxListTile(
                           value: todo.isCompleted,
                           onChanged: (_) => _toggleTodo(todo),
-                          dense: true, // Reduced height
-                          visualDensity: VisualDensity.compact, // More compact
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 0,
-                          ),
+                          dense: true, 
+                          visualDensity: VisualDensity.compact,
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 12),
                           title: Text(
                             todo.content,
                             style: TextStyle(
@@ -246,11 +341,11 @@ class _TodoTabState extends ConsumerState<TodoTab> {
                             ),
                           ),
                           controlAffinity: ListTileControlAffinity.leading,
+                          // Subtitle: Time 
                           secondary: Text(
-                            DateFormat('yyyy.MM.dd').format(todo.createdAt),
+                            DateFormat('HH:mm').format(todo.createdAt),
                             style: TextStyle(
-                              color: theme.colorScheme.onSurfaceVariant
-                                  .withOpacity(0.5),
+                              color: theme.colorScheme.onSurfaceVariant.withOpacity(0.5),
                               fontSize: 12,
                             ),
                           ),
@@ -261,8 +356,13 @@ class _TodoTabState extends ConsumerState<TodoTab> {
                       ),
                     ),
                   );
-                }, childCount: sortedTodos.length),
+                      },
+                      childCount: todos.length + grouped.keys.length, // Total items + Headers
+                    ),
+                  );
+                }
               ),
+            ],
           ],
         );
       },

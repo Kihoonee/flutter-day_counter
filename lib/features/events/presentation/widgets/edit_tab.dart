@@ -1,5 +1,5 @@
-import 'dart:io';
-
+import 'package:flutter/foundation.dart';
+import '../../../../core/utils/platform_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -82,6 +82,7 @@ class _EditTabState extends ConsumerState<EditTab> {
   }
 
   Future<void> _pickPhoto() async {
+    if (kIsWeb) return;
     debugPrint('EditTab: _pickPhoto started');
     setState(() => _isPickingPhoto = true);
     try {
@@ -91,7 +92,7 @@ class _EditTabState extends ConsumerState<EditTab> {
       if (path != null) {
         if (_photoPath != null && _photoPath!.isNotEmpty) {
           debugPrint('EditTab: Evicting old image cache: $_photoPath');
-          await FileImage(File(_photoPath!)).evict();
+          await PlatformUtilsImpl.evictImage(_photoPath!);
           await _imageService.deleteImage(_photoPath);
         }
 
@@ -228,19 +229,22 @@ class _EditTabState extends ConsumerState<EditTab> {
                       ),
                       child: _photoPath != null && _photoPath!.isNotEmpty
                           ? FutureBuilder<bool>(
-                              future: File(_photoPath!).exists(),
+                              future: PlatformUtilsImpl.fileExists(_photoPath!),
                               builder: (context, snapshot) {
                                 if (snapshot.data == true) {
-                                  return ClipRRect(
-                                    borderRadius: BorderRadius.circular(11),
-                                    child: Image.file(
-                                      File(_photoPath!),
-                                      key: ValueKey(_photoPath),
-                                      fit: BoxFit.cover,
-                                      errorBuilder: (_, __, ___) =>
-                                          _buildPhotoIcon(theme),
-                                    ),
-                                  );
+                                  final provider = PlatformUtilsImpl.getImageProvider(_photoPath!);
+                                  if (provider != null) {
+                                    return ClipRRect(
+                                      borderRadius: BorderRadius.circular(11),
+                                      child: Image(
+                                        image: provider,
+                                        key: ValueKey(_photoPath),
+                                        fit: BoxFit.cover,
+                                        errorBuilder: (_, __, ___) =>
+                                            _buildPhotoIcon(theme),
+                                      ),
+                                    );
+                                  }
                                 }
                                 return _buildPhotoIcon(theme);
                               },
@@ -482,7 +486,7 @@ class _IconPicker extends StatelessWidget {
                 // Border 제거
               ),
               child: HugeIcon(
-                icon: icon,
+                icon: icon as List<List<dynamic>>,
                 size: 16, // Reduced from 18
                 color: isSelected
                     ? theme.colorScheme.primary

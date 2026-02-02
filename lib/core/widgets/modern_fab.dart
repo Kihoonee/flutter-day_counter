@@ -60,9 +60,9 @@ class ModernFAB extends StatelessWidget {
                  filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
                  child: Center(
                    // Gradient or Solid Icon? Solid Dark Grey is clean.
-                   child: HugeIcon(
-                     icon: icon,
-                     size: 28, 
+                     child: HugeIcon(
+                       icon: icon as List<List<dynamic>>,
+                       size: 28, 
                      color: const Color(0xFF2C2C2C), // Soft Black
                    ),
                  ),

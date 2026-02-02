@@ -7,7 +7,9 @@ import 'package:hugeicons/hugeicons.dart';
 import '../../application/event_controller.dart';
 import '../../domain/diary_entry.dart';
 import '../../domain/event.dart';
+
 import 'date_field.dart'; // pickDate 재사용
+import '../../../../core/utils/date_calc.dart';
 
 /// 다이어리 탭 - 날짜별 메모 기록
 class DiaryTab extends ConsumerWidget {
@@ -45,7 +47,7 @@ class DiaryTab extends ConsumerWidget {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               HugeIcon(
-                                icon: HugeIcons.strokeRoundedNotebook,
+                                icon: HugeIcons.strokeRoundedNoteEdit,
                                 size: 48, 
                                 color: theme.colorScheme.outlineVariant.withOpacity(0.5),
                               ),
@@ -53,7 +55,7 @@ class DiaryTab extends ConsumerWidget {
                               Text(
                                 '아직 기록된 추억이 없어요',
                                 style: theme.textTheme.titleMedium?.copyWith(
-                                  color: theme.colorScheme.onSurfaceVariant,
+                                  color: theme.colorScheme.onSurfaceVariant.withOpacity(0.7),
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
@@ -92,9 +94,29 @@ class DiaryTab extends ConsumerWidget {
                                     color: theme.colorScheme.onSurfaceVariant,
                                   ),
                                 ),
-                                child: _DiaryCard(
-                                  entry: entry,
-                                  onEdit: () => _showDiaryDialog(context, ref, event, entry: entry),
+                                child: Builder(
+                                  builder: (context) {
+                                    final diff = DateCalc.diffDays(
+                                      base: entry.date,
+                                      target: event.targetDate,
+                                      includeToday: event.includeToday,
+                                      excludeWeekends: event.excludeWeekends,
+                                    );
+                                    String dDayText;
+                                    if (diff == 0) {
+                                      dDayText = 'D-Day';
+                                    } else if (diff > 0) {
+                                      dDayText = 'D-$diff';
+                                    } else {
+                                      dDayText = 'D+${diff.abs()}';
+                                    }
+
+                                    return _DiaryCard(
+                                      entry: entry,
+                                      dDayText: dDayText,
+                                      onEdit: () => _showDiaryDialog(context, ref, event, entry: entry),
+                                    );
+                                  }
                                 ),
                               );
                             },
@@ -360,10 +382,12 @@ class _DiaryDialogState extends State<_DiaryDialog> {
 /// 다이어리 카드 위젯
 class _DiaryCard extends StatelessWidget {
   final DiaryEntry entry;
+  final String dDayText;
   final VoidCallback onEdit;
 
   const _DiaryCard({
     required this.entry,
+    required this.dDayText,
     required this.onEdit,
   });
 
@@ -400,6 +424,22 @@ class _DiaryCard extends StatelessWidget {
                         fontWeight: FontWeight.w600,
                       ),
                     ),
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.primaryContainer,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        dDayText,
+                        style: theme.textTheme.labelMedium?.copyWith(
+                          color: theme.colorScheme.onPrimaryContainer,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    const Spacer(),
                     // 수정 아이콘은 유지할지? 카드 전체 탭으로 대체 가능하면 삭제.
                     // 명시적인 것이 좋으므로 작게 유지.
                     HugeIcon(

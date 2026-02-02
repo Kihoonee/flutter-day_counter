@@ -1,7 +1,9 @@
-import 'dart:io';
-import 'dart:math';
+import 'package:flutter/foundation.dart';
+import '../../../../core/utils/platform_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
+
+import 'dart:math';
 
 class PosterTheme {
   final Color bg;
@@ -10,7 +12,7 @@ class PosterTheme {
 }
 
 // HugeIcons 리스트 (인덱스로 관리)
-const eventIcons = [
+const List<dynamic> eventIcons = [
   HugeIcons.strokeRoundedFavourite,      // 0: 하트
   HugeIcons.strokeRoundedBirthdayCake,    // 1: 케이크
   HugeIcons.strokeRoundedNaturalFood,     // 2: 나뭇잎/자연
@@ -265,7 +267,7 @@ class PosterCard extends StatelessWidget {
         shape: BoxShape.circle,
       ),
       child: HugeIcon(
-        icon: iconData,
+        icon: iconData as List<List<dynamic>>,
         color: fgColor,
         size: 24,
       ),
@@ -320,9 +322,13 @@ class PosterCard extends StatelessWidget {
 
   Widget _buildPhoto({double size = 72}) {
     return FutureBuilder<bool>(
-      future: File(photoPath!).exists(),
+      future: PlatformUtilsImpl.fileExists(photoPath),
       builder: (context, snapshot) {
         if (snapshot.data != true) {
+          return const SizedBox.shrink();
+        }
+        final provider = PlatformUtilsImpl.getImageProvider(photoPath!);
+        if (provider == null) {
           return const SizedBox.shrink();
         }
         return Container(
@@ -340,8 +346,8 @@ class PosterCard extends StatelessWidget {
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(12),
-            child: Image.file(
-              File(photoPath!),
+            child: Image(
+              image: provider,
               key: ValueKey(photoPath),
               fit: BoxFit.cover,
               errorBuilder: (_, __, ___) => const SizedBox.shrink(),
