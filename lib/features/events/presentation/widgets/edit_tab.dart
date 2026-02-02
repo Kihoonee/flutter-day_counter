@@ -345,7 +345,7 @@ class _EditTabState extends ConsumerState<EditTab> {
             ),
             child: SwitchListTile(
               title: Text('당일 포함 (1일차 시작)',
-                  style: theme.textTheme.bodyMedium),
+                  style: TextStyle(fontSize: 14)),
               value: _includeToday,
               onChanged: (v) {
                 setState(() => _includeToday = v);

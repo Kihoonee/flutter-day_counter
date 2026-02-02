@@ -64,128 +64,148 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
-          : Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 600),
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: Column(
-                    children: [
-                      _card(
-                        context,
-                        title: '화면 설정',
-                        icon: HugeIcons.strokeRoundedPaintBrush01,
-                        child: Consumer(
-                          builder: (context, ref, child) {
-                            final themeMode = ref.watch(themeModeProvider);
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 20.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                                    child: Row(
-                                      children: [
-                                        HugeIcon(
-                                          icon: HugeIcons.strokeRoundedMoon01,
-                                          color: theme.colorScheme.onSurfaceVariant,
-                                          size: 18,
-                                        ),
-                                        const SizedBox(width: 8),
-                                        Text(
-                                          '테마 모드',
-                                          style: theme.textTheme.bodyMedium?.copyWith(
-                                            fontWeight: FontWeight.w600,
-                                            color: theme.colorScheme.onSurfaceVariant,
+          : SafeArea(
+              child: Column(
+                children: [
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                      child: Center(
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 600),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              _card(
+                                context,
+                                title: '화면 설정',
+                                icon: HugeIcons.strokeRoundedPaintBrush01,
+                                child: Consumer(
+                                  builder: (context, ref, child) {
+                                    final themeMode = ref.watch(themeModeProvider);
+                                    return Padding(
+                                      padding: const EdgeInsets.symmetric(vertical: 20.0),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Padding(
+                                            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                                            child: Row(
+                                              children: [
+                                                HugeIcon(
+                                                  icon: HugeIcons.strokeRoundedMoon01,
+                                                  color: theme.colorScheme.onSurfaceVariant,
+                                                  size: 18,
+                                                ),
+                                                const SizedBox(width: 8),
+                                                Text(
+                                                  '테마 모드',
+                                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                                    fontWeight: FontWeight.w600,
+                                                    color: theme.colorScheme.onSurfaceVariant,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
                                           ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  const SizedBox(height: 16),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                                    child: SegmentedButton<ThemeMode>(
-                                      segments: [
-                                        ButtonSegment<ThemeMode>(
-                                          value: ThemeMode.system,
-                                          label: const Text('시스템'),
-                                          icon: HugeIcon(
-                                            icon: HugeIcons.strokeRoundedSettings01,
-                                            size: 18,
-                                            color: themeMode == ThemeMode.system ? theme.colorScheme.onPrimaryContainer : theme.colorScheme.onSurfaceVariant,
+                                          const SizedBox(height: 16),
+                                          Padding(
+                                            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                                            child: SegmentedButton<ThemeMode>(
+                                              segments: [
+                                                ButtonSegment<ThemeMode>(
+                                                  value: ThemeMode.system,
+                                                  label: const Text('시스템'),
+                                                  icon: HugeIcon(
+                                                    icon: HugeIcons.strokeRoundedSettings01,
+                                                    size: 18,
+                                                    color: themeMode == ThemeMode.system ? theme.colorScheme.onPrimaryContainer : theme.colorScheme.onSurfaceVariant,
+                                                  ),
+                                                ),
+                                                ButtonSegment<ThemeMode>(
+                                                  value: ThemeMode.light,
+                                                  label: const Text('라이트'),
+                                                  icon: HugeIcon(
+                                                    icon: HugeIcons.strokeRoundedSun01,
+                                                    size: 18,
+                                                    color: themeMode == ThemeMode.light ? theme.colorScheme.onPrimaryContainer : theme.colorScheme.onSurfaceVariant,
+                                                  ),
+                                                ),
+                                                ButtonSegment<ThemeMode>(
+                                                  value: ThemeMode.dark,
+                                                  label: const Text('다크'),
+                                                  icon: HugeIcon(
+                                                    icon: HugeIcons.strokeRoundedMoon02,
+                                                    size: 18,
+                                                    color: themeMode == ThemeMode.dark ? theme.colorScheme.onPrimaryContainer : theme.colorScheme.onSurfaceVariant,
+                                                  ),
+                                                ),
+                                              ],
+                                              selected: {themeMode},
+                                              onSelectionChanged: (Set<ThemeMode> selection) {
+                                                ref.read(themeModeProvider.notifier).setThemeMode(selection.first);
+                                              },
+                                              showSelectedIcon: false,
+                                              style: SegmentedButton.styleFrom(
+                                                padding: const EdgeInsets.symmetric(vertical: 12),
+                                                side: BorderSide(
+                                                  color: theme.colorScheme.outlineVariant.withOpacity(0.5),
+                                                ),
+                                              ),
+                                            ),
                                           ),
-                                        ),
-                                        ButtonSegment<ThemeMode>(
-                                          value: ThemeMode.light,
-                                          label: const Text('라이트'),
-                                          icon: HugeIcon(
-                                            icon: HugeIcons.strokeRoundedSun01,
-                                            size: 18,
-                                            color: themeMode == ThemeMode.light ? theme.colorScheme.onPrimaryContainer : theme.colorScheme.onSurfaceVariant,
-                                          ),
-                                        ),
-                                        ButtonSegment<ThemeMode>(
-                                          value: ThemeMode.dark,
-                                          label: const Text('다크'),
-                                          icon: HugeIcon(
-                                            icon: HugeIcons.strokeRoundedMoon02,
-                                            size: 18,
-                                            color: themeMode == ThemeMode.dark ? theme.colorScheme.onPrimaryContainer : theme.colorScheme.onSurfaceVariant,
-                                          ),
-                                        ),
-                                      ],
-                                      selected: {themeMode},
-                                      onSelectionChanged: (Set<ThemeMode> selection) {
-                                        ref.read(themeModeProvider.notifier).setThemeMode(selection.first);
-                                      },
-                                      showSelectedIcon: false,
-                                      style: SegmentedButton.styleFrom(
-                                        padding: const EdgeInsets.symmetric(vertical: 12),
-                                        side: BorderSide(
-                                          color: theme.colorScheme.outlineVariant.withOpacity(0.5),
-                                        ),
+                                        ],
                                       ),
+                                    );
+                                  },
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              _card(
+                                context,
+                                title: '알림 설정',
+                                icon: HugeIcons.strokeRoundedNotification03,
+                                child: SwitchListTile(
+                                  title: Text(
+                                    '전역 알림 설정',
+                                    style: theme.textTheme.bodyLarge?.copyWith(
+                                      fontWeight: FontWeight.w600,
                                     ),
                                   ),
-                                ],
+                                  subtitle: const Text('꺼두면 모든 알림이 울리지 않습니다.'),
+                                  value: _globalNotifications,
+                                  onChanged: (v) => setState(() => _globalNotifications = v),
+                                ),
                               ),
-                            );
-                          },
-                        ),
-                      ),
-                      _card(
-                        context,
-                        title: '알림 설정',
-                        icon: HugeIcons.strokeRoundedNotification03,
-                        child: SwitchListTile(
-                          title: Text(
-                            '전역 알림 설정',
-                            style: theme.textTheme.bodyLarge?.copyWith(
-                              fontWeight: FontWeight.w600,
-                            ),
+                            ],
                           ),
-                          subtitle: const Text('꺼두면 모든 알림이 울리지 않습니다.'),
-                          value: _globalNotifications,
-                          onChanged: (v) => setState(() => _globalNotifications = v),
                         ),
                       ),
-                      const SizedBox(height: 12),
-                      const SizedBox(height: 12),
-                      const SizedBox(height: 32),
-                      SizedBox(
-                        width: double.infinity,
-                        height: 54,
-                        child: ElevatedButton(
-                          onPressed: _save,
-                          child: const Text('저장'),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                    ],
+                    ),
                   ),
-                ),
+                  // 하단 고정 저장 버튼
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Center(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 600),
+                        child: SizedBox(
+                          width: double.infinity,
+                          height: 54,
+                          child: FilledButton(
+                            onPressed: _save,
+                            style: FilledButton.styleFrom(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            child: const Text('저장'),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
     );
