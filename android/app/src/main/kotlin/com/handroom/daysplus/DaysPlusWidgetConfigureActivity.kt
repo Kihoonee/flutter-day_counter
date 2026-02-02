@@ -9,6 +9,7 @@ import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
 import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
 import android.view.Gravity
 import android.widget.Toast
 import org.json.JSONArray
@@ -38,19 +39,25 @@ class DaysPlusWidgetConfigureActivity : Activity() {
         }
         
         // Build UI programmatically
-        val scrollView = ScrollView(this)
+        val density = resources.displayMetrics.density
+        fun dp(value: Int) = (value * density).toInt()
+
+        val scrollView = ScrollView(this).apply {
+            setBackgroundColor(Color.WHITE)
+        }
         val layout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(32, 48, 32, 32)
+            setPadding(dp(20), dp(100), dp(20), dp(20))
         }
         
         // Title
         val titleView = TextView(this).apply {
             text = "표시할 이벤트 선택"
-            textSize = 24f
-            setTextColor(Color.BLACK)
+            textSize = 22f
+            setTextColor(Color.parseColor("#222222"))
             gravity = Gravity.CENTER
-            setPadding(0, 0, 0, 32)
+            setPadding(0, 0, 0, dp(32))
+            paint.isFakeBoldText = true
         }
         layout.addView(titleView)
         
@@ -83,15 +90,22 @@ class DaysPlusWidgetConfigureActivity : Activity() {
                     
                     val itemView = LinearLayout(this).apply {
                         orientation = LinearLayout.VERTICAL
-                        setPadding(32, 24, 32, 24)
-                        setBackgroundColor(Color.parseColor("#$bgColor"))
+                        setPadding(dp(24), dp(20), dp(24), dp(20))
+                        
+                        // Rounded corner background
+                        background = GradientDrawable().apply {
+                            setColor(Color.parseColor("#$bgColor"))
+                            cornerRadius = dp(16).toFloat()
+                        }
                         
                         val params = LinearLayout.LayoutParams(
                             LinearLayout.LayoutParams.MATCH_PARENT,
                             LinearLayout.LayoutParams.WRAP_CONTENT
-                        )
-                        params.setMargins(0, 0, 0, 16)
+                        ).apply {
+                            setMargins(0, 0, 0, dp(12))
+                        }
                         layoutParams = params
+                        elevation = dp(2).toFloat()
                     }
                     
                     val titleText = TextView(this).apply {

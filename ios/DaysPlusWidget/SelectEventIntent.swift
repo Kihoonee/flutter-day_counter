@@ -17,8 +17,10 @@ struct EventEntity: AppEntity {
     var bgColor: String
     var fgColor: String
     var layoutType: Int
+    var includeToday: Bool
+    var excludeWeekends: Bool
     
-    static var typeDisplayRepresentation: TypeDisplayRepresentation = "이벤트"
+    static var typeDisplayRepresentation: TypeDisplayRepresentation = "이벤트를 선택하세요"
     static var defaultQuery = EventEntityQuery()
     
     var displayRepresentation: DisplayRepresentation {
@@ -59,7 +61,10 @@ struct EventEntityQuery: EntityQuery {
                   let layoutType = dict["layoutType"] as? Int else {
                 return nil
             }
-            return EventEntity(id: id, title: title, dDay: dDay, date: date, bgColor: bgColor, fgColor: fgColor, layoutType: layoutType)
+            let includeToday = dict["includeToday"] as? Bool ?? false
+            let excludeWeekends = dict["excludeWeekends"] as? Bool ?? false
+            
+            return EventEntity(id: id, title: title, dDay: dDay, date: date, bgColor: bgColor, fgColor: fgColor, layoutType: layoutType, includeToday: includeToday, excludeWeekends: excludeWeekends)
         }
     }
 }

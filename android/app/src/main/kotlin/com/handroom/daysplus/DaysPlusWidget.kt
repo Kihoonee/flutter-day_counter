@@ -35,10 +35,56 @@ internal fun updateAppWidget(
 ) {
     val widgetData: SharedPreferences = context.getSharedPreferences("HomeWidgetPreferences", Context.MODE_PRIVATE)
     val title = widgetData.getString("widget_title", "이벤트 없음")
-    val dday = widgetData.getString("widget_dday", "-")
-    val date = widgetData.getString("widget_date", "")
-    val layoutType = widgetData.getInt("widget_layout_type", 0) // 0: D-Day 강조, 1: 타이틀 강조
+    val dateStr = widgetData.getString("widget_date", "")
+    val includeToday = widgetData.getBoolean("widget_include_today", false)
+    val excludeWeekends = widgetData.getBoolean("widget_exclude_weekends", false)
     
+    // Dynamic D-Day Calculation
+    var dday = "D-Day"
+    if (!dateStr.isNullOrEmpty()) {
+        try {
+            val sdf = java.text.SimpleDateFormat("yyyy.MM.dd", java.util.Locale.getDefault())
+            val targetDate = sdf.parse(dateStr)
+            
+            if (targetDate != null) {
+                val todayCal = java.util.Calendar.getInstance()
+                // Reset time to midnight for accurate day diff
+                todayCal.set(java.util.Calendar.HOUR_OF_DAY, 0)
+                todayCal.set(java.util.Calendar.MINUTE, 0)
+                todayCal.set(java.util.Calendar.SECOND, 0)
+                todayCal.set(java.util.Calendar.MILLISECOND, 0)
+                
+                val targetCal = java.util.Calendar.getInstance()
+                targetCal.time = targetDate
+                targetCal.set(java.util.Calendar.HOUR_OF_DAY, 0)
+                targetCal.set(java.util.Calendar.MINUTE, 0)
+                targetCal.set(java.util.Calendar.SECOND, 0)
+                targetCal.set(java.util.Calendar.MILLISECOND, 0)
+                
+                val diffMillis = targetCal.timeInMillis - todayCal.timeInMillis
+                val diffDays = diffMillis / (24 * 60 * 60 * 1000)
+                
+                // Include Today Logic (Simple approximation matching iOS/Dart)
+                // If includeToday is true, we count "days" including today. 
+                // Usually affects Past/Today counts => D+1 instead of D-Day.
+                
+                if (diffDays == 0L) {
+                    dday = if (includeToday) "D+1" else "D-Day"
+                } else if (diffDays > 0) {
+                    dday = "D-$diffDays"
+                } else {
+                    val absDiff = Math.abs(diffDays)
+                    val plusDay = if (includeToday) absDiff + 1 else absDiff
+                    dday = "D+$plusDay"
+                }
+            }
+        } catch (e: Exception) {
+            dday = widgetData.getString("widget_dday", "-") ?: "-"
+        }
+    } else {
+        dday = widgetData.getString("widget_dday", "-") ?: "-"
+    }
+
     // Default colors (White BG, Black FG)
     val defaultBg = "#FFFFFF"
     val defaultFg = "#000000"
@@ -64,7 +110,7 @@ internal fun updateAppWidget(
     val views = RemoteViews(context.packageName, layoutId)
     views.setTextViewText(R.id.widget_title, title)
     views.setTextViewText(R.id.widget_dday, dday)
-    views.setTextViewText(R.id.widget_date, date)
+    views.setTextViewText(R.id.widget_date, dateStr)
     
     // Apply Foreground Colors
     views.setTextColor(R.id.widget_title, fgColor)

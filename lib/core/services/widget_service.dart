@@ -1,5 +1,5 @@
 import 'dart:convert';
-
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:home_widget/home_widget.dart';
 import '../../features/events/domain/event.dart';
@@ -17,6 +17,7 @@ class WidgetService {
 
   /// Save events list as JSON for native widget configuration
   Future<void> saveEventsList(List<Event> events) async {
+    if (kIsWeb) return;
     try {
       await HomeWidget.setAppGroupId(appGroupId);
       
@@ -45,17 +46,24 @@ class WidgetService {
           'bgColor': _colorToHex(pTheme.bg),
           'fgColor': '4A4A4A',
           'layoutType': e.widgetLayoutType,
+          'includeToday': e.includeToday,
+          'excludeWeekends': e.excludeWeekends,
         };
       }).toList();
       
       await HomeWidget.saveWidgetData('widget_events_list', jsonEncode(eventsJson));
-      print('WIDGET_SERVICE: Saved ${events.length} events for widget selection');
+      // Force widget reload to reflect changes immediately (e.g. if 'include today' changed)
+      await HomeWidget.updateWidget(
+          name: androidWidgetName, androidName: androidWidgetName, iOSName: androidWidgetName);
+      
+      print('WIDGET_SERVICE: Saved ${events.length} events for widget selection and Triggered Update');
     } catch (e) {
       print('WIDGET_SERVICE: Error saving events list: $e');
     }
   }
 
   Future<void> updateWidget(Event? event) async {
+    if (kIsWeb) return;
     try {
       // iOS App Group Setting
       try {
@@ -71,6 +79,8 @@ class WidgetService {
         await HomeWidget.saveWidgetData('widget_bg_color', 'FFFFFF');
         await HomeWidget.saveWidgetData('widget_fg_color', '000000');
         await HomeWidget.saveWidgetData('widget_layout_type', 0);
+        await HomeWidget.saveWidgetData('widget_include_today', false);
+        await HomeWidget.saveWidgetData('widget_exclude_weekends', false);
         await HomeWidget.updateWidget(
             name: androidWidgetName, androidName: androidWidgetName, iOSName: androidWidgetName);
         return;
@@ -107,6 +117,8 @@ class WidgetService {
       await HomeWidget.saveWidgetData('widget_bg_color', bgColorHex);
       await HomeWidget.saveWidgetData('widget_fg_color', fgColorHex);
       await HomeWidget.saveWidgetData('widget_layout_type', event.widgetLayoutType);
+      await HomeWidget.saveWidgetData('widget_include_today', event.includeToday);
+      await HomeWidget.saveWidgetData('widget_exclude_weekends', event.excludeWeekends);
       
       await HomeWidget.updateWidget(
           name: androidWidgetName, androidName: androidWidgetName, iOSName: androidWidgetName);

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
@@ -15,6 +16,7 @@ class NotificationService {
   bool _isInitialized = false;
 
   Future<void> init() async {
+    if (kIsWeb) return;
     if (_isInitialized) return;
 
     // 1. Initialize Timezone
@@ -48,6 +50,7 @@ class NotificationService {
   }
 
   Future<void> scheduleEvent(Event event) async {
+    if (kIsWeb) return;
     if (!_isInitialized) await init();
 
     await cancelEvent(event.id);
@@ -120,6 +123,7 @@ class NotificationService {
   }
 
   Future<void> cancelEvent(String eventId) async {
+    if (kIsWeb) return;
     if (!_isInitialized) return;
     await flutterLocalNotificationsPlugin.cancel(id: _generateId(eventId, 'dday'));
     await flutterLocalNotificationsPlugin.cancel(id: _generateId(eventId, 'dminus1'));

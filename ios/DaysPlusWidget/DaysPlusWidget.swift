@@ -40,22 +40,107 @@ extension Color {
 struct DataStorage {
     static let appGroupId = "group.com.handroom.daysplus"
     
-    static func getData() -> (title: String, dDay: String, targetDate: String, bgColor: String, fgColor: String, layoutType: Int) {
+    static func getData() -> (title: String, dDay: String, targetDate: String, bgColor: String, fgColor: String, layoutType: Int, includeToday: Bool, excludeWeekends: Bool) {
         let userDefaults = UserDefaults(suiteName: appGroupId)
         let title = userDefaults?.string(forKey: "widget_title") ?? "Days+"
+        // dDay from defaults is ignored for calculation but kept as fallback
         let dDay = userDefaults?.string(forKey: "widget_dday") ?? "D-day"
         let targetDate = userDefaults?.string(forKey: "widget_date") ?? ""
         let bgColor = userDefaults?.string(forKey: "widget_bg_color") ?? "FFFFFF"
         let fgColor = userDefaults?.string(forKey: "widget_fg_color") ?? "000000"
         let layoutType = userDefaults?.integer(forKey: "widget_layout_type") ?? 0
-        return (title, dDay, targetDate, bgColor, fgColor, layoutType)
+        let includeToday = userDefaults?.bool(forKey: "widget_include_today") ?? false
+        let excludeWeekends = userDefaults?.bool(forKey: "widget_exclude_weekends") ?? false
+        return (title, dDay, targetDate, bgColor, fgColor, layoutType, includeToday, excludeWeekends)
     }
     
-    static func getDataForEvent(_ event: EventEntity?) -> (title: String, dDay: String, targetDate: String, bgColor: String, fgColor: String, layoutType: Int) {
+    static func getDataForEvent(_ event: EventEntity?) -> (title: String, dDay: String, targetDate: String, bgColor: String, fgColor: String, layoutType: Int, includeToday: Bool, excludeWeekends: Bool) {
+        // If event is provided (via Intent), try to fetch the LATEST data for this ID from UserDefaults list
         if let event = event {
-            return (event.title, event.dDay, event.date, event.bgColor, event.fgColor, event.layoutType)
+            if let freshEvent = fetchEventById(event.id) {
+                return (freshEvent.title, freshEvent.dDay, freshEvent.date, freshEvent.bgColor, freshEvent.fgColor, freshEvent.layoutType, freshEvent.includeToday, freshEvent.excludeWeekends)
+            }
+            // Fallback to the Intent's snapshot data if not found in current list (maybe deleted?)
+            return (event.title, event.dDay, event.date, event.bgColor, event.fgColor, event.layoutType, event.includeToday, event.excludeWeekends)
         }
         return getData()
+    }
+    
+    private static func fetchEventById(_ id: String) -> EventEntity? {
+        let userDefaults = UserDefaults(suiteName: appGroupId)
+        guard let jsonString = userDefaults?.string(forKey: "widget_events_list"),
+              let jsonData = jsonString.data(using: .utf8) else {
+            return nil
+        }
+        
+        guard let jsonArray = try? JSONSerialization.jsonObject(with: jsonData) as? [[String: Any]] else {
+            return nil
+        }
+        
+        // Find matching item
+        if let dict = jsonArray.first(where: { ($0["id"] as? String) == id }) {
+             guard let id = dict["id"] as? String,
+                  let title = dict["title"] as? String,
+                  let dDay = dict["dday"] as? String,
+                  let date = dict["date"] as? String,
+                  let bgColor = dict["bgColor"] as? String,
+                  let fgColor = dict["fgColor"] as? String,
+                  let layoutType = dict["layoutType"] as? Int else {
+                return nil
+            }
+            let includeToday = dict["includeToday"] as? Bool ?? false
+            let excludeWeekends = dict["excludeWeekends"] as? Bool ?? false
+            return EventEntity(id: id, title: title, dDay: dDay, date: date, bgColor: bgColor, fgColor: fgColor, layoutType: layoutType, includeToday: includeToday, excludeWeekends: excludeWeekends)
+        }
+        return nil
+    }
+}
+
+// Date Calculator
+struct DateCalculator {
+    static func calculateDDay(targetDateStr: String, includeToday: Bool) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy.MM.dd"
+        formatter.timeZone = TimeZone.current
+        
+        guard let targetDate = formatter.date(from: targetDateStr) else {
+            return "D-Day"
+        }
+        
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        let target = calendar.startOfDay(for: targetDate)
+        
+        let components = calendar.dateComponents([.day], from: today, to: target)
+        
+        guard let diff = components.day else { return "D-Day" }
+        
+        // Include Today Logic: Usually adds 1 for "counting days" (Positive count),
+        // but for D-Day (Negative count), standard logic usually applies.
+        // If includeToday is true, and it's a "D+" count (Past), we usually add 1.
+        // If it's Future (D-), includeToday doesn't typically change standard D-Day.
+        // However, aiming to match Dart's logic roughly:
+        // Dart: diffDays handles logic. Simple Swift approximation:
+        
+        var adjust = 0
+        if includeToday && diff <= 0 { // Only affect past/today counts usually
+            adjust = 1 // e.g., D+1 instead of D-Day if today
+        }
+        // NOTE: "excludeWeekends" is complex to implement in Widget without heavy calendar logic.
+        // Ignoring excludeWeekends for Widget for now to ensure stability.
+        
+        let finalDiff = diff
+        
+        if finalDiff == 0 {
+            return includeToday ? "D+1" : "D-Day"
+        } else if finalDiff > 0 {
+            return "D-\(finalDiff)"
+        } else {
+            // Past
+             let absDiff = abs(finalDiff)
+             let plusDay = includeToday ? absDiff + 1 : absDiff
+             return "D+\(plusDay)"
+        }
     }
 }
 
@@ -67,14 +152,20 @@ struct IntentProvider: AppIntentTimelineProvider {
 
     func snapshot(for configuration: SelectEventIntent, in context: Context) async -> SimpleEntry {
         let data = DataStorage.getDataForEvent(configuration.selectedEvent)
-        return SimpleEntry(date: Date(), title: data.title, dDay: data.dDay, targetDate: data.targetDate, bgColor: data.bgColor, fgColor: data.fgColor, layoutType: data.layoutType)
+        // Recalculate D-Day for Snapshot
+        let calculatedDDay = DateCalculator.calculateDDay(targetDateStr: data.targetDate, includeToday: data.includeToday)
+        return SimpleEntry(date: Date(), title: data.title, dDay: calculatedDDay, targetDate: data.targetDate, bgColor: data.bgColor, fgColor: data.fgColor, layoutType: data.layoutType)
     }
 
     func timeline(for configuration: SelectEventIntent, in context: Context) async -> Timeline<SimpleEntry> {
         let data = DataStorage.getDataForEvent(configuration.selectedEvent)
-        let entry = SimpleEntry(date: Date(), title: data.title, dDay: data.dDay, targetDate: data.targetDate, bgColor: data.bgColor, fgColor: data.fgColor, layoutType: data.layoutType)
         
-        // 15분마다 갱신
+        // Dynamic D-Day Calculation
+        let calculatedDDay = DateCalculator.calculateDDay(targetDateStr: data.targetDate, includeToday: data.includeToday)
+        
+        let entry = SimpleEntry(date: Date(), title: data.title, dDay: calculatedDDay, targetDate: data.targetDate, bgColor: data.bgColor, fgColor: data.fgColor, layoutType: data.layoutType)
+        
+        // 15분마다 갱신 (Next update 15 mins later)
         let nextUpdate = Calendar.current.date(byAdding: .minute, value: 15, to: Date())!
         return Timeline(entries: [entry], policy: .after(nextUpdate))
     }
@@ -96,7 +187,12 @@ struct DaysPlusWidgetEntryView : View {
     var body: some View {
         ZStack {
             Color(hex: entry.bgColor)
-            ddayEmphasisLayout // Always use D-Day layout
+            // Layout 분기
+            if entry.layoutType == 1 {
+                titleEmphasisLayout
+            } else {
+                ddayEmphasisLayout
+            }
         }
         .containerBackground(for: .widget) {
             Color(hex: entry.bgColor).opacity(0.8)
@@ -169,7 +265,7 @@ struct DaysPlusWidget: Widget {
         AppIntentConfiguration(kind: kind, intent: SelectEventIntent.self, provider: IntentProvider()) { entry in
             DaysPlusWidgetEntryView(entry: entry)
         }
-        .configurationDisplayName("디데이")
+        .configurationDisplayName("Days+")
         .description("이벤트를 홈 화면에서 확인하세요.")
         .supportedFamilies([.systemSmall, .systemMedium])
         .contentMarginsDisabled()
