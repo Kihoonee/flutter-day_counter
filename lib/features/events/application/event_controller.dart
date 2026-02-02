@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../core/services/notification_service.dart';
@@ -215,6 +216,6 @@ class EventsController extends AsyncNotifier<List<Event>> {
     for (final e in list) {
       await NotificationService().scheduleEvent(e);
     }
-    debugPrint('EventsController: Rescheduled all [\${list.length}] event notifications.');
+    debugPrint('EventsController: Rescheduled all [${list.length}] event notifications.');
   }
 }

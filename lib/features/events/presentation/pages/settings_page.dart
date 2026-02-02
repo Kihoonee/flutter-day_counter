@@ -220,7 +220,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           child: Row(
             children: [
               if (icon != null) ...[
-                HugeIcon(icon: icon, color: theme.colorScheme.primary, size: 20),
+                HugeIcon(icon: icon as List<List<dynamic>>, color: theme.colorScheme.primary, size: 20),
                 const SizedBox(width: 8),
               ],
               Text(
