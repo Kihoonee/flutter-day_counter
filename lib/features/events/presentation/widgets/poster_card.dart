@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import '../../../../core/utils/platform_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
+import 'package:days_plus/l10n/app_localizations.dart';
 
 import 'dart:math';
 
@@ -84,6 +85,7 @@ class PosterCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     
     // Select theme based on index (Safe lookup)
     final pTheme = posterThemes[themeIndex % posterThemes.length];
@@ -96,7 +98,7 @@ class PosterCard extends StatelessWidget {
 
     // Determine if Future or Past based on dText
     // 보통 'D-DAY', 'D-5' (미래), 'D+3' (과거)
-    final isDDay = dText == 'D-Day';
+    final isDDay = dText == l10n.dDay;
     final isPast = dText.contains('+');
 
     return Padding(

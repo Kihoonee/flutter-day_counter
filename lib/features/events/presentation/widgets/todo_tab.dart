@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:intl/intl.dart';
+import 'package:days_plus/l10n/app_localizations.dart';
 
 import '../../../../core/utils/date_calc.dart';
 
@@ -74,6 +75,7 @@ class _TodoTabState extends ConsumerState<TodoTab> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final todos = widget.event.todos;
 
     // 미완료 항목을 위로, 완료 항목을 아래로 정렬
@@ -110,7 +112,7 @@ class _TodoTabState extends ConsumerState<TodoTab> {
                                 controller: _controller,
                                 focusNode: _focusNode,
                                 decoration: InputDecoration(
-                                  hintText: '  할 일을 입력하세요',
+                                  hintText: '  ${l10n.todoHint}',
                                   hintStyle: TextStyle(
                                     color: theme.colorScheme.outline
                                         .withOpacity(0.5),
@@ -181,7 +183,7 @@ class _TodoTabState extends ConsumerState<TodoTab> {
                       ),
                       const SizedBox(height: 20),
                       Text(
-                        '할 일을 추가해보세요',
+                        l10n.todoEmptyTitle,
                         style: theme.textTheme.titleMedium?.copyWith(
                           color: theme.colorScheme.outline.withOpacity(
                             0.5,
@@ -260,9 +262,9 @@ class _TodoTabState extends ConsumerState<TodoTab> {
                          if (item is int) {
                            final diff = item;
                            String label;
-                           if (diff == 0) label = 'D-Day';
-                           else if (diff > 0) label = 'D-$diff';
-                           else label = 'D+${diff.abs()}';
+                           if (diff == 0) label = l10n.dDay;
+                           else if (diff > 0) label = l10n.dMinus(diff);
+                           else label = l10n.dPlus(diff.abs());
                            
                            return Padding(
                              padding: const EdgeInsets.fromLTRB(24, 24, 16, 8),

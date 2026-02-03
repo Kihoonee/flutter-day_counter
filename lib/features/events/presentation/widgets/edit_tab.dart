@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hugeicons/hugeicons.dart';
+import 'package:days_plus/l10n/app_localizations.dart';
 
 import '../../../../core/services/image_service.dart';
 import '../../application/event_controller.dart';
@@ -130,6 +131,7 @@ class _EditTabState extends ConsumerState<EditTab> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     // 초기화
     _initFrom(widget.event);
@@ -152,8 +154,8 @@ class _EditTabState extends ConsumerState<EditTab> {
                 fontWeight: FontWeight.normal,
               ),
               decoration: InputDecoration(
-                labelText: '어떤 날인가요?',
-                hintText: '이벤트 제목을 입력하세요',
+                labelText: l10n.eventTitleLabel,
+                hintText: l10n.eventTitleHint,
                 labelStyle: TextStyle(color: theme.hintColor),
                 hintStyle: TextStyle(
                   color: theme.colorScheme.onSurfaceVariant,
@@ -195,13 +197,13 @@ class _EditTabState extends ConsumerState<EditTab> {
                         children: [
                           ListTile(
                             leading: const Icon(Icons.photo_library_outlined),
-                            title: const Text('사진 변경'),
+                            title: Text(l10n.changePhoto),
                             onTap: () => Navigator.pop(ctx, 'change'),
                           ),
                           ListTile(
                             leading: Icon(Icons.delete_outline,
                                 color: theme.colorScheme.error),
-                            title: Text('사진 삭제',
+                            title: Text(l10n.deletePhoto,
                                 style:
                                     TextStyle(color: theme.colorScheme.error)),
                             onTap: () => Navigator.pop(ctx, 'delete'),
@@ -256,7 +258,7 @@ class _EditTabState extends ConsumerState<EditTab> {
                     const SizedBox(width: 16),
                     Expanded(
                       child: Text(
-                        '사진 추가',
+                        l10n.addPhoto,
                         style: theme.textTheme.bodyMedium?.copyWith(
                           color: theme.colorScheme.onSurfaceVariant,
                         ),
@@ -282,7 +284,7 @@ class _EditTabState extends ConsumerState<EditTab> {
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     child: Row(
                       children: [
-                        Text('아이콘', style: theme.textTheme.bodyMedium),
+                        Text(l10n.icon, style: theme.textTheme.bodyMedium),
                         const SizedBox(width: 16),
                         Expanded(
                           child: _IconPicker(
@@ -304,7 +306,7 @@ class _EditTabState extends ConsumerState<EditTab> {
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     child: Row(
                       children: [
-                        Text('테마', style: theme.textTheme.bodyMedium),
+                        Text(l10n.theme, style: theme.textTheme.bodyMedium),
                         const SizedBox(width: 28),
                         Expanded(
                           child: _ThemePicker(
@@ -326,7 +328,7 @@ class _EditTabState extends ConsumerState<EditTab> {
 
           // 4. Target Date
           DateField(
-            label: '목표일',
+            label: l10n.targetDate,
             value: _target,
             onTap: () async {
               final picked = await pickDate(context, initial: _target);
@@ -344,7 +346,7 @@ class _EditTabState extends ConsumerState<EditTab> {
               borderRadius: BorderRadius.circular(16),
             ),
             child: SwitchListTile(
-              title: Text('당일 포함 (1일차 시작)',
+              title: Text(l10n.includeTodayLabel,
                   style: TextStyle(fontSize: 14)),
               value: _includeToday,
               onChanged: (v) {
@@ -364,7 +366,7 @@ class _EditTabState extends ConsumerState<EditTab> {
             child: Column(
               children: [
                 SwitchListTile(
-                  title: Text('알림 켜기', style: TextStyle(fontSize: 14)),
+                  title: Text(l10n.enableNotifications, style: TextStyle(fontSize: 14)),
                   value: _isNotificationEnabled,
                   onChanged: (v) {
                     setState(() {
@@ -387,7 +389,7 @@ class _EditTabState extends ConsumerState<EditTab> {
                 ),
                 SwitchListTile(
                   //title: const Text('D-Day 알림', style: TextStyle(fontSize: 14)),
-                  title: Text('D-Day 알림', style: theme.textTheme.bodyMedium),
+                  title: Text(l10n.notifyDDayLabel, style: theme.textTheme.bodyMedium),
                   value: _notifyDDay,
                   onChanged: (v) {
                     setState(() {
@@ -406,7 +408,7 @@ class _EditTabState extends ConsumerState<EditTab> {
                   color: theme.colorScheme.outlineVariant.withValues(alpha: 0.05),
                 ),
                 SwitchListTile(
-                  title: Text('D-1 알림', style: theme.textTheme.bodyMedium),
+                  title: Text(l10n.notifyDMinus1Label, style: theme.textTheme.bodyMedium),
                   value: _notifyDMinus1,
                   onChanged: (v) {
                     setState(() {
@@ -425,7 +427,7 @@ class _EditTabState extends ConsumerState<EditTab> {
                   color: theme.colorScheme.outlineVariant.withValues(alpha: 0.05),
                 ),
                 SwitchListTile(
-                  title: Text('기념일 알림 (+100일 단위)',
+                  title: Text(l10n.notifyAnniversaryLabel,
                       style: theme.textTheme.bodyMedium),
                   value: _notifyAnniv,
                   onChanged: (v) {
@@ -455,15 +457,15 @@ class _EditTabState extends ConsumerState<EditTab> {
                     final ok = await showDialog<bool>(
                       context: context,
                       builder: (_) => AlertDialog(
-                        title: const Text('삭제할까요?'),
-                        content: const Text('이 이벤트를 삭제합니다.'),
+                        title: Text(l10n.deleteConfirmTitle),
+                        content: Text(l10n.deleteConfirmContent),
                         actions: [
                           TextButton(
                               onPressed: () => Navigator.pop(context, false),
-                              child: const Text('취소')),
+                              child: Text(l10n.cancel)),
                           TextButton(
                               onPressed: () => Navigator.pop(context, true),
-                              child: const Text('삭제')),
+                              child: Text(l10n.delete)),
                         ],
                       ),
                     );
@@ -479,7 +481,7 @@ class _EditTabState extends ConsumerState<EditTab> {
                         .withOpacity(0.4),
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
-                  child: const Text('이벤트 삭제'),
+                  child: Text(l10n.deleteEvent),
                 ),
               ),
               const SizedBox(width: 16),
@@ -488,7 +490,7 @@ class _EditTabState extends ConsumerState<EditTab> {
                 child: FilledButton(
                   onPressed: () async {
                     final updatedEvent = widget.event.copyWith(
-                      title: _title.text.isEmpty ? '이벤트' : _title.text,
+                      title: _title.text.isEmpty ? l10n.eventDefaultTitle : _title.text,
                       baseDate: DateTime.now(),
                       targetDate: _target,
                       includeToday: _includeToday,
@@ -506,14 +508,14 @@ class _EditTabState extends ConsumerState<EditTab> {
                         .upsert(updatedEvent);
                     if (!mounted) return;
                     ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('저장되었습니다.')));
+                        SnackBar(content: Text(l10n.saveSuccess)));
                   },
                   style: FilledButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12)),
                   ),
-                  child: const Text('변경사항 저장'),
+                  child: Text(l10n.saveChanges),
                 ),
               ),
             ],

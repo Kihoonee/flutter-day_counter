@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 import 'package:hugeicons/hugeicons.dart';
+import 'package:days_plus/l10n/app_localizations.dart';
 
 import '../../application/event_controller.dart';
 import '../../domain/diary_entry.dart';
@@ -19,14 +20,15 @@ class DiaryTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final eventsState = ref.watch(eventsProvider);
 
     return eventsState.when(
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, _) => Center(child: Text('에러: $e')),
+      error: (e, _) => Center(child: Text(l10n.error(e.toString()))),
       data: (events) {
         final event = events.where((e) => e.id == eventId).firstOrNull;
-        if (event == null) return const Center(child: Text('이벤트를 찾을 수 없습니다.'));
+        if (event == null) return Center(child: Text(l10n.eventNotFound));
 
         final entries = [...event.diaryEntries]
           ..sort((a, b) => b.date.compareTo(a.date)); // 최신순
@@ -53,7 +55,7 @@ class DiaryTab extends ConsumerWidget {
                               ),
                               const SizedBox(height: 20),
                               Text(
-                                '아직 기록된 추억이 없어요',
+                                l10n.diaryEmptyTitle,
                                 style: theme.textTheme.titleMedium?.copyWith(
                                   color: theme.colorScheme.onSurfaceVariant.withOpacity(0.7),
                                   fontWeight: FontWeight.w600,
@@ -61,7 +63,7 @@ class DiaryTab extends ConsumerWidget {
                               ),
                               const SizedBox(height: 8),
                               Text(
-                                '첫 번째 이야기를 남겨보세요',
+                                l10n.diaryEmptySubtitle,
                                 style: theme.textTheme.bodyMedium?.copyWith(
                                   color: theme.colorScheme.onSurfaceVariant.withOpacity(0.7),
                                 ),
@@ -101,13 +103,14 @@ class DiaryTab extends ConsumerWidget {
                                       target: event.targetDate,
                                       includeToday: event.includeToday,
                                     );
+                                    final l10n = AppLocalizations.of(context)!;
                                     String dDayText;
                                     if (diff == 0) {
-                                      dDayText = 'D-Day';
+                                      dDayText = l10n.dDay;
                                     } else if (diff > 0) {
-                                      dDayText = 'D-$diff';
+                                      dDayText = l10n.dMinus(diff);
                                     } else {
-                                      dDayText = 'D+${diff.abs()}';
+                                      dDayText = l10n.dPlus(diff.abs());
                                     }
 
                                     return _DiaryCard(
@@ -244,7 +247,8 @@ class _DiaryDialogState extends State<_DiaryDialog> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final dateStr = DateFormat('yyyy.MM.dd (E)', 'ko').format(_selectedDate);
+    final l10n = AppLocalizations.of(context)!;
+    final dateStr = DateFormat('yyyy.MM.dd (E)', l10n.localeName).format(_selectedDate);
     
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)), // M3 Standard
@@ -261,7 +265,7 @@ class _DiaryDialogState extends State<_DiaryDialog> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  widget.initialEntry == null ? '오늘을 기록해요' : '기록 수정',
+                  widget.initialEntry == null ? l10n.diaryDialogTitleNew : l10n.diaryDialogTitleEdit,
                   style: theme.textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.w700,
                     fontSize: 20,
@@ -329,7 +333,7 @@ class _DiaryDialogState extends State<_DiaryDialog> {
                 minLines: 4,
                 style: theme.textTheme.bodyLarge?.copyWith(height: 1.5),
                 decoration: InputDecoration(
-                  hintText: '소중한 기억을 남겨주세요...',
+                  hintText: l10n.diaryHint,
                   hintStyle: TextStyle(color: theme.colorScheme.outline.withOpacity(0.5)),
                   border: InputBorder.none,
                   contentPadding: const EdgeInsets.all(16),
@@ -348,7 +352,7 @@ class _DiaryDialogState extends State<_DiaryDialog> {
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       foregroundColor: theme.colorScheme.onSurface.withOpacity(0.6),
                     ),
-                    child: const Text('취소'),
+                    child: Text(l10n.cancel),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -366,7 +370,7 @@ class _DiaryDialogState extends State<_DiaryDialog> {
                       ),
                       elevation: 0,
                     ),
-                    child: const Text('저장'),
+                    child: Text(l10n.save),
                   ),
                 ),
               ],
@@ -417,7 +421,7 @@ class _DiaryCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      DateFormat('yyyy.MM.dd (E)', 'ko').format(entry.date),
+                      DateFormat('yyyy.MM.dd (E)', AppLocalizations.of(context)!.localeName).format(entry.date),
                       style: theme.textTheme.labelMedium?.copyWith(
                         color: theme.colorScheme.primary, // Primary color for date
                         fontWeight: FontWeight.w600,

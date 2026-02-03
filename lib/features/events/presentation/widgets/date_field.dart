@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:days_plus/l10n/app_localizations.dart';
 
 import '../../../../core/widgets/custom_calendar.dart';
 
@@ -20,7 +21,8 @@ class DateField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final text = DateFormat('yyyy.MM.dd (EEE)', 'en_US').format(value);
+    final l10n = AppLocalizations.of(context)!;
+    final text = DateFormat('yyyy.MM.dd (EEE)', l10n.localeName).format(value);
 
     return InkWell(
       onTap: onTap,
@@ -28,19 +30,17 @@ class DateField extends StatelessWidget {
       child: Card(
         margin: EdgeInsets.zero,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20), // Matched padding with Title Input
+          padding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 20,
+          ), // Matched padding with Title Input
           child: Row(
             children: [
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      label,
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: theme.hintColor, // Gray
-                      ),
-                    ),
+                    Text(label, style: theme.textTheme.bodyMedium),
                     const SizedBox(height: 8), // Increased gap
                     Text(
                       text,

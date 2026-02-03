@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 import 'package:hugeicons/hugeicons.dart';
+import 'package:days_plus/l10n/app_localizations.dart';
 
 import '../../../../core/services/image_service.dart';
 import '../../../../core/utils/date_calc.dart';
@@ -93,26 +94,29 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
     );
   }
 
-  String _dText(int diff) {
-    if (diff == 0) return 'D-Day';
-    return diff > 0 ? 'D-$diff' : 'D+${diff.abs()}';
+  String _dText(BuildContext context, int diff) {
+    final l10n = AppLocalizations.of(context)!;
+    if (diff == 0) return l10n.dDay;
+    if (diff > 0) return l10n.dMinus(diff);
+    return l10n.dPlus(diff.abs());
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final eventsState = ref.watch(eventsProvider);
 
     final scaffold = Scaffold(
       appBar: AppBar(
-        title: Text(widget.eventId == null ? '새 이벤트' : '이벤트 수정'),
+        title: Text(widget.eventId == null ? l10n.newEvent : l10n.editEvent),
       ),
       body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 600),
           child: eventsState.when(
             loading: () => const Center(child: CircularProgressIndicator()),
-            error: (e, _) => Center(child: Text('에러: $e')),
+            error: (e, _) => Center(child: Text(l10n.error(e.toString()))),
             data: (List<Event> events) {
               final existing = widget.eventId == null
                   ? null
@@ -137,9 +141,9 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
                     child: SizedBox(
                       height: 185,
                       child: PosterCard(
-                        title: _title.text.isEmpty ? '이벤트' : _title.text,
+                        title: _title.text.isEmpty ? l10n.eventDefaultTitle : _title.text,
                         dateLine: DateFormat('yyyy.MM.dd').format(_target),
-                        dText: _dText(diff),
+                        dText: _dText(context, diff),
                         themeIndex: _themeIndex,
                         iconIndex: _iconIndex,
                         todoCount: 0,
@@ -166,8 +170,8 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
                               controller: _title,
                               style: theme.textTheme.titleMedium, 
                               decoration: InputDecoration(
-                                labelText: '어떤 날인가요?',
-                                hintText: '이벤트 제목을 입력하세요',
+                                labelText: l10n.eventTitleLabel,
+                                hintText: l10n.eventTitleHint,
                                 labelStyle: TextStyle(color: theme.hintColor), // Gray color
                                 hintStyle: TextStyle(
                                   color: theme.colorScheme.onSurfaceVariant, 
@@ -204,7 +208,7 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
                                         children: [
                                           ListTile(
                                             leading: const Icon(Icons.photo_library_outlined),
-                                            title: const Text('사진 변경'),
+                                            title: Text(l10n.changePhoto),
                                             onTap: () => Navigator.pop(ctx, 'change'),
                                           ),
                                           ListTile(
@@ -213,7 +217,7 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
                                               color: theme.colorScheme.error,
                                             ),
                                             title: Text(
-                                              '사진 삭제',
+                                              l10n.deletePhoto,
                                               style: TextStyle(color: theme.colorScheme.error),
                                             ),
                                             onTap: () => Navigator.pop(ctx, 'delete'),
@@ -273,7 +277,7 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
                                     // 텍스트
                                     Expanded(
                                       child: Text(
-                                        '사진 추가',
+                                        l10n.addPhoto,
                                         style: theme.textTheme.bodyMedium?.copyWith(
                                           color: theme.colorScheme.onSurfaceVariant,
                                         ),
@@ -301,7 +305,7 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
                                         SizedBox(
                                           width: 60, // Fixed width for alignment
                                           child: Text(
-                                            '아이콘',
+                                            l10n.icon,
                                             style: theme.textTheme.bodyMedium,
                                           ),
                                         ),
@@ -322,7 +326,7 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
                                         SizedBox(
                                           width: 60, // Fixed width for alignment
                                           child: Text(
-                                            '테마',
+                                            l10n.theme,
                                             style: theme.textTheme.bodyMedium,
                                           ),
                                         ),
@@ -343,7 +347,7 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
 
                           // 4. 목표일 선택
                           DateField(
-                            label: '목표일',
+                            label: l10n.targetDate,
                             value: _target,
                             onTap: () async {
                               final picked = await pickDate(context, initial: _target);
@@ -359,7 +363,7 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                             child: SwitchListTile(
                               title: Text(
-                                '당일 포함 (1일차 시작)',
+                                l10n.includeTodayLabel,
                                 style: TextStyle(fontSize: 14),
                               ),
                               value: _includeToday,
@@ -376,7 +380,7 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
                               children: [
                                 SwitchListTile(
                                   title: Text(
-                                    '알림 켜기',
+                                    l10n.enableNotifications,
                                     style: TextStyle(fontSize: 14),
                                   ),
                                   value: _isNotificationEnabled,
@@ -399,7 +403,7 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
                                 ),
                                 Divider(height: 1, color: theme.colorScheme.outlineVariant.withValues(alpha: 0.1)),
                                 SwitchListTile(
-                                  title: Text('D-Day 알림', style: theme.textTheme.bodyMedium),
+                                  title: Text(l10n.notifyDDayLabel, style: theme.textTheme.bodyMedium),
                                   value: _notifyDDay,
                                   onChanged: (v) {
                                     setState(() {
@@ -415,7 +419,7 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
                                 ),
                                 Divider(height: 1, color: theme.colorScheme.outlineVariant.withValues(alpha: 0.05)),
                                 SwitchListTile(
-                                  title: Text('D-1 알림', style: theme.textTheme.bodyMedium),
+                                  title: Text(l10n.notifyDMinus1Label, style: theme.textTheme.bodyMedium),
                                   value: _notifyDMinus1,
                                   onChanged: (v) {
                                     setState(() {
@@ -431,7 +435,7 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
                                 ),
                                 Divider(height: 1, color: theme.colorScheme.outlineVariant.withValues(alpha: 0.05)),
                                 SwitchListTile(
-                                  title: Text('기념일 알림 (+100일 단위)', style: theme.textTheme.bodyMedium),
+                                  title: Text(l10n.notifyAnniversaryLabel, style: theme.textTheme.bodyMedium),
                                   value: _notifyAnniv,
                                   onChanged: (v) {
                                     setState(() {
@@ -463,7 +467,7 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
                                 
                                 final e = Event(
                                   id: id,
-                                  title: _title.text.isEmpty ? '이벤트' : _title.text,
+                                  title: _title.text.isEmpty ? l10n.eventDefaultTitle : _title.text,
                                   baseDate: DateTime.now(), // 기준일은 항상 오늘
                                   targetDate: _target,
                                   includeToday: _includeToday,
@@ -485,7 +489,7 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
                                 final state = ref.read(eventsProvider);
                                 if (state.hasError) {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text('저장 실패: ${state.error}')),
+                                    SnackBar(content: Text(l10n.saveFailedWithParam(state.error.toString()))),
                                   );
                                 } else {
                                   if (widget.eventId == null) {
@@ -501,7 +505,7 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                               ),
-                              child: const Text('저장'),
+                              child: Text(l10n.save),
                             ),
                           ),
                           const SizedBox(height: 16),

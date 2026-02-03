@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:days_plus/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
@@ -45,15 +46,17 @@ class _EventDetailPageState extends ConsumerState<EventDetailPage>
     super.dispose();
   }
 
-  String _dText(int diff) {
-    if (diff == 0) return 'D-Day';
-    if (diff > 0) return 'D-$diff';
-    return 'D+${diff.abs()}';
+  String _dText(BuildContext context, int diff) {
+    final l10n = AppLocalizations.of(context)!;
+    if (diff == 0) return l10n.dDay;
+    if (diff > 0) return l10n.dMinus(diff);
+    return l10n.dPlus(diff.abs());
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final eventsState = ref.watch(eventsProvider);
 
     return eventsState.when(
@@ -62,7 +65,7 @@ class _EventDetailPageState extends ConsumerState<EventDetailPage>
       ),
       error: (e, _) => Scaffold(
         appBar: AppBar(),
-        body: Center(child: Text('에러: $e')),
+        body: Center(child: Text(l10n.error(e.toString()))),
       ),
       data: (List<Event> events) {
         final event = events.where((e) => e.id == widget.eventId).firstOrNull;
@@ -70,7 +73,7 @@ class _EventDetailPageState extends ConsumerState<EventDetailPage>
         if (event == null) {
           return Scaffold(
             appBar: AppBar(),
-            body: const Center(child: Text('이벤트를 찾을 수 없습니다.')),
+            body: Center(child: Text(l10n.eventNotFound)),
           );
         }
 
@@ -109,7 +112,7 @@ class _EventDetailPageState extends ConsumerState<EventDetailPage>
                   child: PosterCard(
                     title: _previewTitle ?? event.title,
                     dateLine: dateLine,
-                    dText: _dText(diff),
+                    dText: _dText(context, diff),
                     themeIndex: _previewThemeIndex ?? event.themeIndex,
                     iconIndex: _previewIconIndex ?? event.iconIndex,
                     todoCount: event.todos.length,
@@ -137,8 +140,8 @@ class _EventDetailPageState extends ConsumerState<EventDetailPage>
                     indicatorColor: theme.colorScheme.primary,
                     indicatorWeight: 3,
                     tabs: [
-                      Tab(text: isPast ? '한줄메모' : '할 일'),
-                      const Tab(text: '수정'),
+                      Tab(text: isPast ? l10n.diaryTab : l10n.todoTab),
+                      Tab(text: l10n.editTab),
                     ],
                   ),
                 ),

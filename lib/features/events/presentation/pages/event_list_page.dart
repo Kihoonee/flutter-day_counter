@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:hugeicons/hugeicons.dart';
+import 'package:days_plus/l10n/app_localizations.dart';
 
 import '../../../../core/utils/date_calc.dart';
 import '../../application/event_controller.dart';
@@ -13,15 +14,17 @@ import '../widgets/poster_card.dart';
 class EventListPage extends ConsumerWidget {
   const EventListPage({super.key});
 
-  String _dText(int diff) {
-    if (diff == 0) return 'D-Day';
-    if (diff > 0) return 'D-$diff';
-    return 'D+${diff.abs()}';
+  String _dText(BuildContext context, int diff) {
+    final l10n = AppLocalizations.of(context)!;
+    if (diff == 0) return l10n.dDay;
+    if (diff > 0) return l10n.dMinus(diff);
+    return l10n.dPlus(diff.abs());
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final state = ref.watch(eventsProvider);
 
     return Scaffold(
@@ -45,7 +48,7 @@ class EventListPage extends ConsumerWidget {
               color: theme.colorScheme.onSurface,
               size: 24,
             ),
-            tooltip: '설정',
+            tooltip: l10n.settings,
           ),
           const SizedBox(width: 8),
         ],
@@ -58,7 +61,7 @@ class EventListPage extends ConsumerWidget {
           // 1. Main Content List
           state.when(
             loading: () => const Center(child: CircularProgressIndicator()),
-            error: (e, _) => Center(child: Text('에러: $e')),
+            error: (e, _) => Center(child: Text(l10n.error(e.toString()))),
             data: (List<Event> events) {
               if (events.isEmpty) {
                 return Padding(
@@ -119,7 +122,7 @@ class EventListPage extends ConsumerWidget {
                       child: PosterCard(
                         title: e.title,
                         dateLine: dateLine,
-                        dText: _dText(diff),
+                        dText: _dText(context, diff),
                         themeIndex: e.themeIndex,
                         iconIndex: e.iconIndex,
                         todoCount: e.todos.length,
@@ -160,7 +163,7 @@ class EventListPage extends ConsumerWidget {
                             ),
                             const SizedBox(width: 8),
                             Text(
-                              '기념일 추가하기',
+                              l10n.addAnniversary,
                               style: TextStyle(
                                 color: theme.colorScheme.primary,
                                 fontSize: 16,
@@ -190,6 +193,7 @@ class _Empty extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -197,20 +201,20 @@ class _Empty extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              '아직 등록된 D-Day가 없어요',
+              l10n.emptyEventsTitle,
               style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w800,
               ),
             ),
             const SizedBox(height: 8),
             Text(
-              '첫 번째 D-Day를 추가해보세요!',
+              l10n.emptyEventsSubtitle,
               style: theme.textTheme.bodyMedium,
             ),
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: onCreate,
-              child: const Text('새 이벤트 만들기'),
+              child: Text(AppLocalizations.of(context)!.createNewEvent),
             ),
           ],
         ),
