@@ -1,0 +1,91 @@
+{
+  "@@locale": "en",
+  "appName": "Days+",
+  "ok": "OK",
+  "cancel": "Cancel",
+  "save": "Save",
+  "delete": "Delete",
+  "done": "Done",
+  "add": "Add",
+  
+  "settings": "Settings",
+  "appearanceSettings": "Appearance",
+  "language": "Language",
+  "korean": "Korean",
+  "english": "English",
+  "auto": "Auto",
+  "themeMode": "Theme Mode",
+  "system": "System",
+  "light": "Light",
+  "dark": "Dark",
+  "notificationSettings": "Notifications",
+  "globalNotificationSetting": "Global Notification",
+  "globalNotificationSubtitle": "Mutes all notifications when turned off.",
+  "settingsSaved": "Settings saved successfully.",
+  "saveSuccess": "Saved successfully.",
+  
+  "error": "Error: {message}",
+  "@error": {
+    "placeholders": {
+      "message": { "type": "String" }
+    }
+  },
+  "addAnniversary": "Add Anniversary",
+  "emptyEventsTitle": "No D-Days registered yet",
+  "emptyEventsSubtitle": "Start by adding your first D-Day!",
+  "createNewEvent": "Create New Event",
+  
+  "dDay": "D-Day",
+  "dMinus": "D-{days}",
+  "@dMinus": {
+    "placeholders": {
+      "days": { "type": "int" }
+    }
+  },
+  "dPlus": "D+{days}",
+  "@dPlus": {
+    "placeholders": {
+      "days": { "type": "int" }
+    }
+  },
+  
+  "newEvent": "New Event",
+  "editEvent": "Edit Event",
+  "eventTitleLabel": "What day is it?",
+  "eventTitleHint": "Enter event title",
+  "eventDefaultTitle": "Event",
+  "changePhoto": "Change Photo",
+  "addPhoto": "Add Photo",
+  "deletePhoto": "Delete Photo",
+  "icon": "Icon",
+  "theme": "Theme",
+  "targetDate": "Target Date",
+  "includeTodayLabel": "Include Today (Day 1)",
+  "enableNotifications": "Enable Notifications",
+  "notifyDDayLabel": "D-Day Notification",
+  "notifyDMinus1Label": "D-1 Notification",
+  "notifyAnniversaryLabel": "Anniversary Notification (+100 days)",
+  "deleteConfirmTitle": "Delete this event?",
+  "deleteConfirmContent": "This action cannot be undone.",
+  "deleteEvent": "Delete Event",
+  "saveChanges": "Save Changes",
+  "saveFailedWithParam": "Save failed: {error}",
+  "@saveFailedWithParam": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  
+  "eventNotFound": "Event not found.",
+  "todoTab": "To-Do",
+  "diaryTab": "Memo",
+  "editTab": "Edit",
+  "todoHint": "Enter a task",
+  "todoEmptyTitle": "Add a task to get started",
+  "diaryEmptyTitle": "No memories recorded yet",
+  "diaryEmptySubtitle": "Share your first story",
+  "diaryDialogTitleNew": "Record Today",
+  "diaryDialogTitleEdit": "Edit Record",
+  "diaryHint": "Leave a precious memory...",
+  "deleteDiaryConfirm": "Delete this diary entry?"
+}
