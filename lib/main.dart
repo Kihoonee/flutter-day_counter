@@ -28,7 +28,8 @@ void main() async {
   final prefs = await SharedPreferences.getInstance();
   debugPrint('MAIN: Local prefs loaded.');
 
-  // 2. 외부 서비스 초기화 (Firebase, AdMob)
+  // 2. 필수 외부 서비스 초기화 (Firebase는 앱 실행 전 완료 권장)
+  debugPrint('MAIN: Initializing Firebase...');
   try {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
@@ -38,25 +39,23 @@ void main() async {
     debugPrint('MAIN: Firebase Initial Error: $e');
   }
 
+  // 3. 광고 서비스 초기화 (비동기로 실행하여 runApp() 차단 방지)
   if (!kIsWeb) {
-    try {
-      debugPrint('MAIN: Initializing AdMob...');
-      await MobileAds.instance.initialize();
-      
-      // 테스트 장비 명시적 등록 (iOS 시뮬레이터 등)
+    debugPrint('MAIN: Initializing AdMob in background...');
+    MobileAds.instance.initialize().then((_) async {
+      debugPrint('MAIN: AdMob initialized in background.');
       await MobileAds.instance.updateRequestConfiguration(
         RequestConfiguration(testDeviceIds: ['0D590785-B970-43D0-BE1F-368862470165', 'emulator-5554']),
       );
-      
-      debugPrint('MAIN: AdMob initialized.');
       AdManager.instance.loadAppOpenAd();
       AdManager.instance.loadInterstitialAd();
-    } catch (e) {
-      debugPrint('MAIN: AdMob Initial Error: $e');
-    }
+    }).catchError((e) {
+      debugPrint('MAIN: AdMob Background Error: $e');
+    });
   }
 
-  // 3. UI 실행
+  // 4. UI 실행
+  debugPrint('MAIN: Calling runApp()...');
   runApp(
     ProviderScope(
       overrides: [

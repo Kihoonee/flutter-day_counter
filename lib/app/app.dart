@@ -39,11 +39,10 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
     debugPrint('App: [LIFECYCLE] Changed to: $state');
     // 백그라운드에서 복귀할 때 앱 오픈 광고 실행
     if (state == AppLifecycleState.resumed) {
-      debugPrint('App: [LIFECYCLE] Resumed - requesting AppOpenAd with 2s delay');
-      // UI 렌더링 안정화를 위해 충분히 대기 후 광고 요청 (2초로 상향)
-      Future.delayed(const Duration(milliseconds: 2000), () {
+      debugPrint('App: [LIFECYCLE] Resumed - requesting AppOpenAd');
+      // UI 렌더링이 전환된 직후 바로 광고 요청 (안정성을 위해 500ms 지연)
+      Future.delayed(const Duration(milliseconds: 500), () {
         if (mounted) {
-          debugPrint('App: [LIFECYCLE] 2s delay passed, calling showAppOpenAdIfAvailable');
           AdManager.instance.showAppOpenAdIfAvailable();
         }
       });

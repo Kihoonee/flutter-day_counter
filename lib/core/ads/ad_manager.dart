@@ -49,11 +49,10 @@ class AdManager {
           debugPrint('AdManager: AppOpenAd loaded successfully.');
           
           if (_showOnLoad) {
-            debugPrint('AdManager: _showOnLoad is true, showing ad after delay.');
+            debugPrint('AdManager: _showOnLoad is true, showing ad after short delay.');
             _showOnLoad = false;
-            // 스플래시 스크린이 완전히 사라진 후 노출하기 위해 넉넉히 대기 (2.5초)
-            Future.delayed(const Duration(milliseconds: 2500), () {
-               showAppOpenAdIfAvailable();
+            Future.delayed(const Duration(milliseconds: 500), () {
+              showAppOpenAdIfAvailable();
             });
           }
         },

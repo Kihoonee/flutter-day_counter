@@ -34,73 +34,44 @@ internal fun updateAppWidget(
     appWidgetId: Int
 ) {
     val widgetData: SharedPreferences = context.getSharedPreferences("HomeWidgetPreferences", Context.MODE_PRIVATE)
-    val title = widgetData.getString("widget_title", "이벤트 없음")
-    val dateStr = widgetData.getString("widget_date", "")
-    val includeToday = widgetData.getBoolean("widget_include_today", false)
-    val excludeWeekends = widgetData.getBoolean("widget_exclude_weekends", false)
     
-    // Dynamic D-Day Calculation
-    var dday = "D-Day"
-    if (!dateStr.isNullOrEmpty()) {
+    // Get the event ID for this widget instance
+    val eventId = widgetData.getString("widget_event_id_$appWidgetId", null)
+    
+    // Fallback defaults
+    var title = "이벤트를 선택하세요"
+    var dateStr = ""
+    var dday = "-"
+    var bgColor = android.graphics.Color.WHITE
+    var fgColor = android.graphics.Color.parseColor("#4A4A4A")
+    var includeToday = false
+    
+    // If this widget has an event ID, find it in the events list
+    if (eventId != null) {
+        val eventsListJson = widgetData.getString("widget_events_list", "[]") ?: "[]"
         try {
-            val sdf = java.text.SimpleDateFormat("yyyy.MM.dd", java.util.Locale.getDefault())
-            val targetDate = sdf.parse(dateStr)
-            
-            if (targetDate != null) {
-                val todayCal = java.util.Calendar.getInstance()
-                // Reset time to midnight for accurate day diff
-                todayCal.set(java.util.Calendar.HOUR_OF_DAY, 0)
-                todayCal.set(java.util.Calendar.MINUTE, 0)
-                todayCal.set(java.util.Calendar.SECOND, 0)
-                todayCal.set(java.util.Calendar.MILLISECOND, 0)
-                
-                val targetCal = java.util.Calendar.getInstance()
-                targetCal.time = targetDate
-                targetCal.set(java.util.Calendar.HOUR_OF_DAY, 0)
-                targetCal.set(java.util.Calendar.MINUTE, 0)
-                targetCal.set(java.util.Calendar.SECOND, 0)
-                targetCal.set(java.util.Calendar.MILLISECOND, 0)
-                
-                val diffMillis = targetCal.timeInMillis - todayCal.timeInMillis
-                val diffDays = diffMillis / (24 * 60 * 60 * 1000)
-                
-                // Include Today Logic (Simple approximation matching iOS/Dart)
-                // If includeToday is true, we count "days" including today. 
-                // Usually affects Past/Today counts => D+1 instead of D-Day.
-                
-                if (diffDays == 0L) {
-                    dday = if (includeToday) "D+1" else "D-Day"
-                } else if (diffDays > 0) {
-                    dday = "D-$diffDays"
-                } else {
-                    val absDiff = Math.abs(diffDays)
-                    val plusDay = if (includeToday) absDiff + 1 else absDiff
-                    dday = "D+$plusDay"
+            val eventsArray = org.json.JSONArray(eventsListJson)
+            for (i in 0 until eventsArray.length()) {
+                val event = eventsArray.getJSONObject(i)
+                if (event.getString("id") == eventId) {
+                    title = event.getString("title")
+                    dateStr = event.getString("date")
+                    dday = event.getString("dday")
+                    includeToday = event.optBoolean("includeToday", false)
+                    
+                    val bgHex = event.getString("bgColor")
+                    val fgHex = event.getString("fgColor")
+                    bgColor = android.graphics.Color.parseColor("#$bgHex")
+                    fgColor = android.graphics.Color.parseColor("#$fgHex")
+                    break
                 }
             }
         } catch (e: Exception) {
-            dday = widgetData.getString("widget_dday", "-") ?: "-"
+            // Fallback to per-widget stored data if JSON parsing fails
+            title = widgetData.getString("widget_title_$appWidgetId", "이벤트 없음") ?: "이벤트 없음"
+            dateStr = widgetData.getString("widget_date_$appWidgetId", "") ?: ""
+            dday = widgetData.getString("widget_dday_$appWidgetId", "-") ?: "-"
         }
-    } else {
-        dday = widgetData.getString("widget_dday", "-") ?: "-"
-    }
-
-    // Default colors (White BG, Black FG)
-    val defaultBg = "#FFFFFF"
-    val defaultFg = "#000000"
-    
-    val bgString = widgetData.getString("widget_bg_color", defaultBg) ?: defaultBg
-    val fgString = widgetData.getString("widget_fg_color", defaultFg) ?: defaultFg
-    
-    // Parse Colors
-    var bgColor = Color.parseColor(defaultBg)
-    var fgColor = Color.parseColor(defaultFg)
-    
-    try {
-        bgColor = Color.parseColor(if (bgString.startsWith("#")) bgString else "#$bgString")
-        fgColor = Color.parseColor(if (fgString.startsWith("#")) fgString else "#$fgString")
-    } catch (e: Exception) {
-        // Fallback to defaults on error
     }
 
     // Always use D-Day emphasis layout
@@ -115,9 +86,7 @@ internal fun updateAppWidget(
     // Apply Foreground Colors
     views.setTextColor(R.id.widget_title, fgColor)
     views.setTextColor(R.id.widget_dday, fgColor)
-    // Date is slightly transparent (80% opacity of fgColor)
-    val dateColor = Color.argb(255, Color.red(fgColor), Color.green(fgColor), Color.blue(fgColor))
-    views.setTextColor(R.id.widget_date, dateColor)
+    views.setTextColor(R.id.widget_date, fgColor)
 
     // Apply Background Color (Tinting the shape drawable)
     views.setInt(R.id.widget_bg, "setColorFilter", bgColor)

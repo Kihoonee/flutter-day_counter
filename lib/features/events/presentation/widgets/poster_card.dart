@@ -323,13 +323,10 @@ class PosterCard extends StatelessWidget {
   }
 
   Widget _buildPhoto({double size = 72}) {
-    return FutureBuilder<bool>(
-      future: PlatformUtilsImpl.fileExists(photoPath),
+    return FutureBuilder<ImageProvider?>(
+      future: PlatformUtilsImpl.getImageProviderAsync(photoPath!),
       builder: (context, snapshot) {
-        if (snapshot.data != true) {
-          return const SizedBox.shrink();
-        }
-        final provider = PlatformUtilsImpl.getImageProvider(photoPath!);
+        final provider = snapshot.data;
         if (provider == null) {
           return const SizedBox.shrink();
         }
@@ -338,13 +335,6 @@ class PosterCard extends StatelessWidget {
           height: size,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.15),
-                blurRadius: 4,
-                offset: const Offset(0, 2),
-              ),
-            ],
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(12),

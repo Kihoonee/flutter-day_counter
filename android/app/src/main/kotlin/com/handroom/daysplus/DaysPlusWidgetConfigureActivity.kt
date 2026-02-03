@@ -87,6 +87,7 @@ class DaysPlusWidgetConfigureActivity : Activity() {
                     val bgColor = event.getString("bgColor")
                     val fgColor = event.getString("fgColor")
                     val layoutType = event.getInt("layoutType")
+                    val includeToday = event.optBoolean("includeToday", false)
                     
                     val itemView = LinearLayout(this).apply {
                         orientation = LinearLayout.VERTICAL
@@ -124,8 +125,8 @@ class DaysPlusWidgetConfigureActivity : Activity() {
                     itemView.addView(infoText)
                     
                     itemView.setOnClickListener {
-                        // Save selected event for this widget
-                        saveSelectedEvent(eventId, title, dday, date, bgColor, fgColor, layoutType)
+                        // Save selected event for this widget (now with includeToday)
+                        saveSelectedEvent(eventId, title, dday, date, bgColor, fgColor, layoutType, includeToday)
                     }
                     
                     layout.addView(itemView)
@@ -146,17 +147,20 @@ class DaysPlusWidgetConfigureActivity : Activity() {
         date: String,
         bgColor: String,
         fgColor: String,
-        layoutType: Int
+        layoutType: Int,
+        includeToday: Boolean
     ) {
         val prefs = getSharedPreferences("HomeWidgetPreferences", Context.MODE_PRIVATE)
         prefs.edit().apply {
-            putString("widget_selected_event_id", eventId)
-            putString("widget_title", title)
-            putString("widget_dday", dday)
-            putString("widget_date", date)
-            putString("widget_bg_color", bgColor)
-            putString("widget_fg_color", fgColor)
-            putInt("widget_layout_type", layoutType)
+            // Per-widget-instance keys (using appWidgetId suffix)
+            putString("widget_event_id_$appWidgetId", eventId)
+            putString("widget_title_$appWidgetId", title)
+            putString("widget_dday_$appWidgetId", dday)
+            putString("widget_date_$appWidgetId", date)
+            putString("widget_bg_color_$appWidgetId", bgColor)
+            putString("widget_fg_color_$appWidgetId", fgColor)
+            putInt("widget_layout_type_$appWidgetId", layoutType)
+            putBoolean("widget_include_today_$appWidgetId", includeToday)
             apply()
         }
         

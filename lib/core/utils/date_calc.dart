@@ -10,10 +10,12 @@ class DateCalc {
     final b = DateTime(base.year, base.month, base.day);
     final t = DateTime(target.year, target.month, target.day);
 
-    var d = t.difference(b).inDays;
-    if (includeToday) {
-      // 같은 날짜면 0 -> 1, D-0을 D-1로 보이게 하는 스타일
-      d = d >= 0 ? d + 1 : d - 1;
+    int d = t.difference(b).inDays;
+    if (includeToday && d <= 0) {
+      // 오늘이거나 과거일 때만 1일차부터 시작하도록 처리
+      // 0(오늘) -> -1 -> UI에서 D+1로 표시
+      // -1(어제) -> -2 -> UI에서 D+2로 표시
+      d -= 1;
     }
     return d;
   }

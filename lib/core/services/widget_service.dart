@@ -14,8 +14,8 @@ class WidgetService {
     if (color is! Color) return 'FFFFFF';
     return color.value.toRadixString(16).padLeft(8, '0').substring(2).toUpperCase();
   }
-
   /// Save events list as JSON for native widget configuration
+  /// Android widgets read from this list and find their selected event by ID
   Future<void> saveEventsList(List<Event> events) async {
     if (kIsWeb) return;
     try {
@@ -50,11 +50,13 @@ class WidgetService {
       }).toList();
       
       await HomeWidget.saveWidgetData('widget_events_list', jsonEncode(eventsJson));
-      // Force widget reload to reflect changes immediately (e.g. if 'include today' changed)
+      
+      // Force widget reload to reflect changes immediately
+      // Each Android widget instance will read its own event from the list
       await HomeWidget.updateWidget(
           name: androidWidgetName, androidName: androidWidgetName, iOSName: androidWidgetName);
       
-      print('WIDGET_SERVICE: Saved ${events.length} events for widget selection and Triggered Update');
+      print('WIDGET_SERVICE: Saved ${events.length} events and triggered update');
     } catch (e) {
       print('WIDGET_SERVICE: Error saving events list: $e');
     }

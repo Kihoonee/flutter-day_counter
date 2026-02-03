@@ -1,23 +1,37 @@
-# Walkthrough - 릴리즈 빌드 및 설치 결과
+# Walkthrough: 이벤트 사진 저장 방식 개선
 
-Android용 APK 릴리즈 빌드를 완료하고, 연결된 iPhone 실기기에 릴리즈 모드로 앱을 설치 및 실행했습니다.
+## 완료된 작업
 
-## 작업 결과
+### 1. 문제 분석
+- **원인**: iOS에서 앱 재설치 또는 업데이트 시 앱 컨테이너의 UUID가 변경되어 절대 경로가 무효화됨.
+- **결과**: 저장된 사진이 불러와지지 않음.
 
-### 1. Android APK 빌드
-- **명령**: `flutter build apk --release`
-- **결과**: 빌드 성공
-- **파일 경로**: `build/app/outputs/flutter-apk/app-release.apk`
-- **파일 용량**: 65.4MB
-- **특이사항**: 아이콘 트리 쉐이킹(Tree-shaking)을 통해 폰트 에셋 용량을 최적화했습니다.
+### 2. 구현된 변경 사항
 
-### 2. iOS 실기기 설치
-- **명령**: `flutter run -d 00008150-000641223AEA401C --release`
-- **대상**: Kihoonee iPhone
-- **결과**: 성공적으로 설치 및 실행됨
-- **빌드 시간**: 332.0s
-- **서명**: Xcode 프로젝트에 설정된 Development Team(G3578Y7NMA)을 사용하여 자동 서명 및 배포되었습니다.
+#### [platform_utils_io.dart](file:///Users/kihoonee/flutter/day_counter/lib/core/utils/platform_utils_io.dart)
+- **`resolvePath`** (신규): 상대 경로를 현재 시점의 절대 경로로 변환.
+- **`getImageProviderAsync`** (신규): 상대/절대 경로를 받아 동적으로 `ImageProvider` 반환.
+- **`fileExists`** 수정: 상대 경로도 처리 가능하도록 개선.
 
-## 확인 및 검증
-- Android APK 파일이 지정된 위치에 생성된 것을 확인했습니다.
-- 사용자의 iPhone에서 릴리즈 모드로 앱이 구동되는 것을 확인했습니다.
+render_diffs(file:///Users/kihoonee/flutter/day_counter/lib/core/utils/platform_utils_io.dart)
+
+#### [image_service.dart](file:///Users/kihoonee/flutter/day_counter/lib/core/services/image_service.dart)
+- **크기 최적화**: 이미지 최대 크기를 1200px → **800px**로 축소.
+- **품질 최적화**: 이미지 품질을 85% → **80%**로 조정.
+- **상대 경로 반환**: `_saveToAppDirectory`가 `event_photos/uuid.jpg` 형태의 상대 경로 반환.
+- **삭제 로직 개선**: `deleteImage`가 상대 경로를 처리하도록 수정.
+
+render_diffs(file:///Users/kihoonee/flutter/day_counter/lib/core/services/image_service.dart)
+
+#### UI 컴포넌트
+- [poster_card.dart](file:///Users/kihoonee/flutter/day_counter/lib/features/events/presentation/widgets/poster_card.dart): `_buildPhoto`에서 `getImageProviderAsync` 사용.
+- [event_edit_page.dart](file:///Users/kihoonee/flutter/day_counter/lib/features/events/presentation/pages/event_edit_page.dart): 사진 미리보기에서 `getImageProviderAsync` 사용.
+
+### 3. 검증
+- iOS 시뮬레이터(iPhone 17 Pro)에서 빌드 및 실행 성공.
+- 분석 결과 블로킹 에러 없음 (미사용 변수, deprecated API 등 info-level 경고만 존재).
+
+## 수동 검증 필요 사항
+1.  새 이벤트 생성 시 사진을 추가하고 저장.
+2.  앱을 완전히 종료 후 다시 실행하여 사진 유지 확인.
+3.  이벤트 삭제 시 사진 파일도 정상 삭제되는지 확인.

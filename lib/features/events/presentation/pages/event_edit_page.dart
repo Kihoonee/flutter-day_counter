@@ -250,23 +250,30 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
                                         ),
                                       ),
                                       child: _photoPath != null && _photoPath!.isNotEmpty
-                                          ? FutureBuilder<bool>(
-                                              future: PlatformUtilsImpl.fileExists(_photoPath!),
+                                          ? FutureBuilder<ImageProvider?>(
+                                              key: ValueKey(_photoPath),
+                                              future: PlatformUtilsImpl.getImageProviderAsync(_photoPath!),
                                               builder: (context, snapshot) {
-                                                if (snapshot.data == true) {
-                                                  final provider = PlatformUtilsImpl.getImageProvider(_photoPath!);
-                                                  if (provider != null) {
-                                                    return ClipRRect(
-                                                      borderRadius: BorderRadius.circular(11),
-                                                      child: Image(
-                                                        image: provider,
-                                                        key: ValueKey(_photoPath),
-                                                        fit: BoxFit.cover,
-                                                        errorBuilder: (_, __, ___) =>
-                                                            _buildPhotoIcon(theme),
-                                                      ),
-                                                    );
-                                                  }
+                                                debugPrint('EventEditPage photo preview: path=$_photoPath, connectionState=${snapshot.connectionState}, hasData=${snapshot.hasData}, error=${snapshot.error}');
+                                                if (snapshot.connectionState == ConnectionState.waiting) {
+                                                  return const Center(child: CircularProgressIndicator(strokeWidth: 2));
+                                                }
+                                                final provider = snapshot.data;
+                                                if (provider != null) {
+                                                  return ClipRRect(
+                                                    borderRadius: BorderRadius.circular(11),
+                                                    child: Image(
+                                                      image: provider,
+                                                      key: ValueKey('img_$_photoPath'),
+                                                      fit: BoxFit.cover,
+                                                      width: 64,
+                                                      height: 64,
+                                                      errorBuilder: (_, error, ___) {
+                                                        debugPrint('EventEditPage Image error: $error');
+                                                        return _buildPhotoIcon(theme);
+                                                      },
+                                                    ),
+                                                  );
                                                 }
                                                 return _buildPhotoIcon(theme);
                                               },

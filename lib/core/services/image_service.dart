@@ -31,9 +31,9 @@ class ImageService {
         // 1. 갤러리에서 이미지 선택
         final XFile? pickedFile = await _picker.pickImage(
           source: ImageSource.gallery,
-          maxWidth: 1200,
-          maxHeight: 1200,
-          imageQuality: 85,
+          maxWidth: 800,
+          maxHeight: 800,
+          imageQuality: 80,
         );
 
         if (pickedFile == null) {
@@ -85,7 +85,7 @@ class ImageService {
     }
   }
 
-  /// 크롭된 이미지를 앱 문서 디렉토리에 저장
+  /// 크롭된 이미지를 앱 문서 디렉토리에 저장하고 *상대 경로* 반환
   Future<String> _saveToAppDirectory(Uint8List imageBytes) async {
     final directory = await getApplicationDocumentsDirectory();
     final imagesDir = io.Directory(p.join(directory.path, 'event_photos'));
@@ -99,18 +99,28 @@ class ImageService {
 
     await io.File(destinationPath).writeAsBytes(imageBytes);
 
-    return destinationPath;
+    // 상대 경로 반환 (예: event_photos/uuid.jpg)
+    return 'event_photos/$fileName';
   }
 
-  /// 이벤트 삭제 시 연결된 사진 파일 삭제
+  /// 이벤트 삭제 시 연결된 사진 파일 삭제 (상대 경로 지원)
   Future<void> deleteImage(String? photoPath) async {
     if (kIsWeb || photoPath == null || photoPath.isEmpty) return;
 
     try {
-      final file = io.File(photoPath);
+      // 상대 경로를 절대 경로로 변환
+      String absolutePath;
+      if (photoPath.startsWith('/')) {
+        absolutePath = photoPath;
+      } else {
+        final directory = await getApplicationDocumentsDirectory();
+        absolutePath = p.join(directory.path, photoPath);
+      }
+      
+      final file = io.File(absolutePath);
       if (await file.exists()) {
         await file.delete();
-        debugPrint('ImageService: Deleted image at $photoPath');
+        debugPrint('ImageService: Deleted image at $absolutePath');
       }
     } catch (e) {
       debugPrint('ImageService.deleteImage error: $e');
