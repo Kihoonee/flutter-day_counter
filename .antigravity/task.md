@@ -1,17 +1,13 @@
-# Task: Per-Event Granular Notifications
+# Task: Release Build and Installation
 
-Refactor granular notification settings to be managed per-event instead of globally. Settings page will only retain the master global switch.
+Android용 APK 릴리즈 빌드를 생성하고, 연결된 iPhone에 릴리즈 모드로 앱을 설치합니다.
 
-## Status: Completed
+## Status: In Progress
 
 ## Progress
-- [x] Refine `EventEditPage` Toggle Logic
-    - [x] Make granular toggles always visible (remove conditional visibility)
-    - [x] Parent -> Child: Turning off parent turns off all children
-    - [x] Child -> Parent: Turning on any child turns on the parent
-- [x] Refine Global Notification Rescheduling
-    - [x] Ensure `SettingsPage` correctly triggers rescheduling when Global ON
-    - [x] Verify `NotificationService` respects per-event settings during mass reschedule
-- [x] Verification
-    - [x] Test Parent-Child UI interaction in Edit Page
-    - [x] Test Global Off -> On behavior and check scheduled notifications
+- [ ] 디바이스 연결 상태 확인
+- [ ] Android APK 릴리즈 빌드 (`flutter build apk`)
+- [ ] iOS 릴리즈 설치 (`flutter run --release`)
+    - [ ] 빌드 및 서명 확인
+    - [ ] 실기기 설치 확인
+- [ ] 결과물 확인 및 워크스루 작성
