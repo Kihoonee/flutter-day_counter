@@ -11,7 +11,7 @@
         android:layout_height="match_parent"
         android:src="@drawable/widget_background"
         android:scaleType="fitXY"
-        android:alpha="0.8" />
+        android:alpha="1.0" />
 
     <!-- Content Layer -->
     <RelativeLayout
