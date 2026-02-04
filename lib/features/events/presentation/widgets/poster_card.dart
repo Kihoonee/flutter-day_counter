@@ -92,10 +92,10 @@ class _PosterCardState extends State<PosterCard> with SingleTickerProviderStateM
   @override
   void initState() {
     super.initState();
-    // Very slow, subtle background movement (15 seconds loop)
+    // Speed up: 6 seconds loop instead of 15
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 15),
+      duration: const Duration(seconds: 6),
     )..repeat();
   }
 
@@ -351,9 +351,9 @@ class _PatternPainter extends CustomPainter {
 
     final path = Path();
     
-    // Use animation to subtly shift the waves
-    final waveShift = sin(animationValue * 2 * pi) * 20.0;
-    final waveAmplitude = 10.0 * (1.0 + cos(animationValue * pi) * 0.2);
+    // Increase visibility: Larger shift and amplitude
+    final waveShift = sin(animationValue * 2 * pi) * 45.0;
+    final waveAmplitude = 15.0 * (1.0 + cos(animationValue * pi) * 0.3);
 
     final startY = size.height * (0.4 + random.nextDouble() * 0.2) + (waveShift * 0.2);
     path.moveTo(0, startY);
