@@ -58,7 +58,7 @@ const posterThemes = <PosterTheme>[
   PosterTheme(Color(0xFFFFAB91), Color(0xFFBF360C)), // DeepOrange
 ];
 
-class PosterCard extends StatelessWidget {
+class PosterCard extends StatefulWidget {
   final String title;
   final String dateLine;
   final String dText;
@@ -83,36 +83,57 @@ class PosterCard extends StatelessWidget {
   });
 
   @override
+  State<PosterCard> createState() => _PosterCardState();
+}
+
+class _PosterCardState extends State<PosterCard> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    // Very slow, subtle background movement (15 seconds loop)
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 15),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
     
     // Select theme based on index (Safe lookup)
-    final pTheme = posterThemes[themeIndex % posterThemes.length];
+    final pTheme = posterThemes[widget.themeIndex % posterThemes.length];
     
     // UI Refinement v2: Unified Softer Gray for better readability and minimalist feel
     const fgColor = Color(0xFF4A4A4A); 
 
     // Select icon based on index (Safe lookup)
-    final iconData = eventIcons[iconIndex % eventIcons.length];
+    final iconData = eventIcons[widget.iconIndex % eventIcons.length];
 
     // Determine if Future or Past based on dText
-    // 보통 'D-DAY', 'D-5' (미래), 'D+3' (과거)
-    final isDDay = dText == l10n.dDay;
-    final isPast = dText.contains('+');
+    final isPast = widget.dText.contains('+');
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(4, 0, 4, 12), // Horizontal space for shadow + Bottom space
+      padding: const EdgeInsets.fromLTRB(4, 0, 4, 12),
       child: Container(
         height: double.infinity,
         decoration: BoxDecoration(
-          color: pTheme.bg, // Main Pastel Background
+          color: pTheme.bg,
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
-              color: pTheme.fg.withOpacity(0.3), // Stronger, visible colored shadow
-              blurRadius: 6, // Tighter
-              offset: const Offset(0, 4), // Lower but shorter
+              color: pTheme.fg.withOpacity(0.3),
+              blurRadius: 6,
+              offset: const Offset(0, 4),
             ),
           ],
         ),
@@ -120,25 +141,34 @@ class PosterCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(24),
           child: Stack(
             children: [
-              // 1. Background Pattern
+              // 1. Background Pattern - Animated
               Positioned.fill(
-                child: CustomPaint(
-                  painter: _PatternPainter(Colors.white, themeIndex),
+                child: AnimatedBuilder(
+                  animation: _controller,
+                  builder: (context, _) {
+                    return CustomPaint(
+                      painter: _PatternPainter(
+                        Colors.white, 
+                        widget.themeIndex,
+                        animationValue: _controller.value,
+                      ),
+                    );
+                  },
                 ),
               ),
 
-              // 2. Ripple Effect Layer (InkWell should be here to cover everything)
+              // 2. Ripple Effect Layer
               Positioned.fill(
                 child: Material(
                   color: Colors.transparent,
                   child: InkWell(
-                    onTap: onTap,
+                    onTap: widget.onTap,
                     borderRadius: BorderRadius.circular(24),
                   ),
                 ),
               ),
 
-              // 3. Content Layout (Padding 20) - Always use D-Day emphasis
+              // 3. Content Layout
               Padding(
                 padding: const EdgeInsets.all(20),
                 child: _buildDDayEmphasis(theme, fgColor, iconData, isPast),
@@ -160,7 +190,7 @@ class PosterCard extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(right: 48.0),
               child: Text(
-                title,
+                widget.title,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: theme.textTheme.titleLarge?.copyWith(
@@ -172,14 +202,14 @@ class PosterCard extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              dateLine,
+              widget.dateLine,
               style: theme.textTheme.titleMedium?.copyWith(
                 fontSize: 14,
                 color: fgColor.withOpacity(0.85),
                 fontWeight: FontWeight.w600,
               ),
             ),
-            if (todoCount > 0) _buildTodoBadge(fgColor),
+            if (widget.todoCount > 0) _buildTodoBadge(fgColor, widget.todoCount),
           ],
         ),
         Positioned(
@@ -192,70 +222,11 @@ class PosterCard extends StatelessWidget {
           left: 0,
           child: _buildDDayText(theme, fgColor),
         ),
-        if (photoPath != null && photoPath!.isNotEmpty)
+        if (widget.photoPath != null && widget.photoPath!.isNotEmpty)
           Positioned(
             bottom: 0,
             right: 0,
-            child: _buildPhoto(),
-          ),
-      ],
-    );
-  }
-
-  Widget _buildTitleEmphasis(ThemeData theme, Color fgColor, dynamic iconData, bool isPast) {
-    return Stack(
-      children: [
-        const SizedBox.expand(),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Text(
-                title,
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: theme.textTheme.headlineMedium?.copyWith(
-                  fontWeight: FontWeight.w800,
-                  fontSize: 28,
-                  color: fgColor,
-                ),
-              ),
-            ),
-            const SizedBox(height: 12),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _buildDDayText(theme, fgColor, fontSize: 20),
-                const SizedBox(width: 8),
-                Text(
-                  dateLine,
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontSize: 14,
-                    color: fgColor.withOpacity(0.7),
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-            if (todoCount > 0) ...[
-               const SizedBox(height: 8),
-               _buildTodoBadge(fgColor),
-            ],
-          ],
-        ),
-        Positioned(
-          top: 0,
-          right: 0,
-          child: _buildIcon(fgColor, iconData),
-        ),
-        if (photoPath != null && photoPath!.isNotEmpty)
-          Positioned(
-            bottom: 0,
-            right: 0,
-            child: _buildPhoto(size: 60),
+            child: _buildPhoto(widget.photoPath!),
           ),
       ],
     );
@@ -276,7 +247,7 @@ class PosterCard extends StatelessWidget {
     );
   }
 
-  Widget _buildTodoBadge(Color fgColor) {
+  Widget _buildTodoBadge(Color fgColor, int count) {
     return Padding(
       padding: const EdgeInsets.only(top: 8.0),
       child: Container(
@@ -295,7 +266,7 @@ class PosterCard extends StatelessWidget {
             ),
             const SizedBox(width: 4),
             Text(
-              '$todoCount',
+              '$count',
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
@@ -310,10 +281,10 @@ class PosterCard extends StatelessWidget {
 
   Widget _buildDDayText(ThemeData theme, Color fgColor, {double? fontSize}) {
     return Text(
-      dText,
+      widget.dText,
       textAlign: TextAlign.left,
       style: theme.textTheme.displaySmall?.copyWith(
-        fontSize: fontSize ?? (photoPath != null ? 32 : 40),
+        fontSize: fontSize ?? (widget.photoPath != null ? 32 : 40),
         fontWeight: FontWeight.w700,
         letterSpacing: -1.0,
         height: 1.0,
@@ -322,9 +293,9 @@ class PosterCard extends StatelessWidget {
     );
   }
 
-  Widget _buildPhoto({double size = 72}) {
+  Widget _buildPhoto(String path, {double size = 72}) {
     return FutureBuilder<ImageProvider?>(
-      future: PlatformUtilsImpl.getImageProviderAsync(photoPath!),
+      future: PlatformUtilsImpl.getImageProviderAsync(path),
       builder: (context, snapshot) {
         final provider = snapshot.data;
         if (provider == null) {
@@ -340,7 +311,7 @@ class PosterCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(12),
             child: Image(
               image: provider,
-              key: ValueKey(photoPath),
+              key: ValueKey(path),
               fit: BoxFit.cover,
               errorBuilder: (_, __, ___) => const SizedBox.shrink(),
             ),
@@ -354,8 +325,9 @@ class PosterCard extends StatelessWidget {
 class _PatternPainter extends CustomPainter {
   final Color overlayColor;
   final int seed;
+  final double animationValue; // 0.0 ~ 1.0
 
-  _PatternPainter(this.overlayColor, this.seed);
+  _PatternPainter(this.overlayColor, this.seed, {this.animationValue = 0.0});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -372,26 +344,29 @@ class _PatternPainter extends CustomPainter {
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
         colors: [
-          overlayColor.withOpacity(0.0), // Fully transparent top
-          overlayColor.withOpacity(0.4), // Stronger bottom
+          overlayColor.withOpacity(0.0),
+          overlayColor.withOpacity(0.4),
         ],
       ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
 
     final path = Path();
     
-    // S-Curve Wave Logic
-    final startY = size.height * (0.4 + random.nextDouble() * 0.2); // 40~60%
+    // Use animation to subtly shift the waves
+    final waveShift = sin(animationValue * 2 * pi) * 20.0;
+    final waveAmplitude = 10.0 * (1.0 + cos(animationValue * pi) * 0.2);
+
+    final startY = size.height * (0.4 + random.nextDouble() * 0.2) + (waveShift * 0.2);
     path.moveTo(0, startY);
 
-    // First Control Point (Upwards/Downwards)
-    final cp1x = size.width * (0.25 + random.nextDouble() * 0.1); 
-    final cp1y = size.height * (random.nextDouble() * 0.5); // Top half
+    // First Control Point
+    final cp1x = size.width * (0.25 + random.nextDouble() * 0.1) + waveShift; 
+    final cp1y = size.height * (random.nextDouble() * 0.5) - waveAmplitude;
 
-    // Second Control Point (Opposite)
-    final cp2x = size.width * (0.65 + random.nextDouble() * 0.1);
-    final cp2y = size.height * (0.5 + random.nextDouble() * 0.5); // Bottom half
+    // Second Control Point
+    final cp2x = size.width * (0.65 + random.nextDouble() * 0.1) - waveShift;
+    final cp2y = size.height * (0.5 + random.nextDouble() * 0.5) + waveAmplitude;
 
-    final endY = size.height * (0.4 + random.nextDouble() * 0.3);
+    final endY = size.height * (0.4 + random.nextDouble() * 0.3) - (waveShift * 0.1);
 
     path.cubicTo(cp1x, cp1y, cp2x, cp2y, size.width, endY);
     
@@ -407,14 +382,17 @@ class _PatternPainter extends CustomPainter {
     final paint = Paint()
       ..style = PaintingStyle.fill;
 
-    // Draw fewer, subtle droplets
     final count = 5 + random.nextInt(4);
     
     random.nextDouble(); random.nextDouble(); // Burn
 
+    // Subtle drift for droplets based on animation
+    final driftX = sin(animationValue * 2 * pi) * 5.0;
+    final driftY = cos(animationValue * 2 * pi) * 5.0;
+
     for (int i = 0; i < count; i++) {
-      final dx = random.nextDouble() * size.width;
-      final dy = size.height * 0.3 + random.nextDouble() * (size.height * 0.7);
+      final dx = (random.nextDouble() * size.width) + driftX;
+      final dy = (size.height * 0.3 + random.nextDouble() * (size.height * 0.7)) + driftY;
       final radius = 3.0 + random.nextDouble() * 6.0;
       
       paint.color = overlayColor.withOpacity(0.1 + random.nextDouble() * 0.2);
@@ -425,6 +403,8 @@ class _PatternPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _PatternPainter oldDelegate) {
-    return oldDelegate.overlayColor != overlayColor || oldDelegate.seed != seed;
+    return oldDelegate.overlayColor != overlayColor || 
+           oldDelegate.seed != seed || 
+           oldDelegate.animationValue != animationValue;
   }
 }
