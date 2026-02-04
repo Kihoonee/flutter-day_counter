@@ -88,6 +88,8 @@ class PosterCard extends StatefulWidget {
 
 class _PosterCardState extends State<PosterCard> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
+  ImageProvider? _imageProvider;
+  String? _lastLoadedPath;
 
   @override
   void initState() {
@@ -97,6 +99,38 @@ class _PosterCardState extends State<PosterCard> with SingleTickerProviderStateM
       vsync: this,
       duration: const Duration(seconds: 6),
     )..repeat();
+
+    _loadImage();
+  }
+
+  @override
+  void didUpdateWidget(PosterCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.photoPath != oldWidget.photoPath) {
+      _loadImage();
+    }
+  }
+
+  Future<void> _loadImage() async {
+    if (widget.photoPath == null || widget.photoPath!.isEmpty) {
+      if (mounted) {
+        setState(() {
+          _imageProvider = null;
+          _lastLoadedPath = null;
+        });
+      }
+      return;
+    }
+
+    if (widget.photoPath == _lastLoadedPath) return;
+
+    final provider = await PlatformUtilsImpl.getImageProviderAsync(widget.photoPath!);
+    if (mounted) {
+      setState(() {
+        _imageProvider = provider;
+        _lastLoadedPath = widget.photoPath;
+      });
+    }
   }
 
   @override
@@ -226,7 +260,7 @@ class _PosterCardState extends State<PosterCard> with SingleTickerProviderStateM
           Positioned(
             bottom: 0,
             right: 0,
-            child: _buildPhoto(widget.photoPath!),
+            child: _buildPhoto(),
           ),
       ],
     );
@@ -293,31 +327,25 @@ class _PosterCardState extends State<PosterCard> with SingleTickerProviderStateM
     );
   }
 
-  Widget _buildPhoto(String path, {double size = 72}) {
-    return FutureBuilder<ImageProvider?>(
-      future: PlatformUtilsImpl.getImageProviderAsync(path),
-      builder: (context, snapshot) {
-        final provider = snapshot.data;
-        if (provider == null) {
-          return const SizedBox.shrink();
-        }
-        return Container(
-          width: size,
-          height: size,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(12),
-            child: Image(
-              image: provider,
-              key: ValueKey(path),
-              fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => const SizedBox.shrink(),
-            ),
-          ),
-        );
-      },
+  Widget _buildPhoto({double size = 72}) {
+    if (_imageProvider == null) {
+      return const SizedBox.shrink();
+    }
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: Image(
+          image: _imageProvider!,
+          key: ValueKey(widget.photoPath),
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+        ),
+      ),
     );
   }
 }
