@@ -121,6 +121,8 @@ class EventListPage extends ConsumerWidget {
                       padding: const EdgeInsets.only(bottom: 8),
                       child: SizedBox(
                         height: 185,
+                        child: Hero(
+                        tag: e.id,
                         child: PosterCard(
                           title: e.title,
                           dateLine: dateLine,
@@ -131,6 +133,7 @@ class EventListPage extends ConsumerWidget {
                           photoPath: e.photoPath,
                           onTap: () => context.push('/detail', extra: e.id),
                         ),
+                      ),
                       ),
                     ),
                   );

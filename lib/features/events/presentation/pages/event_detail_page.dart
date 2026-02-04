@@ -109,15 +109,18 @@ class _EventDetailPageState extends ConsumerState<EventDetailPage>
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: SizedBox(
                   height: 185,
-                  child: PosterCard(
-                    title: _previewTitle ?? event.title,
-                    dateLine: dateLine,
-                    dText: _dText(context, diff),
-                    themeIndex: _previewThemeIndex ?? event.themeIndex,
-                    iconIndex: _previewIconIndex ?? event.iconIndex,
-                    todoCount: event.todos.length,
-                    photoPath: _previewPhotoPath ?? event.photoPath,
-                    widgetLayoutType: _previewWidgetLayoutType ?? event.widgetLayoutType,
+                  child: Hero(
+                    tag: event.id,
+                    child: PosterCard(
+                      title: _previewTitle ?? event.title,
+                      dateLine: dateLine,
+                      dText: _dText(context, diff),
+                      themeIndex: _previewThemeIndex ?? event.themeIndex,
+                      iconIndex: _previewIconIndex ?? event.iconIndex,
+                      todoCount: event.todos.length,
+                      photoPath: _previewPhotoPath ?? event.photoPath,
+                      widgetLayoutType: _previewWidgetLayoutType ?? event.widgetLayoutType,
+                    ),
                   ),
                 ),
                 ),
