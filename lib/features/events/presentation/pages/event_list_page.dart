@@ -114,20 +114,23 @@ class EventListPage extends ConsumerWidget {
 
                   final dateLine = DateFormat('yyyy.MM.dd').format(e.targetDate);
 
-                  return Padding(
+                  return _StaggeredItem(
+                    index: i,
                     key: Key(e.id),
-                    padding: const EdgeInsets.only(bottom: 8), 
-                    child: SizedBox(
-                      height: 185,
-                      child: PosterCard(
-                        title: e.title,
-                        dateLine: dateLine,
-                        dText: _dText(context, diff),
-                        themeIndex: e.themeIndex,
-                        iconIndex: e.iconIndex,
-                        todoCount: e.todos.length,
-                        photoPath: e.photoPath,
-                        onTap: () => context.push('/detail', extra: e.id),
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: SizedBox(
+                        height: 185,
+                        child: PosterCard(
+                          title: e.title,
+                          dateLine: dateLine,
+                          dText: _dText(context, diff),
+                          themeIndex: e.themeIndex,
+                          iconIndex: e.iconIndex,
+                          todoCount: e.todos.length,
+                          photoPath: e.photoPath,
+                          onTap: () => context.push('/detail', extra: e.id),
+                        ),
                       ),
                     ),
                   );
@@ -149,7 +152,7 @@ class EventListPage extends ConsumerWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     // Add Button
-                    InkWell(
+                    _ScaleButton(
                       onTap: () => context.push('/edit', extra: null),
                       child: Padding(
                         padding: const EdgeInsets.symmetric(vertical: 12),
@@ -217,6 +220,113 @@ class _Empty extends StatelessWidget {
               child: Text(AppLocalizations.of(context)!.createNewEvent),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// 순차적 진입 애니메이션 위젯
+class _StaggeredItem extends StatefulWidget {
+  final int index;
+  final Widget child;
+  const _StaggeredItem({super.key, required this.index, required this.child});
+
+  @override
+  State<_StaggeredItem> createState() => _StaggeredItemState();
+}
+
+class _StaggeredItemState extends State<_StaggeredItem>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _opacity;
+  late Animation<Offset> _offset;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    );
+
+    _opacity = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _controller, curve: const Interval(0.0, 0.65, curve: Curves.easeOut)),
+    );
+
+    _offset = Tween<Offset>(begin: const Offset(0, 0.1), end: Offset.zero).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeOutSine),
+    );
+
+    // 인덱스에 따른 지연 실행
+    Future.delayed(Duration(milliseconds: 50 * widget.index), () {
+      if (mounted) _controller.forward();
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeTransition(
+      opacity: _opacity,
+      child: SlideTransition(
+        position: _offset,
+        child: widget.child,
+      ),
+    );
+  }
+}
+
+/// 클릭 시 살짝 눌리는 애니메이션 버튼
+class _ScaleButton extends StatefulWidget {
+  final Widget child;
+  final VoidCallback onTap;
+  const _ScaleButton({required this.child, required this.onTap});
+
+  @override
+  State<_ScaleButton> createState() => _ScaleButtonState();
+}
+
+class _ScaleButtonState extends State<_ScaleButton>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scale;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 100),
+    );
+    _scale = Tween<double>(begin: 1.0, end: 0.96).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTapDown: (_) => _controller.forward(),
+      onTapUp: (_) => _controller.reverse(),
+      onTapCancel: () => _controller.reverse(),
+      onTap: widget.onTap,
+      child: ScaleTransition(
+        scale: _scale,
+        child: Material( // InkWell 효과를 유지하기 위해 child 내부에 사용됨
+          color: Colors.transparent,
+          child: widget.child,
         ),
       ),
     );
