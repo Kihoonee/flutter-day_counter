@@ -100,14 +100,38 @@ class _PosterCardState extends State<PosterCard> with SingleTickerProviderStateM
       duration: const Duration(seconds: 10),
     )..repeat();
 
-    _loadImage();
+    // 초기 이미지 동기 로딩 시도
+    if (widget.photoPath != null && widget.photoPath!.isNotEmpty) {
+      final syncProvider = PlatformUtilsImpl.getImageProviderSync(widget.photoPath!);
+      if (syncProvider != null) {
+        _imageProvider = syncProvider;
+        _lastLoadedPath = widget.photoPath;
+      } else {
+        _loadImage();
+      }
+    } else {
+      _loadImage();
+    }
   }
 
   @override
   void didUpdateWidget(PosterCard oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.photoPath != oldWidget.photoPath) {
-      _loadImage();
+      if (widget.photoPath != null && widget.photoPath!.isNotEmpty) {
+        final syncProvider = PlatformUtilsImpl.getImageProviderSync(widget.photoPath!);
+        if (syncProvider != null) {
+          // 동기적으로 바로 업데이트 (히어로 애니메이션 중 깜빡임 방지)
+          setState(() {
+            _imageProvider = syncProvider;
+            _lastLoadedPath = widget.photoPath;
+          });
+        } else {
+          _loadImage();
+        }
+      } else {
+        _loadImage();
+      }
     }
   }
 
@@ -339,11 +363,14 @@ class _PosterCardState extends State<PosterCard> with SingleTickerProviderStateM
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(12),
-        child: Image(
-          image: _imageProvider!,
-          key: ValueKey(widget.photoPath),
-          fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+        child: RepaintBoundary(
+          child: Image(
+            image: _imageProvider!,
+            key: ValueKey(widget.photoPath),
+            fit: BoxFit.cover,
+            gaplessPlayback: true,  // 히어로 애니메이션 중 깜빡임 방지
+            errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+          ),
         ),
       ),
     );

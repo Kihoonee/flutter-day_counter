@@ -1,9 +1,15 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:days_plus/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:screenshot/screenshot.dart';
+import 'package:hugeicons/hugeicons.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../../../core/utils/date_calc.dart';
+import '../../../../core/services/share_service.dart';
 import '../../application/event_controller.dart';
 import '../../domain/event.dart';
 import '../widgets/diary_tab.dart';
@@ -24,6 +30,9 @@ class EventDetailPage extends ConsumerStatefulWidget {
 class _EventDetailPageState extends ConsumerState<EventDetailPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  final ScreenshotController _screenshotController = ScreenshotController();
+  bool _isSharing = false;  // 공유 중복 방지 플래그
+  
   // Live Preview State (null means use event data)
   int? _previewThemeIndex;
   int? _previewIconIndex;
@@ -101,6 +110,76 @@ class _EventDetailPageState extends ConsumerState<EventDetailPage>
             appBar: AppBar(
               backgroundColor: theme.scaffoldBackgroundColor,
               elevation: 0,
+              actions: [
+                // 공유 버튼
+                Builder(
+                  builder: (btnContext) => IconButton(
+                    icon: HugeIcon(
+                      icon: HugeIcons.strokeRoundedShare08,
+                      color: theme.colorScheme.onSurface,
+                    ),
+                    onPressed: _isSharing ? null : () async {
+                      // 중복 클릭 방지
+                      if (_isSharing) return;
+                      setState(() => _isSharing = true);
+                      
+                      try {
+                        debugPrint('ShareButton: Starting capture...');
+                        // 포스터 카드 캡처
+                        final imageBytes = await _screenshotController.capture(
+                          pixelRatio: 3.0,
+                        );
+
+                        if (imageBytes == null) {
+                          debugPrint('ShareButton: Failed to capture');
+                          if (!mounted) return;
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(l10n.shareFailed)),
+                          );
+                          return;
+                        }
+
+                        debugPrint('ShareButton: Capture successful, preparing to share...');
+                        // 임시 파일로 저장
+                        final directory = await getTemporaryDirectory();
+                        final imagePath = '${directory.path}/days_plus_${event.title}.png';
+                        final imageFile = File(imagePath);
+                        await imageFile.writeAsBytes(imageBytes);
+
+                        // iOS용 sharePositionOrigin 계산 (화면 우측 상단)
+                        final screenSize = MediaQuery.of(context).size;
+                        final sharePositionOrigin = Rect.fromLTWH(
+                          screenSize.width - 100,  // 우측에서 100px
+                          50,  // 상단에서 50px (AppBar 영역)
+                          50,  // width
+                          50,  // height
+                        );
+                        
+                        debugPrint('ShareButton: Position origin: $sharePositionOrigin');
+
+                        // 공유 (이미지만 공유하여 깔끔한 프리뷰 표시)
+                        await Share.shareXFiles(
+                          [XFile(imagePath)],
+                          sharePositionOrigin: sharePositionOrigin,
+                        );
+                        debugPrint('ShareButton: Share completed');
+                      } catch (e) {
+                        debugPrint('ShareButton: Error - $e');
+                        if (!mounted) return;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(l10n.shareFailed)),
+                        );
+                      } finally {
+                        // 공유 완료 후 플래그 해제
+                        if (mounted) {
+                          setState(() => _isSharing = false);
+                        }
+                      }
+                    },
+                  ),
+                ),
+                const SizedBox(width: 8),
+              ],
             ),
             body: Column(
               children: [
@@ -108,21 +187,24 @@ class _EventDetailPageState extends ConsumerState<EventDetailPage>
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: SizedBox(
-                  height: 185,
-                  child: Hero(
-                    tag: event.id,
-                    child: PosterCard(
-                      title: _previewTitle ?? event.title,
-                      dateLine: dateLine,
-                      dText: _dText(context, diff),
-                      themeIndex: _previewThemeIndex ?? event.themeIndex,
-                      iconIndex: _previewIconIndex ?? event.iconIndex,
-                      todoCount: event.todos.length,
-                      photoPath: _previewPhotoPath ?? event.photoPath,
-                      widgetLayoutType: _previewWidgetLayoutType ?? event.widgetLayoutType,
+                    height: 185,
+                    child: Screenshot(
+                      controller: _screenshotController,
+                      child: Hero(
+                        tag: event.id,
+                        child: PosterCard(
+                          title: _previewTitle ?? event.title,
+                          dateLine: dateLine,
+                          dText: _dText(context, diff),
+                          themeIndex: _previewThemeIndex ?? event.themeIndex,
+                          iconIndex: _previewIconIndex ?? event.iconIndex,
+                          todoCount: event.todos.length,
+                          photoPath: _previewPhotoPath ?? event.photoPath,
+                          widgetLayoutType: _previewWidgetLayoutType ?? event.widgetLayoutType,
+                        ),
+                      ),
                     ),
                   ),
-                ),
                 ),
                 const SizedBox(height: 8),
                 // 2. 고정된 TabBar (스크롤되지 않음)

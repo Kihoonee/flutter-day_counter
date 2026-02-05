@@ -11,9 +11,13 @@ import 'core/storage/shared_prefs_provider.dart';
 import 'core/ads/ad_manager.dart';
 
 import 'package:flutter/services.dart';
+import 'core/utils/platform_utils.dart'; // Add this import
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // 플랫폼 유틸 초기화 (문서 경로 캐싱)
+  await PlatformUtilsImpl.init();
   
   // 세로 모드 고정
   await SystemChrome.setPreferredOrientations([
