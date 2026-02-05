@@ -49,6 +49,7 @@ void main() async {
       );
       AdManager.instance.loadAppOpenAd();
       AdManager.instance.loadInterstitialAd();
+      AdManager.instance.loadRewardedAd();
     }).catchError((e) {
       debugPrint('MAIN: AdMob Background Error: $e');
     });

@@ -7,6 +7,9 @@ import 'package:hugeicons/hugeicons.dart';
 import 'package:days_plus/l10n/app_localizations.dart';
 
 import '../../../../core/utils/date_calc.dart';
+import '../../../../core/ads/ad_manager.dart';
+import '../../../../core/ads/earned_slots_provider.dart';
+import '../../../../core/analytics/analytics_service.dart';
 import '../../application/event_controller.dart';
 import '../../domain/event.dart';
 import '../widgets/poster_card.dart';
@@ -156,7 +159,20 @@ class EventListPage extends ConsumerWidget {
                   children: [
                     // Add Button
                     _ScaleButton(
-                      onTap: () => context.push('/edit', extra: null),
+                      onTap: () {
+                        final currentCount = state.valueOrNull?.length ?? 0;
+                        final earnedSlots = ref.read(earnedSlotsProvider);
+                        const freeLimit = 3;
+
+                        if (currentCount >= (freeLimit + earnedSlots)) {
+                          // 한도 도달
+                          AnalyticsService.instance.logLimitReached(currentCount);
+                          _showLimitSheet(context, ref);
+                        } else {
+                          // 한도 내 또는 획득한 슬롯 있음
+                          context.push('/edit', extra: null);
+                        }
+                      },
                       child: Padding(
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         child: Row(
@@ -187,6 +203,113 @@ class EventListPage extends ConsumerWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  void _showLimitSheet(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        decoration: BoxDecoration(
+          color: theme.scaffoldBackgroundColor,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        padding: const EdgeInsets.fromLTRB(24, 8, 24, 32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: theme.dividerColor.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 24),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: theme.colorScheme.primary.withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: HugeIcon(
+                icon: HugeIcons.strokeRoundedPlayListAdd,
+                color: theme.colorScheme.primary,
+                size: 32,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              "무료 생성 한도 초과 (3/3)",
+              style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              "짧은 광고를 시청하고\n기념일을 하나 더 추가하시겠어요?",
+              textAlign: TextAlign.center,
+              style: theme.textTheme.bodyMedium?.copyWith(height: 1.5),
+            ),
+            const SizedBox(height: 32),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () {
+                      AnalyticsService.instance.logAdRewardCancel();
+                      Navigator.pop(context);
+                    },
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    ),
+                    child: Text(l10n.cancel),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      AnalyticsService.instance.logAdRewardStart();
+                      
+                      // 보상형 광고 노출
+                      AdManager.instance.showRewardedAd(
+                        onUserEarnedReward: (reward) async {
+                          // 1. 슬롯 추가
+                          await ref.read(earnedSlotsProvider.notifier).addSlot();
+                          // 2. 로그 기록
+                          await AnalyticsService.instance.logAdRewardComplete();
+                          // 3. 편집창 이동
+                          if (context.mounted) {
+                            context.push('/edit', extra: null);
+                          }
+                        },
+                        onAdFailed: () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text("광고를 불러올 수 없습니다. 잠시 후 다시 시도해주세요.")),
+                          );
+                        },
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      backgroundColor: theme.colorScheme.primary,
+                      foregroundColor: theme.colorScheme.onPrimary,
+                    ),
+                    child: const Text("광고 보고 추가"),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -257,7 +380,7 @@ class _StaggeredItemState extends State<_StaggeredItem>
       CurvedAnimation(parent: _controller, curve: const Interval(0.0, 0.65, curve: Curves.easeOut)),
     );
 
-    _offset = Tween<Offset>(begin: const Offset(0, 0.1), end: Offset.zero).animate(
+    _offset = Tween<Offset>(begin: const Offset(0, 0.2), end: Offset.zero).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeOutSine),
     );
 

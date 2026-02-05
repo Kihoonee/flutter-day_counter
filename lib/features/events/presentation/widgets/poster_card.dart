@@ -97,7 +97,7 @@ class _PosterCardState extends State<PosterCard> with SingleTickerProviderStateM
     // Speed up: 6 seconds loop instead of 15
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 6),
+      duration: const Duration(seconds: 10),
     )..repeat();
 
     _loadImage();

@@ -11,6 +11,7 @@ import 'package:days_plus/l10n/app_localizations.dart';
 
 import '../../../../core/services/image_service.dart';
 import '../../../../core/utils/date_calc.dart';
+import '../../../../core/ads/earned_slots_provider.dart';
 import '../../application/event_controller.dart';
 import '../../domain/event.dart';
 import '../widgets/date_field.dart';
@@ -499,7 +500,12 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
                                     SnackBar(content: Text(l10n.saveFailedWithParam(state.error.toString()))),
                                   );
                                 } else {
+                                  // 성공 시 획득한 슬롯이 있다면 하나 차감 (새 이벤트 생성 시에만)
                                   if (widget.eventId == null) {
+                                    final earnedSlots = ref.read(earnedSlotsProvider);
+                                    if (earnedSlots > 0) {
+                                      await ref.read(earnedSlotsProvider.notifier).useSlot();
+                                    }
                                     context.pop(); // 목록으로
                                   } else {
                                     context.pop(); // 상세로

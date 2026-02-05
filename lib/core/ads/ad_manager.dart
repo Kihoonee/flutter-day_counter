@@ -23,11 +23,14 @@ class AdManager {
   int _interstitialCounter = 0;
   int _interstitialShownCountSession = 0;
 
+  RewardedAd? _rewardedAd;
+  bool _isRewardedAdLoading = false;
+
   // 상수 설정
-  static const int minAppOpenIntervalMinutes = 15; // 실제 서비스는 60분 (테스트를 위해 단축)
-  static const int maxAppOpenAdsPerDay = 10;      // 하루 최대 10회
-  static const int interstitialFrequency = 3;    // 3회 전환당 1회 (테스트 용이성)
-  static const int maxInterstitialPerSession = 5; // 세션당 최대 5회
+  static const int minAppOpenIntervalMinutes = 240; // 4시간 간격으로 대폭 완화
+  static const int maxAppOpenAdsPerDay = 10;
+  static const int interstitialFrequency = 5;    // 5회 전환당 1회로 완화
+  static const int maxInterstitialPerSession = 5;
 
   /// 앱 오픈 광고 로드
   void loadAppOpenAd() {
@@ -237,5 +240,67 @@ class AdManager {
     );
 
     _interstitialAd!.show();
+  }
+
+  /// 보상형 광고 로드
+  void loadRewardedAd() {
+    if (kIsWeb) return;
+    if (_rewardedAd != null || _isRewardedAdLoading) return;
+
+    _isRewardedAdLoading = true;
+    debugPrint('AdManager: Starting to load RewardedAd...');
+    RewardedAd.load(
+      adUnitId: AdUnits.rewardedId,
+      request: const AdRequest(),
+      rewardedAdLoadCallback: RewardedAdLoadCallback(
+        onAdLoaded: (ad) {
+          _rewardedAd = ad;
+          _isRewardedAdLoading = false;
+          debugPrint('AdManager: RewardedAd loaded.');
+        },
+        onAdFailedToLoad: (error) {
+          _isRewardedAdLoading = false;
+          debugPrint('AdManager: RewardedAd failed to load: $error');
+        },
+      ),
+    );
+  }
+
+  /// 보상형 광고 노출 시도
+  void showRewardedAd({
+    required Function(RewardItem reward) onUserEarnedReward,
+    VoidCallback? onAdClosed,
+    VoidCallback? onAdFailed,
+  }) {
+    if (kIsWeb) {
+      onAdFailed?.call();
+      return;
+    }
+
+    if (_rewardedAd == null) {
+      debugPrint('AdManager: RewardedAd not ready.');
+      onAdFailed?.call();
+      loadRewardedAd();
+      return;
+    }
+
+    _rewardedAd!.fullScreenContentCallback = FullScreenContentCallback(
+      onAdDismissedFullScreenContent: (ad) {
+        debugPrint('AdManager: RewardedAd dismissed.');
+        ad.dispose();
+        _rewardedAd = null;
+        onAdClosed?.call();
+        loadRewardedAd();
+      },
+      onAdFailedToShowFullScreenContent: (ad, error) {
+        debugPrint('AdManager: RewardedAd failed to show: $error');
+        ad.dispose();
+        _rewardedAd = null;
+        onAdFailed?.call();
+        loadRewardedAd();
+      },
+    );
+
+    _rewardedAd!.show(onUserEarnedReward: onUserEarnedReward);
   }
 }
