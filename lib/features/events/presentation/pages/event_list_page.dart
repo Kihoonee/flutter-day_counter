@@ -246,12 +246,12 @@ class EventListPage extends ConsumerWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              "무료 생성 한도 초과 (3/3)",
+              l10n.limitSheetTitle,
               style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
             ),
             const SizedBox(height: 8),
             Text(
-              "짧은 광고를 시청하고\n기념일을 하나 더 추가하시겠어요?",
+              l10n.limitSheetBody,
               textAlign: TextAlign.center,
               style: theme.textTheme.bodyMedium?.copyWith(height: 1.5),
             ),
@@ -292,7 +292,7 @@ class EventListPage extends ConsumerWidget {
                         },
                         onAdFailed: () {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text("광고를 불러올 수 없습니다. 잠시 후 다시 시도해주세요.")),
+                            SnackBar(content: Text(l10n.adLoadFailed)),
                           );
                         },
                       );
@@ -303,7 +303,7 @@ class EventListPage extends ConsumerWidget {
                       backgroundColor: theme.colorScheme.primary,
                       foregroundColor: theme.colorScheme.onPrimary,
                     ),
-                    child: const Text("광고 보고 추가"),
+                    child: Text(l10n.watchAdButton),
                   ),
                 ),
               ],

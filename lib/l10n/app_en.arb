@@ -87,5 +87,9 @@
   "diaryDialogTitleNew": "Record Today",
   "diaryDialogTitleEdit": "Edit Record",
   "diaryHint": "Leave a precious memory...",
-  "deleteDiaryConfirm": "Delete this diary entry?"
+  "deleteDiaryConfirm": "Delete this diary entry?",
+  "limitSheetTitle": "Free creation limit exceeded (3/3)",
+  "limitSheetBody": "Would you like to watch a short ad\nto add one more anniversary?",
+  "watchAdButton": "Watch ad and add",
+  "adLoadFailed": "Could not load ad. Please try again later."
 }

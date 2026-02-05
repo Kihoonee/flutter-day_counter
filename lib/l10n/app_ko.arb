@@ -87,5 +87,9 @@
   "diaryDialogTitleNew": "오늘을 기록해요",
   "diaryDialogTitleEdit": "기록 수정",
   "diaryHint": "소중한 기억을 남겨주세요...",
-  "deleteDiaryConfirm": "일기를 삭제할까요?"
+  "deleteDiaryConfirm": "일기를 삭제할까요?",
+  "limitSheetTitle": "무료 생성 한도 초과 (3/3)",
+  "limitSheetBody": "짧은 광고를 시청하고\n기념일을 하나 더 추가하시겠어요?",
+  "watchAdButton": "광고 보고 추가",
+  "adLoadFailed": "광고를 불러올 수 없습니다. 잠시 후 다시 시도해주세요."
 }
