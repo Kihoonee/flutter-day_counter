@@ -7,6 +7,7 @@ import 'package:hugeicons/hugeicons.dart';
 import 'package:days_plus/l10n/app_localizations.dart';
 
 import '../../../../core/utils/date_calc.dart';
+import '../../../../core/utils/haptic_helper.dart';
 import '../../../../core/ads/ad_manager.dart';
 import '../../../../core/ads/earned_slots_provider.dart';
 import '../../../../core/analytics/analytics_service.dart';
@@ -160,7 +161,7 @@ class EventListPage extends ConsumerWidget {
                     // Add Button
                     _ScaleButton(
                       onTap: () {
-                        final currentCount = state.valueOrNull?.length ?? 0;
+                        final currentCount = state.value?.length ?? 0;
                         final earnedSlots = ref.read(earnedSlotsProvider);
                         const freeLimit = 3;
 
@@ -210,11 +211,14 @@ class EventListPage extends ConsumerWidget {
   void _showLimitSheet(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
+    // BottomSheet를 표시하기 전에 올바른 context와 router를 캡처
+    final pageContext = context;
+    final router = GoRouter.of(pageContext);
 
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
-      builder: (context) => Container(
+      builder: (sheetContext) => Container(
         decoration: BoxDecoration(
           color: theme.scaffoldBackgroundColor,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
@@ -262,7 +266,7 @@ class EventListPage extends ConsumerWidget {
                   child: OutlinedButton(
                     onPressed: () {
                       AnalyticsService.instance.logAdRewardCancel();
-                      Navigator.pop(context);
+                      Navigator.pop(sheetContext);
                     },
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
@@ -275,25 +279,34 @@ class EventListPage extends ConsumerWidget {
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () {
-                      Navigator.pop(context);
+                      Navigator.pop(sheetContext);
                       AnalyticsService.instance.logAdRewardStart();
                       
                       // 보상형 광고 노출
                       AdManager.instance.showRewardedAd(
                         onUserEarnedReward: (reward) async {
+                          debugPrint('[DEBUG] Rewarded ad callback started');
                           // 1. 슬롯 추가
                           await ref.read(earnedSlotsProvider.notifier).addSlot();
+                          debugPrint('[DEBUG] Slot added successfully');
                           // 2. 로그 기록
                           await AnalyticsService.instance.logAdRewardComplete();
-                          // 3. 편집창 이동
-                          if (context.mounted) {
-                            context.push('/edit', extra: null);
+                          debugPrint('[DEBUG] Analytics logged');
+                          // 3. 편집창 이동 - 캡처한 router 인스턴스 사용
+                          debugPrint('[DEBUG] About to call router.push');
+                          try {
+                            router.push('/edit', extra: null);
+                            debugPrint('[DEBUG] router.push called successfully');
+                          } catch (e) {
+                            debugPrint('[ERROR] router.push failed: $e');
                           }
                         },
                         onAdFailed: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(l10n.adLoadFailed)),
-                          );
+                          if (pageContext.mounted) {
+                            ScaffoldMessenger.of(pageContext).showSnackBar(
+                              SnackBar(content: Text(l10n.adLoadFailed)),
+                            );
+                          }
                         },
                       );
                     },

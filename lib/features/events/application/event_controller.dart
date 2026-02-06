@@ -82,9 +82,10 @@ class EventsController extends AsyncNotifier<List<Event>> {
       if (diff < 0 && e.todos.isNotEmpty) {
         final newMemos = e.todos.map((t) => DiaryEntry(
           id: const Uuid().v4(),
-          content: t.isCompleted ? '[완료] ${t.content}' : t.content,
+          content: t.content, // 원본 텍스트 유지 (완료 표시는 UI에서)
           date: t.createdAt, // 할일 작성일 기준
           createdAt: DateTime.now(),
+          isCompletedFromTodo: t.isCompleted, // 완료 상태 저장
         )).toList();
 
         final updatedEvent = e.copyWith(
@@ -118,11 +119,38 @@ class EventsController extends AsyncNotifier<List<Event>> {
   Future<void> upsert(Event e) async {
     try {
       final repo = await _repo;
-      final result = await repo.upsert(e);
+      
+      // 새 이벤트인 경우 sortOrder 자동 할당 (맨 위에 추가)
+      Event eventToSave = e;
+      final allEventsResult = await repo.fetchAll();
+      await allEventsResult.fold(
+        (failure) async {
+          // 에러 발생 시 기본값 0 사용
+          eventToSave = e;
+        },
+        (existingEvents) async {
+          // 기존 이벤트가 있는지 확인
+          final isNewEvent = !existingEvents.any((event) => event.id == e.id);
+          
+          if (isNewEvent) {
+            // 새 이벤트: 현재 최소 sortOrder보다 1 작은 값 할당 (맨 위에 추가)
+            final minSortOrder = existingEvents.isEmpty 
+                ? 0 
+                : existingEvents.map((e) => e.sortOrder).reduce((a, b) => a < b ? a : b);
+            eventToSave = e.copyWith(sortOrder: minSortOrder - 1);
+            debugPrint('EventController: New event assigned sortOrder=${minSortOrder - 1} (top of list)');
+          } else {
+            // 기존 이벤트 수정: sortOrder 유지
+            eventToSave = e;
+          }
+        },
+      );
+      
+      final result = await repo.upsert(eventToSave);
       result.fold(
         (failure) => state = AsyncValue.error(failure, StackTrace.current),
         (_) async {
-          await NotificationService().scheduleEvent(e);
+          await NotificationService().scheduleEvent(eventToSave);
           // 저장 후에도 한 번 더 체크 (미래 날짜를 과거로 수정했을 경우 대비)
           final repo = await _repo;
           final all = await repo.fetchAll();

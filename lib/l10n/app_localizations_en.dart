@@ -171,6 +171,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get shareFailed => 'Failed to share.';
+
+  @override
   String get eventNotFound => 'Event not found.';
 
   @override
@@ -205,4 +208,43 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deleteDiaryConfirm => 'Delete this diary entry?';
+
+  @override
+  String get limitSheetTitle => 'Free creation limit exceeded (3/3)';
+
+  @override
+  String get limitSheetBody =>
+      'Would you like to watch a short ad\nto add one more anniversary?';
+
+  @override
+  String get watchAdButton => 'Watch ad and add';
+
+  @override
+  String get adLoadFailed => 'Could not load ad. Please try again later.';
+
+  @override
+  String get appInfo => 'App Info';
+
+  @override
+  String get version => 'Version';
+
+  @override
+  String get contactUs => 'Contact Us';
+
+  @override
+  String get licenses => 'Open Source Licenses';
+
+  @override
+  String get contactEmailSubject => '[Days+] Feedback/Support';
+
+  @override
+  String get transitionGuideTitle => 'The day has come ✨';
+
+  @override
+  String transitionGuideBody(String title) {
+    return 'Today is \'$title\'\n\nYour to-dos have become memories.\nFrom now on, record your precious\nmemories in the \'Memo\' tab 💭';
+  }
+
+  @override
+  String get transitionGuideButton => 'Start recording memories';
 }

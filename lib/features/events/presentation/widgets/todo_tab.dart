@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:days_plus/l10n/app_localizations.dart';
 
 import '../../../../core/utils/date_calc.dart';
+import '../../../../core/utils/haptic_helper.dart';
 
 import '../../application/event_controller.dart';
 import '../../domain/event.dart';
@@ -53,6 +54,9 @@ class _TodoTabState extends ConsumerState<TodoTab> {
   }
 
   Future<void> _toggleTodo(TodoItem todo) async {
+    // 햅틱 피드백: 체크박스 토글 (가벼운 탭)
+    await HapticHelper.light();
+    
     final updatedTodos = widget.event.todos.map((t) {
       if (t.id == todo.id) {
         return t.copyWith(isCompleted: !t.isCompleted);
@@ -65,6 +69,9 @@ class _TodoTabState extends ConsumerState<TodoTab> {
   }
 
   Future<void> _removeTodo(TodoItem todo) async {
+    // 햅틹 피드백: 스와이프 삭제 (중간 강도)
+    await HapticHelper.medium();
+    
     final updatedTodos = widget.event.todos
         .where((t) => t.id != todo.id)
         .toList();

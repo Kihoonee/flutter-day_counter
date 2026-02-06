@@ -170,6 +170,9 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
+  String get shareFailed => '공유에 실패했습니다.';
+
+  @override
   String get eventNotFound => '이벤트를 찾을 수 없습니다.';
 
   @override
@@ -204,4 +207,42 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get deleteDiaryConfirm => '일기를 삭제할까요?';
+
+  @override
+  String get limitSheetTitle => '무료 생성 한도 초과 (3/3)';
+
+  @override
+  String get limitSheetBody => '짧은 광고를 시청하고\n기념일을 하나 더 추가하시겠어요?';
+
+  @override
+  String get watchAdButton => '광고 보고 추가';
+
+  @override
+  String get adLoadFailed => '광고를 불러올 수 없습니다. 잠시 후 다시 시도해주세요.';
+
+  @override
+  String get appInfo => '앱 정보';
+
+  @override
+  String get version => '버전';
+
+  @override
+  String get contactUs => '문의하기';
+
+  @override
+  String get licenses => '오픈소스 라이선스';
+
+  @override
+  String get contactEmailSubject => '[Days+] 문의사항';
+
+  @override
+  String get transitionGuideTitle => '그날이 왔어요 ✨';
+
+  @override
+  String transitionGuideBody(String title) {
+    return '오늘은 \'$title\'\n\n할일은 이제 추억이 되었어요.\n이제부터는 \'한줄메모\' 탭에서\n소중한 기억을 기록해보세요 💭';
+  }
+
+  @override
+  String get transitionGuideButton => '추억 기록하러 가기';
 }

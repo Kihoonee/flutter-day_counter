@@ -11,6 +11,7 @@ import '../../domain/event.dart';
 
 import 'date_field.dart'; // pickDate 재사용
 import '../../../../core/utils/date_calc.dart';
+import '../../../../core/utils/haptic_helper.dart';
 
 /// 다이어리 탭 - 날짜별 메모 기록
 class DiaryTab extends ConsumerWidget {
@@ -73,58 +74,129 @@ class DiaryTab extends ConsumerWidget {
                         ),
                       )
                     else
-                      SliverPadding(
-                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 80),
-                        sliver: SliverList(
-                          delegate: SliverChildBuilderDelegate(
-                            (context, index) {
-                              final entry = entries[index];
-                              return Dismissible(
-                                key: Key(entry.id),
-                                direction: DismissDirection.endToStart,
-                                onDismissed: (_) => _deleteEntry(ref, event, entry),
-                                background: Container(
-                                  alignment: Alignment.centerRight,
-                                  padding: const EdgeInsets.only(right: 20),
-                                  margin: const EdgeInsets.only(bottom: 12),
-                                  decoration: BoxDecoration(
-                                    color: theme.colorScheme.surfaceContainerHighest,
-                                    borderRadius: BorderRadius.circular(16),
-                                  ),
-                                  child: HugeIcon(
-                                    icon: HugeIcons.strokeRoundedDelete02,
-                                    color: theme.colorScheme.onSurfaceVariant,
-                                  ),
-                                ),
-                                child: Builder(
-                                  builder: (context) {
-                                    final diff = DateCalc.diffDays(
-                                      base: entry.date,
-                                      target: event.targetDate,
-                                      includeToday: event.includeToday,
-                                    );
-                                    final l10n = AppLocalizations.of(context)!;
-                                    String dDayText;
+                      // 날짜별 그룹화 로직 (TodoTab과 동일)
+                      Builder(
+                        builder: (context) {
+                          // 1. D-Day diff로 그룹화
+                          final Map<int, List<DiaryEntry>> grouped = {};
+                          for (var entry in entries) {
+                            final diff = DateCalc.diffDays(
+                              base: entry.date,
+                              target: event.targetDate,
+                              includeToday: event.includeToday,
+                            );
+                            if (!grouped.containsKey(diff)) grouped[diff] = [];
+                            grouped[diff]!.add(entry);
+                          }
+
+                          // 2. 키 정렬 (D-Day에 가까운 순서)
+                          final keys = grouped.keys.toList()..sort((a, b) => a.compareTo(b));
+
+                          // 3. 평면 리스트 생성 [Header, Entry, Entry, Header, ...]
+                          final List<dynamic> flatList = [];
+                          for (var diff in keys) {
+                            flatList.add(diff); // 헤더 마커 (int)
+                            final items = grouped[diff]!;
+                            // 그룹 내 항목은 최신순 정렬
+                            items.sort((a, b) => b.date.compareTo(a.date));
+                            flatList.addAll(items);
+                          }
+
+                          return SliverPadding(
+                            padding: const EdgeInsets.fromLTRB(16, 0, 16, 80),
+                            sliver: SliverList(
+                              delegate: SliverChildBuilderDelegate(
+                                (context, index) {
+                                  final item = flatList[index];
+
+                                  // 날짜 헤더
+                                  if (item is int) {
+                                    final diff = item;
+                                    String label;
                                     if (diff == 0) {
-                                      dDayText = l10n.dDay;
+                                      label = l10n.dDay;
                                     } else if (diff > 0) {
-                                      dDayText = l10n.dMinus(diff);
+                                      label = l10n.dMinus(diff);
                                     } else {
-                                      dDayText = l10n.dPlus(diff.abs());
+                                      label = l10n.dPlus(diff.abs());
                                     }
 
-                                    return _DiaryCard(
+                                    return Padding(
+                                      padding: const EdgeInsets.fromLTRB(8, 24, 0, 8),
+                                      child: Row(
+                                        children: [
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                            decoration: BoxDecoration(
+                                              color: theme.colorScheme.primaryContainer,
+                                              borderRadius: BorderRadius.circular(8),
+                                            ),
+                                            child: Text(
+                                              label,
+                                              style: TextStyle(
+                                                color: theme.colorScheme.onPrimaryContainer,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 12,
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(width: 8),
+                                          Expanded(
+                                            child: Divider(
+                                              color: theme.colorScheme.outlineVariant,
+                                              thickness: 1,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  }
+
+                                  // 메모 항목
+                                  final entry = item as DiaryEntry;
+                                  final diff = DateCalc.diffDays(
+                                    base: entry.date,
+                                    target: event.targetDate,
+                                    includeToday: event.includeToday,
+                                  );
+                                  String dDayText;
+                                  if (diff == 0) {
+                                    dDayText = l10n.dDay;
+                                  } else if (diff > 0) {
+                                    dDayText = l10n.dMinus(diff);
+                                  } else {
+                                    dDayText = l10n.dPlus(diff.abs());
+                                  }
+
+                                  return Dismissible(
+                                    key: Key(entry.id),
+                                    direction: DismissDirection.endToStart,
+                                    onDismissed: (_) => _deleteEntry(ref, event, entry),
+                                    background: Container(
+                                      alignment: Alignment.centerRight,
+                                      padding: const EdgeInsets.only(right: 20),
+                                      margin: const EdgeInsets.only(bottom: 12),
+                                      decoration: BoxDecoration(
+                                        color: theme.colorScheme.surfaceContainerHighest,
+                                        borderRadius: BorderRadius.circular(16),
+                                      ),
+                                      child: HugeIcon(
+                                        icon: HugeIcons.strokeRoundedDelete02,
+                                        color: theme.colorScheme.onSurfaceVariant,
+                                      ),
+                                    ),
+                                    child: _DiaryCard(
                                       entry: entry,
                                       dDayText: dDayText,
                                       onEdit: () => _showDiaryDialog(context, ref, event, entry: entry),
-                                    );
-                                  }
-                                ),
-                              );
-                            },
-                            childCount: entries.length,
-                          ),
-                        ),
+                                    ),
+                                  );
+                                },
+                                childCount: flatList.length,
+                              ),
+                            ),
+                          );
+                        },
                       ),
                   ],
                 );
@@ -202,6 +274,9 @@ class DiaryTab extends ConsumerWidget {
   }
 
   Future<void> _deleteEntry(WidgetRef ref, Event event, DiaryEntry entry) async {
+    // 햅틱 피드백: 스와이프 삭제 (중간 강도)
+    await HapticHelper.medium();
+    
     // 삭제 시에도 최신 이벤트 기준
     final currentEvents = ref.read(eventsProvider).asData?.value ?? [];
     final currentEvent = currentEvents.where((e) => e.id == event.id).firstOrNull;
@@ -397,71 +472,108 @@ class _DiaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    
+    // 완료 상태 표시 여부 확인
+    final isFromTodo = entry.isCompletedFromTodo != null;
+    final isCompleted = entry.isCompletedFromTodo == true;
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerLow.withOpacity(0.5),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: InkWell(
+        onTap: onEdit,
         borderRadius: BorderRadius.circular(16),
-        // Border 제거 (요청사항)
-        // 테두리 대신 그림자를 살짝 줄 수도 있지만, 깔끔하게 flat하게 감.
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onEdit, // 카드 전체 클릭 시 수정
-          borderRadius: BorderRadius.circular(16),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // 날짜만 표시 (아이콘 제거)
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      DateFormat('yyyy.MM.dd (E)', AppLocalizations.of(context)!.localeName).format(entry.date),
-                      style: theme.textTheme.labelMedium?.copyWith(
-                        color: theme.colorScheme.primary, // Primary color for date
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: theme.colorScheme.surfaceContainerLow,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: theme.colorScheme.outlineVariant.withOpacity(0.3),
+              width: 1,
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // 날짜 + D-Day + 완료 상태 뱃지
+              Row(
+                children: [
+                  Text(
+                    DateFormat('M월 d일 (E)', 'ko').format(entry.date),
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.primary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.secondaryContainer.withOpacity(0.5),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Text(
+                      dDayText,
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        color: theme.colorScheme.onSecondaryContainer,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
+                  ),
+                  // 할일에서 전환된 메모인 경우 완료 상태 뱃지 표시
+                  if (isFromTodo) ...[
                     const SizedBox(width: 8),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
-                        color: theme.colorScheme.primaryContainer,
-                        borderRadius: BorderRadius.circular(8),
+                        color: isCompleted 
+                            ? theme.colorScheme.tertiaryContainer
+                            : theme.colorScheme.errorContainer.withOpacity(0.3),
+                        borderRadius: BorderRadius.circular(4),
                       ),
-                      child: Text(
-                        dDayText,
-                        style: theme.textTheme.labelMedium?.copyWith(
-                          color: theme.colorScheme.onPrimaryContainer,
-                          fontWeight: FontWeight.bold,
-                        ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          HugeIcon(
+                            icon: isCompleted 
+                                ? HugeIcons.strokeRoundedCheckmarkCircle02
+                                : HugeIcons.strokeRoundedCancelCircle,
+                            size: 12,
+                            color: isCompleted
+                                ? theme.colorScheme.onTertiaryContainer
+                                : theme.colorScheme.onErrorContainer,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            isCompleted ? '완료' : '미완료',
+                            style: theme.textTheme.labelSmall?.copyWith(
+                              color: isCompleted
+                                  ? theme.colorScheme.onTertiaryContainer
+                                  : theme.colorScheme.onErrorContainer,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                    const Spacer(),
-                    // 수정 아이콘은 유지할지? 카드 전체 탭으로 대체 가능하면 삭제.
-                    // 명시적인 것이 좋으므로 작게 유지.
-                    HugeIcon(
-                      icon: HugeIcons.strokeRoundedPencilEdit02,
-                      size: 16,
-                      color: theme.colorScheme.outline.withOpacity(0.5),
                     ),
                   ],
+                ],
+              ),
+              const SizedBox(height: 8),
+              // 내용 (완료된 항목은 취소선 스타일)
+              Text(
+                entry.content,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  height: 1.5,
+                  decoration: isCompleted 
+                      ? TextDecoration.lineThrough 
+                      : null,
+                  color: isCompleted
+                      ? theme.colorScheme.onSurface.withOpacity(0.5)
+                      : null,
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  entry.content,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    height: 1.5,
-                    color: theme.colorScheme.onSurface,
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

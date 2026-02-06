@@ -404,6 +404,12 @@ abstract class AppLocalizations {
   /// **'저장 실패: {error}'**
   String saveFailedWithParam(String error);
 
+  /// No description provided for @shareFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'공유에 실패했습니다.'**
+  String get shareFailed;
+
   /// No description provided for @eventNotFound.
   ///
   /// In ko, this message translates to:
@@ -475,6 +481,78 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'일기를 삭제할까요?'**
   String get deleteDiaryConfirm;
+
+  /// No description provided for @limitSheetTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'무료 생성 한도 초과 (3/3)'**
+  String get limitSheetTitle;
+
+  /// No description provided for @limitSheetBody.
+  ///
+  /// In ko, this message translates to:
+  /// **'짧은 광고를 시청하고\n기념일을 하나 더 추가하시겠어요?'**
+  String get limitSheetBody;
+
+  /// No description provided for @watchAdButton.
+  ///
+  /// In ko, this message translates to:
+  /// **'광고 보고 추가'**
+  String get watchAdButton;
+
+  /// No description provided for @adLoadFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'광고를 불러올 수 없습니다. 잠시 후 다시 시도해주세요.'**
+  String get adLoadFailed;
+
+  /// No description provided for @appInfo.
+  ///
+  /// In ko, this message translates to:
+  /// **'앱 정보'**
+  String get appInfo;
+
+  /// No description provided for @version.
+  ///
+  /// In ko, this message translates to:
+  /// **'버전'**
+  String get version;
+
+  /// No description provided for @contactUs.
+  ///
+  /// In ko, this message translates to:
+  /// **'문의하기'**
+  String get contactUs;
+
+  /// No description provided for @licenses.
+  ///
+  /// In ko, this message translates to:
+  /// **'오픈소스 라이선스'**
+  String get licenses;
+
+  /// No description provided for @contactEmailSubject.
+  ///
+  /// In ko, this message translates to:
+  /// **'[Days+] 문의사항'**
+  String get contactEmailSubject;
+
+  /// No description provided for @transitionGuideTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'그날이 왔어요 ✨'**
+  String get transitionGuideTitle;
+
+  /// No description provided for @transitionGuideBody.
+  ///
+  /// In ko, this message translates to:
+  /// **'오늘은 \'{title}\'\n\n할일은 이제 추억이 되었어요.\n이제부터는 \'한줄메모\' 탭에서\n소중한 기억을 기록해보세요 💭'**
+  String transitionGuideBody(String title);
+
+  /// No description provided for @transitionGuideButton.
+  ///
+  /// In ko, this message translates to:
+  /// **'추억 기록하러 가기'**
+  String get transitionGuideButton;
 }
 
 class _AppLocalizationsDelegate

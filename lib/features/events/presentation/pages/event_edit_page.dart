@@ -11,6 +11,7 @@ import 'package:days_plus/l10n/app_localizations.dart';
 
 import '../../../../core/services/image_service.dart';
 import '../../../../core/utils/date_calc.dart';
+import '../../../../core/utils/haptic_helper.dart';
 import '../../../../core/ads/earned_slots_provider.dart';
 import '../../application/event_controller.dart';
 import '../../domain/event.dart';
@@ -468,6 +469,9 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
                             width: double.infinity,
                             child: FilledButton(
                               onPressed: () async {
+                                // 햅틱 피드백: 저장 버튼 (중간 강도)
+                                await HapticHelper.medium();
+                                
                                 final id = widget.eventId ?? const Uuid().v4();
                                 // 기존 이벤트가 있으면 할일/다이어리는 유지해야 함
                                 var todos = existing?.todos ?? [];
@@ -500,7 +504,7 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
                                     SnackBar(content: Text(l10n.saveFailedWithParam(state.error.toString()))),
                                   );
                                 } else {
-                                  // 성공 시 획득한 슬롯이 있다면 하나 차감 (새 이벤트 생성 시에만)
+                                  // 성공 시 획등한 슬롯이 있다면 하나 차감 (새 이벤트 생성 시에만)
                                   if (widget.eventId == null) {
                                     final earnedSlots = ref.read(earnedSlotsProvider);
                                     if (earnedSlots > 0) {
@@ -574,7 +578,11 @@ class _IconPicker extends StatelessWidget {
           final icon = eventIcons[i];
           final isSelected = i == selected;
           return GestureDetector(
-            onTap: () => onSelect(i),
+            onTap: () async {
+              // 햅틹 피드백: 아이콘 선택
+              await HapticHelper.selection();
+              onSelect(i);
+            },
             child: Container(
               width: 28, // Reduced from 40 -> 32 -> 28
               decoration: BoxDecoration(
@@ -618,7 +626,11 @@ class _ThemePicker extends StatelessWidget {
           final c = posterThemes[i].bg;
           final isSelected = i == selected;
           return GestureDetector(
-            onTap: () => onSelect(i),
+            onTap: () async {
+              // 햅틹 피드백: 테마 선택
+              await HapticHelper.selection();
+              onSelect(i);
+            },
             child: Container(
               width: 26, // Reduced from 32 -> 28 -> 26
               decoration: BoxDecoration(

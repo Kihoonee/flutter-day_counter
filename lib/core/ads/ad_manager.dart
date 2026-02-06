@@ -25,12 +25,14 @@ class AdManager {
 
   RewardedAd? _rewardedAd;
   bool _isRewardedAdLoading = false;
+  DateTime? _lastRewardedAdShownAt; // 보상형 광고 시청 시점 추적
 
   // 상수 설정
   static const int minAppOpenIntervalMinutes = 240; // 4시간 간격으로 대폭 완화
   static const int maxAppOpenAdsPerDay = 10;
   static const int interstitialFrequency = 5;    // 5회 전환당 1회로 완화
   static const int maxInterstitialPerSession = 5;
+  static const int rewardedAdCooldownMinutes = 5; // 보상형 광고 후 앱 오픈 광고 쿨다운
 
   /// 앱 오픈 광고 로드
   void loadAppOpenAd() {
@@ -125,6 +127,15 @@ class AdManager {
     if (kIsWeb) return false;
     
     final now = DateTime.now();
+
+    // 보상형 광고 시청 후 쿨다운 체크 (광고 피로도 방지)
+    if (_lastRewardedAdShownAt != null) {
+      final minutesSinceRewarded = now.difference(_lastRewardedAdShownAt!).inMinutes;
+      if (minutesSinceRewarded < rewardedAdCooldownMinutes) {
+        debugPrint('AdManager: AppOpenAd skipped - rewarded ad cooldown: ${minutesSinceRewarded}min < ${rewardedAdCooldownMinutes}min');
+        return false;
+      }
+    }
 
     // 테스트 모드에서도 최소한의 간격(30초)은 강제하여 안드로이드 루프 방지
     if (AdUnits.isTestMode) {
@@ -301,6 +312,11 @@ class AdManager {
       },
     );
 
-    _rewardedAd!.show(onUserEarnedReward: onUserEarnedReward);
+    debugPrint('AdManager: Showing RewardedAd with onUserEarnedReward callback');
+    _rewardedAd!.show(onUserEarnedReward: (AdWithoutView ad, RewardItem reward) {
+      debugPrint('AdManager: User earned reward! Amount: ${reward.amount}, Type: ${reward.type}');
+      _lastRewardedAdShownAt = DateTime.now(); // 보상형 광고 시청 시점 기록
+      onUserEarnedReward(reward);
+    });
   }
 }

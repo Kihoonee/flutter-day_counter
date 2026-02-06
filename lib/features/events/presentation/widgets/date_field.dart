@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../../../../core/utils/haptic_helper.dart';
 import 'package:days_plus/l10n/app_localizations.dart';
 
 import '../../../../core/widgets/custom_calendar.dart';

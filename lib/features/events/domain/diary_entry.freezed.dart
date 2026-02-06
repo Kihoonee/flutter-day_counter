@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$DiaryEntry {
 
- String get id; String get content; DateTime get date; DateTime get createdAt;
+ String get id; String get content; DateTime get date; DateTime get createdAt; bool? get isCompletedFromTodo;
 /// Create a copy of DiaryEntry
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $DiaryEntryCopyWith<DiaryEntry> get copyWith => _$DiaryEntryCopyWithImpl<DiaryEn
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DiaryEntry&&(identical(other.id, id) || other.id == id)&&(identical(other.content, content) || other.content == content)&&(identical(other.date, date) || other.date == date)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is DiaryEntry&&(identical(other.id, id) || other.id == id)&&(identical(other.content, content) || other.content == content)&&(identical(other.date, date) || other.date == date)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.isCompletedFromTodo, isCompletedFromTodo) || other.isCompletedFromTodo == isCompletedFromTodo));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,content,date,createdAt);
+int get hashCode => Object.hash(runtimeType,id,content,date,createdAt,isCompletedFromTodo);
 
 @override
 String toString() {
-  return 'DiaryEntry(id: $id, content: $content, date: $date, createdAt: $createdAt)';
+  return 'DiaryEntry(id: $id, content: $content, date: $date, createdAt: $createdAt, isCompletedFromTodo: $isCompletedFromTodo)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $DiaryEntryCopyWith<$Res>  {
   factory $DiaryEntryCopyWith(DiaryEntry value, $Res Function(DiaryEntry) _then) = _$DiaryEntryCopyWithImpl;
 @useResult
 $Res call({
- String id, String content, DateTime date, DateTime createdAt
+ String id, String content, DateTime date, DateTime createdAt, bool? isCompletedFromTodo
 });
 
 
@@ -65,13 +65,14 @@ class _$DiaryEntryCopyWithImpl<$Res>
 
 /// Create a copy of DiaryEntry
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? content = null,Object? date = null,Object? createdAt = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? content = null,Object? date = null,Object? createdAt = null,Object? isCompletedFromTodo = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,content: null == content ? _self.content : content // ignore: cast_nullable_to_non_nullable
 as String,date: null == date ? _self.date : date // ignore: cast_nullable_to_non_nullable
 as DateTime,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
-as DateTime,
+as DateTime,isCompletedFromTodo: freezed == isCompletedFromTodo ? _self.isCompletedFromTodo : isCompletedFromTodo // ignore: cast_nullable_to_non_nullable
+as bool?,
   ));
 }
 
@@ -156,10 +157,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String content,  DateTime date,  DateTime createdAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String content,  DateTime date,  DateTime createdAt,  bool? isCompletedFromTodo)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _DiaryEntry() when $default != null:
-return $default(_that.id,_that.content,_that.date,_that.createdAt);case _:
+return $default(_that.id,_that.content,_that.date,_that.createdAt,_that.isCompletedFromTodo);case _:
   return orElse();
 
 }
@@ -177,10 +178,10 @@ return $default(_that.id,_that.content,_that.date,_that.createdAt);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String content,  DateTime date,  DateTime createdAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String content,  DateTime date,  DateTime createdAt,  bool? isCompletedFromTodo)  $default,) {final _that = this;
 switch (_that) {
 case _DiaryEntry():
-return $default(_that.id,_that.content,_that.date,_that.createdAt);case _:
+return $default(_that.id,_that.content,_that.date,_that.createdAt,_that.isCompletedFromTodo);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -197,10 +198,10 @@ return $default(_that.id,_that.content,_that.date,_that.createdAt);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String content,  DateTime date,  DateTime createdAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String content,  DateTime date,  DateTime createdAt,  bool? isCompletedFromTodo)?  $default,) {final _that = this;
 switch (_that) {
 case _DiaryEntry() when $default != null:
-return $default(_that.id,_that.content,_that.date,_that.createdAt);case _:
+return $default(_that.id,_that.content,_that.date,_that.createdAt,_that.isCompletedFromTodo);case _:
   return null;
 
 }
@@ -212,13 +213,14 @@ return $default(_that.id,_that.content,_that.date,_that.createdAt);case _:
 @JsonSerializable()
 
 class _DiaryEntry implements DiaryEntry {
-  const _DiaryEntry({required this.id, required this.content, required this.date, required this.createdAt});
+  const _DiaryEntry({required this.id, required this.content, required this.date, required this.createdAt, this.isCompletedFromTodo});
   factory _DiaryEntry.fromJson(Map<String, dynamic> json) => _$DiaryEntryFromJson(json);
 
 @override final  String id;
 @override final  String content;
 @override final  DateTime date;
 @override final  DateTime createdAt;
+@override final  bool? isCompletedFromTodo;
 
 /// Create a copy of DiaryEntry
 /// with the given fields replaced by the non-null parameter values.
@@ -233,16 +235,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _DiaryEntry&&(identical(other.id, id) || other.id == id)&&(identical(other.content, content) || other.content == content)&&(identical(other.date, date) || other.date == date)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _DiaryEntry&&(identical(other.id, id) || other.id == id)&&(identical(other.content, content) || other.content == content)&&(identical(other.date, date) || other.date == date)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.isCompletedFromTodo, isCompletedFromTodo) || other.isCompletedFromTodo == isCompletedFromTodo));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,content,date,createdAt);
+int get hashCode => Object.hash(runtimeType,id,content,date,createdAt,isCompletedFromTodo);
 
 @override
 String toString() {
-  return 'DiaryEntry(id: $id, content: $content, date: $date, createdAt: $createdAt)';
+  return 'DiaryEntry(id: $id, content: $content, date: $date, createdAt: $createdAt, isCompletedFromTodo: $isCompletedFromTodo)';
 }
 
 
@@ -253,7 +255,7 @@ abstract mixin class _$DiaryEntryCopyWith<$Res> implements $DiaryEntryCopyWith<$
   factory _$DiaryEntryCopyWith(_DiaryEntry value, $Res Function(_DiaryEntry) _then) = __$DiaryEntryCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String content, DateTime date, DateTime createdAt
+ String id, String content, DateTime date, DateTime createdAt, bool? isCompletedFromTodo
 });
 
 
@@ -270,13 +272,14 @@ class __$DiaryEntryCopyWithImpl<$Res>
 
 /// Create a copy of DiaryEntry
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? content = null,Object? date = null,Object? createdAt = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? content = null,Object? date = null,Object? createdAt = null,Object? isCompletedFromTodo = freezed,}) {
   return _then(_DiaryEntry(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,content: null == content ? _self.content : content // ignore: cast_nullable_to_non_nullable
 as String,date: null == date ? _self.date : date // ignore: cast_nullable_to_non_nullable
 as DateTime,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
-as DateTime,
+as DateTime,isCompletedFromTodo: freezed == isCompletedFromTodo ? _self.isCompletedFromTodo : isCompletedFromTodo // ignore: cast_nullable_to_non_nullable
+as bool?,
   ));
 }
 

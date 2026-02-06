@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:days_plus/l10n/app_localizations.dart';
 import '../../../../core/services/notification_service.dart';
 import '../../application/event_controller.dart';
@@ -20,6 +22,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
 
   bool _loading = true;
   bool _globalNotifications = true;
+  String _appVersion = '';
 
   @override
   void initState() {
@@ -29,8 +32,10 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
 
   Future<void> _load() async {
     final prefs = await SharedPreferences.getInstance();
+    final packageInfo = await PackageInfo.fromPlatform();
     setState(() {
       _globalNotifications = prefs.getBool(kGlobalNotifications) ?? true;
+      _appVersion = '${packageInfo.version} (${packageInfo.buildNumber})';
       _loading = false;
     });
   }
@@ -49,6 +54,19 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text(l10n.settingsSaved)));
+  }
+
+  Future<void> _contactUs() async {
+    final l10n = AppLocalizations.of(context)!;
+    final Uri emailLaunchUri = Uri(
+      scheme: 'mailto',
+      path: 'contact@example.com',
+      queryParameters: {'subject': l10n.contactEmailSubject},
+    );
+
+    if (await canLaunchUrl(emailLaunchUri)) {
+      await launchUrl(emailLaunchUri);
+    }
   }
 
   @override
@@ -355,6 +373,70 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                       setState(() => _globalNotifications = v),
                                 ),
                               ),
+                              const SizedBox(height: 16),
+                              _card(
+                                context,
+                                title: l10n.appInfo,
+                                icon: HugeIcons.strokeRoundedInformationCircle,
+                                child: Column(
+                                  children: [
+                                    ListTile(
+                                      title: Text(
+                                        l10n.version,
+                                        style: theme.textTheme.bodyMedium?.copyWith(
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                      trailing: Text(
+                                        _appVersion,
+                                        style: theme.textTheme.bodyMedium?.copyWith(
+                                          color: theme.colorScheme.onSurfaceVariant,
+                                        ),
+                                      ),
+                                    ),
+                                    Divider(
+                                      height: 1,
+                                      color: theme.colorScheme.outlineVariant
+                                          .withOpacity(0.2),
+                                    ),
+                                    ListTile(
+                                      title: Text(
+                                        l10n.contactUs,
+                                        style: theme.textTheme.bodyMedium?.copyWith(
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                      trailing: const HugeIcon(
+                                        icon: HugeIcons.strokeRoundedArrowRight01,
+                                        size: 20,
+                                      ),
+                                      onTap: _contactUs,
+                                    ),
+                                    Divider(
+                                      height: 1,
+                                      color: theme.colorScheme.outlineVariant
+                                          .withOpacity(0.2),
+                                    ),
+                                    ListTile(
+                                      title: Text(
+                                        l10n.licenses,
+                                        style: theme.textTheme.bodyMedium?.copyWith(
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                      trailing: const HugeIcon(
+                                        icon: HugeIcons.strokeRoundedArrowRight01,
+                                        size: 20,
+                                      ),
+                                      onTap: () => showLicensePage(
+                                        context: context,
+                                        applicationName: l10n.appName,
+                                        applicationVersion: _appVersion,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
                             ],
                           ),
                         ),
@@ -434,27 +516,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           child: child,
         ),
       ],
-    );
-  }
-
-  Widget _actionRow(
-    BuildContext context,
-    String label, {
-    required bool enabled,
-    required VoidCallback onTap,
-  }) {
-    final theme = Theme.of(context);
-    return ListTile(
-      title: Text(
-        label,
-        style: theme.textTheme.bodyLarge?.copyWith(
-          fontWeight: FontWeight.w600,
-          color: enabled
-              ? theme.colorScheme.onSurface
-              : theme.colorScheme.onSurface.withOpacity(0.5),
-        ),
-      ),
-      onTap: enabled ? onTap : null,
     );
   }
 }

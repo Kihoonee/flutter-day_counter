@@ -75,6 +75,7 @@
       "error": { "type": "String" }
     }
   },
+  "shareFailed": "Failed to share.",
   
   "eventNotFound": "Event not found.",
   "todoTab": "To-Do",
@@ -91,5 +92,20 @@
   "limitSheetTitle": "Free creation limit exceeded (3/3)",
   "limitSheetBody": "Would you like to watch a short ad\nto add one more anniversary?",
   "watchAdButton": "Watch ad and add",
-  "adLoadFailed": "Could not load ad. Please try again later."
+  "adLoadFailed": "Could not load ad. Please try again later.",
+  "appInfo": "App Info",
+  "version": "Version",
+  "contactUs": "Contact Us",
+  "licenses": "Open Source Licenses",
+  "contactEmailSubject": "[Days+] Feedback/Support",
+  "transitionGuideTitle": "The day has come ✨",
+  "transitionGuideBody": "Today is '{title}'\n\nYour to-dos have become memories.\nFrom now on, record your precious\nmemories in the 'Memo' tab 💭",
+  "@transitionGuideBody": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "transitionGuideButton": "Start recording memories"
 }

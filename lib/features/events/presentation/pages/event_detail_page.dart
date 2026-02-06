@@ -17,6 +17,8 @@ import '../widgets/edit_tab.dart';
 import '../widgets/poster_card.dart';
 import '../widgets/todo_tab.dart';
 import '../../../../core/ads/ad_manager.dart';
+import '../widgets/transition_guide_dialog.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// 이벤트 상세 페이지 (3탭: 투두 / 다이어리 / 수정)
 class EventDetailPage extends ConsumerStatefulWidget {
@@ -32,6 +34,7 @@ class _EventDetailPageState extends ConsumerState<EventDetailPage>
   late TabController _tabController;
   final ScreenshotController _screenshotController = ScreenshotController();
   bool _isSharing = false;  // 공유 중복 방지 플래그
+  bool _hasCheckedTransition = false;  // 전환 가이드 체크 완료 플래그 (첫 진입 시에만)
   
   // Live Preview State (null means use event data)
   int? _previewThemeIndex;
@@ -86,6 +89,18 @@ class _EventDetailPageState extends ConsumerState<EventDetailPage>
           );
         }
 
+        // 탭 결정은 **저장된 이벤트 데이터**만 사용 (미리보기 데이터로 탭이 바뀔면 안 됨!)
+        final savedTargetDate = event.targetDate;
+        final savedIncludeToday = event.includeToday;
+        
+        final savedDiff = DateCalc.diffDays(
+          base: DateTime.now(),
+          target: savedTargetDate,
+          includeToday: savedIncludeToday,
+        );
+        final isPast = savedDiff <= 0;  // D-Day부터 전환 (D-Day, D+1, D+2...)
+
+        // 카드 표시용 (미리보기 데이터 사용)
         final targetDate = _previewTargetDate ?? event.targetDate;
         final includeToday = _previewIncludeToday ?? event.includeToday;
         
@@ -94,9 +109,15 @@ class _EventDetailPageState extends ConsumerState<EventDetailPage>
           target: targetDate,
           includeToday: includeToday,
         );
-
-        final isPast = diff < 0;
         final dateLine = DateFormat('yyyy.MM.dd').format(targetDate);
+
+        // DEBUG: 전환 가이드 디버깅
+        debugPrint('[TRANSITION_DEBUG] Event: ${event.title}');
+        debugPrint('[TRANSITION_DEBUG] savedDiff: $savedDiff, isPast: $isPast (for tabs)');
+        debugPrint('[TRANSITION_DEBUG] diff: $diff (for card display)');
+        debugPrint('[TRANSITION_DEBUG] targetDate: $targetDate, includeToday: $includeToday');
+
+        // NOTE: 전환 가이드는 저장 후에만 표시하므로, 여기서는 체크하지 않음
 
         return PopScope(
           canPop: true,
@@ -234,6 +255,7 @@ class _EventDetailPageState extends ConsumerState<EventDetailPage>
                 Expanded(
                   child: TabBarView(
                     controller: _tabController,
+                    physics: const NeverScrollableScrollPhysics(), // 탭 스와이프 비활성화 (Dismissible 충돌 방지)
                     children: [
                       if (isPast)
                         DiaryTab(eventId: event.id)
@@ -248,6 +270,47 @@ class _EventDetailPageState extends ConsumerState<EventDetailPage>
                         onThemeChanged: (i) => setState(() => _previewThemeIndex = i),
                         onPhotoChanged: (p) => setState(() => _previewPhotoPath = p),
                         onWidgetLayoutTypeChanged: (v) => setState(() => _previewWidgetLayoutType = v),
+                        onSaved: () async {
+                          // 저장 후 전환 가이드 체크
+                          debugPrint('[TRANSITION_DEBUG] onSaved callback triggered');
+                          
+                          // 저장된 이벤트 다시 가져오기
+                          final events = ref.read(eventsProvider).value ?? [];
+                          final savedEvent = events.firstWhere((e) => e.id == event.id);
+                          
+                          // diff 계산
+                          final now = DateTime.now();
+                          final today = DateTime(now.year, now.month, now.day);
+                          final diff = DateCalc.diffDays(
+                            base: today,
+                            target: savedEvent.targetDate,
+                            includeToday: savedEvent.includeToday,
+                          );
+                          final isPast = diff <= 0;  // D-Day + 과거
+                          
+                          debugPrint('[TRANSITION_DEBUG] After save - diff: $diff, isPast: $isPast');
+                          
+                          if (isPast) {
+                            final prefs = await SharedPreferences.getInstance();
+                            final key = 'transition_guide_shown_${event.id}';
+                            final hasShown = prefs.getBool(key) ?? false;
+                            
+                            debugPrint('[TRANSITION_DEBUG] hasShown: $hasShown');
+                            
+                            if (!hasShown && mounted && savedEvent.todos.isNotEmpty) {
+                              // 팝업 표시
+                              debugPrint('[TRANSITION_DEBUG] Showing transition guide after save!');
+                              await showTransitionGuideDialog(context, savedEvent.title);
+                              await prefs.setBool(key, true);
+                              
+                              // 탭을 메모 탭으로 전환 (index 0)
+                              if (mounted) {
+                                _tabController.animateTo(0);
+                                debugPrint('[TRANSITION_DEBUG] Switched to memo tab');
+                              }
+                            }
+                          }
+                        },
                       ),
                     ],
                   ),

@@ -7,6 +7,7 @@ import 'package:hugeicons/hugeicons.dart';
 import 'package:days_plus/l10n/app_localizations.dart';
 
 import '../../../../core/services/image_service.dart';
+import '../../../../core/utils/haptic_helper.dart';
 import '../../application/event_controller.dart';
 import '../../domain/event.dart';
 import 'date_field.dart';
@@ -22,6 +23,7 @@ class EditTab extends ConsumerStatefulWidget {
   final ValueChanged<bool>? onIncludeTodayChanged;
   final ValueChanged<String?>? onPhotoChanged;
   final ValueChanged<int>? onWidgetLayoutTypeChanged;
+  final VoidCallback? onSaved;  // 저장 완료 콜백
   const EditTab({
     super.key,
     required this.event,
@@ -32,6 +34,7 @@ class EditTab extends ConsumerStatefulWidget {
     this.onIncludeTodayChanged,
     this.onPhotoChanged,
     this.onWidgetLayoutTypeChanged,
+    this.onSaved,
   });
 
   @override
@@ -460,15 +463,21 @@ class _EditTabState extends ConsumerState<EditTab> {
                   onPressed: () async {
                     final ok = await showDialog<bool>(
                       context: context,
-                      builder: (_) => AlertDialog(
+                      builder: (dialogContext) => AlertDialog(
                         title: Text(l10n.deleteConfirmTitle),
                         content: Text(l10n.deleteConfirmContent),
                         actions: [
                           TextButton(
-                              onPressed: () => Navigator.pop(context, false),
+                              onPressed: () => Navigator.of(dialogContext).pop(false),
                               child: Text(l10n.cancel)),
                           TextButton(
-                              onPressed: () => Navigator.pop(context, true),
+                              onPressed: () async {
+                                // 햅틱 피드백: 삭제 확인 (무거운 햅틱 - 중요한 액션)
+                                await HapticHelper.heavy();
+                                if (dialogContext.mounted) {
+                                  Navigator.of(dialogContext).pop(true);
+                                }
+                              },
                               child: Text(l10n.delete)),
                         ],
                       ),
@@ -511,6 +520,10 @@ class _EditTabState extends ConsumerState<EditTab> {
                         .read(eventsProvider.notifier)
                         .upsert(updatedEvent);
                     if (!mounted) return;
+                    
+                    // 저장 성공 콜백 호출 (전환 가이드 체크용)
+                    widget.onSaved?.call();
+                    
                     ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text(l10n.saveSuccess)));
                   },

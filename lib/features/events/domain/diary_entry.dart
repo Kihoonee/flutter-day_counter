@@ -11,6 +11,7 @@ abstract class DiaryEntry with _$DiaryEntry {
     required String content,
     required DateTime date,
     required DateTime createdAt,
+    bool? isCompletedFromTodo, // 할일에서 전환 시 완료 상태 (null = 직접 작성한 메모)
   }) = _DiaryEntry;
 
   factory DiaryEntry.fromJson(Map<String, dynamic> json) => _$DiaryEntryFromJson(json);
