@@ -189,6 +189,8 @@ class _EditTabState extends ConsumerState<EditTab> {
             ),
             child: InkWell(
               onTap: () async {
+                // 햅틱 피드백: 사진 영역 탭
+                await HapticHelper.light();
                 if (_photoPath == null || _photoPath!.isEmpty) {
                   await _pickPhoto();
                 } else {
@@ -296,7 +298,8 @@ class _EditTabState extends ConsumerState<EditTab> {
                         Expanded(
                           child: _IconPicker(
                             selected: _iconIndex,
-                            onSelect: (i) {
+                            onSelect: (i) async {
+                              await HapticHelper.selection();
                               setState(() => _iconIndex = i);
                               widget.onIconChanged?.call(i);
                             },
@@ -318,7 +321,8 @@ class _EditTabState extends ConsumerState<EditTab> {
                         Expanded(
                           child: _ThemePicker(
                             selected: _themeIndex,
-                            onSelect: (i) {
+                            onSelect: (i) async {
+                              await HapticHelper.selection();
                               setState(() => _themeIndex = i);
                               widget.onThemeChanged?.call(i);
                             },
@@ -356,7 +360,8 @@ class _EditTabState extends ConsumerState<EditTab> {
               title: Text(l10n.includeTodayLabel,
                   style: TextStyle(fontSize: 14)),
               value: _includeToday,
-              onChanged: (v) {
+              onChanged: (v) async {
+                await HapticHelper.light();
                 setState(() => _includeToday = v);
                 widget.onIncludeTodayChanged?.call(v);
               },
@@ -375,7 +380,8 @@ class _EditTabState extends ConsumerState<EditTab> {
                 SwitchListTile(
                   title: Text(l10n.enableNotifications, style: TextStyle(fontSize: 14)),
                   value: _isNotificationEnabled,
-                  onChanged: (v) {
+                  onChanged: (v) async {
+                    await HapticHelper.light();
                     setState(() {
                       _isNotificationEnabled = v;
                       if (!v) {
@@ -398,7 +404,8 @@ class _EditTabState extends ConsumerState<EditTab> {
                   //title: const Text('D-Day 알림', style: TextStyle(fontSize: 14)),
                   title: Text(l10n.notifyDDayLabel, style: theme.textTheme.bodyMedium),
                   value: _notifyDDay,
-                  onChanged: (v) {
+                  onChanged: (v) async {
+                    await HapticHelper.light();
                     setState(() {
                       _notifyDDay = v;
                       if (v) {
@@ -417,7 +424,8 @@ class _EditTabState extends ConsumerState<EditTab> {
                 SwitchListTile(
                   title: Text(l10n.notifyDMinus1Label, style: theme.textTheme.bodyMedium),
                   value: _notifyDMinus1,
-                  onChanged: (v) {
+                  onChanged: (v) async {
+                    await HapticHelper.light();
                     setState(() {
                       _notifyDMinus1 = v;
                       if (v) {
@@ -437,7 +445,8 @@ class _EditTabState extends ConsumerState<EditTab> {
                   title: Text(l10n.notifyAnniversaryLabel,
                       style: theme.textTheme.bodyMedium),
                   value: _notifyAnniv,
-                  onChanged: (v) {
+                  onChanged: (v) async {
+                    await HapticHelper.light();
                     setState(() {
                       _notifyAnniv = v;
                       if (v) {
@@ -502,6 +511,7 @@ class _EditTabState extends ConsumerState<EditTab> {
                 flex: 2,
                 child: FilledButton(
                   onPressed: () async {
+                    await HapticHelper.medium();
                     final updatedEvent = widget.event.copyWith(
                       title: _title.text.isEmpty ? l10n.eventDefaultTitle : _title.text,
                       baseDate: DateTime.now(),

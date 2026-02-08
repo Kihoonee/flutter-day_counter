@@ -9,6 +9,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../../../core/utils/date_calc.dart';
+import '../../../../core/utils/haptic_helper.dart';
 import '../../../../core/services/share_service.dart';
 import '../../application/event_controller.dart';
 import '../../domain/event.dart';
@@ -140,6 +141,8 @@ class _EventDetailPageState extends ConsumerState<EventDetailPage>
                       color: theme.colorScheme.onSurface,
                     ),
                     onPressed: _isSharing ? null : () async {
+                      // 햅틱 피드백: 공유 버튼
+                      await HapticHelper.medium();
                       // 중복 클릭 방지
                       if (_isSharing) return;
                       setState(() => _isSharing = true);
@@ -245,6 +248,9 @@ class _EventDetailPageState extends ConsumerState<EventDetailPage>
                     unselectedLabelColor: theme.colorScheme.onSurfaceVariant,
                     indicatorColor: theme.colorScheme.primary,
                     indicatorWeight: 3,
+                    onTap: (index) async {
+                      await HapticHelper.selection();
+                    },
                     tabs: [
                       Tab(text: isPast ? l10n.diaryTab : l10n.todoTab),
                       Tab(text: l10n.editTab),

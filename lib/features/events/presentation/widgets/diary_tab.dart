@@ -208,7 +208,10 @@ class DiaryTab extends ConsumerWidget {
               bottom: 24,
               right: 16,
               child: FloatingActionButton(
-                onPressed: () => _showDiaryDialog(context, ref, event),
+                onPressed: () async {
+                  await HapticHelper.medium();
+                  _showDiaryDialog(context, ref, event);
+                },
                 shape: const CircleBorder(),
                 elevation: 4,
                 backgroundColor: theme.colorScheme.primary, // Brand Color

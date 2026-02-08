@@ -79,7 +79,9 @@ Future<DateTime?> pickDate(
   DateTime? lastDate,
   List<DateTime>? markerDates,
   DateTime? dDayDate,
-}) {
+}) async { // async 추가
+  // 햅틱 피드백: 날짜 선택 진입
+  await HapticHelper.light();
   return showCustomCalendar(
     context,
     initialDate: initial,

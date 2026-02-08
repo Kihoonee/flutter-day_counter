@@ -197,6 +197,8 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
                             ),
                             child: InkWell(
                               onTap: () async {
+                                // 햅틱 피드백: 사진 영역 탭
+                                await HapticHelper.light();
                                 if (_photoPath == null || _photoPath!.isEmpty) {
                                   // 사진 없으면 바로 갤러리
                                   await _pickPhoto();
@@ -376,7 +378,10 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
                                 style: TextStyle(fontSize: 14),
                               ),
                               value: _includeToday,
-                              onChanged: (v) => setState(() => _includeToday = v),
+                              onChanged: (v) async {
+                                await HapticHelper.light();
+                                setState(() => _includeToday = v);
+                              },
                             ),
                           ),
                           const SizedBox(height: 16),
@@ -393,7 +398,8 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
                                     style: TextStyle(fontSize: 14),
                                   ),
                                   value: _isNotificationEnabled,
-                                  onChanged: (v) {
+                                  onChanged: (v) async {
+                                    await HapticHelper.light();
                                     setState(() {
                                       _isNotificationEnabled = v;
                                       if (!v) {
@@ -414,7 +420,8 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
                                 SwitchListTile(
                                   title: Text(l10n.notifyDDayLabel, style: theme.textTheme.bodyMedium),
                                   value: _notifyDDay,
-                                  onChanged: (v) {
+                                  onChanged: (v) async {
+                                    await HapticHelper.light();
                                     setState(() {
                                       _notifyDDay = v;
                                       if (v) {
@@ -430,7 +437,8 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
                                 SwitchListTile(
                                   title: Text(l10n.notifyDMinus1Label, style: theme.textTheme.bodyMedium),
                                   value: _notifyDMinus1,
-                                  onChanged: (v) {
+                                  onChanged: (v) async {
+                                    await HapticHelper.light();
                                     setState(() {
                                       _notifyDMinus1 = v;
                                       if (v) {
@@ -446,7 +454,8 @@ class _EventEditPageState extends ConsumerState<EventEditPage> {
                                 SwitchListTile(
                                   title: Text(l10n.notifyAnniversaryLabel, style: theme.textTheme.bodyMedium),
                                   value: _notifyAnniv,
-                                  onChanged: (v) {
+                                  onChanged: (v) async {
+                                    await HapticHelper.light();
                                     setState(() {
                                       _notifyAnniv = v;
                                       if (v) {
