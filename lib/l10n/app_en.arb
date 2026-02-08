@@ -107,5 +107,23 @@
       }
     }
   },
-  "transitionGuideButton": "Start recording memories"
+  "transitionGuideButton": "Start recording memories",
+  
+  "backupRestoreTitle": "Data Management",
+  "backupTitle": "Backup Data",
+  "backupSubtitle": "Export your data and memories to a file.",
+  "backupSuccess": "Backup file created successfully.",
+  "backupFail": "Backup failed.",
+  "restoreTitle": "Restore Data",
+  "restoreSubtitle": "Restore data from a backup file.",
+  "restoreConfirmTitle": "Overwrite Warning",
+  "restoreConfirmContent": "All current data will be replaced with the backup data. Do you want to continue?",
+  "restoreSuccess": "Data restored. Please restart the app.",
+  "restoreFail": "Restore failed.",
+  "lastBackupFormat": "Last Backup: {date}",
+  "@lastBackupFormat": {
+    "placeholders": {
+      "date": { "type": "String" }
+    }
+  }
 }

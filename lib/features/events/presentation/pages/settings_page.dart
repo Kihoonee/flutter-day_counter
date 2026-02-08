@@ -6,9 +6,11 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:days_plus/l10n/app_localizations.dart';
 import '../../../../core/services/notification_service.dart';
+import '../../../../core/services/backup_service.dart';
 import '../../application/event_controller.dart';
 import '../../../../app/theme_provider.dart';
 import '../../../../app/locale_provider.dart';
+import '../../../../core/utils/haptic_helper.dart';
 
 class SettingsPage extends ConsumerStatefulWidget {
   const SettingsPage({super.key});
@@ -41,6 +43,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   }
 
   Future<void> _save() async {
+    // 햅틱 피드백: 저장
+    await HapticHelper.medium();
+
     final l10n = AppLocalizations.of(context)!;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(kGlobalNotifications, _globalNotifications);
@@ -66,6 +71,105 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
 
     if (await canLaunchUrl(emailLaunchUri)) {
       await launchUrl(emailLaunchUri);
+    }
+  }
+
+  Future<void> _backup() async {
+    // 햅틱 피드백
+    await HapticHelper.medium();
+
+    // 로딩 표시
+    if (!mounted) return;
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(child: CircularProgressIndicator()),
+    );
+
+    final l10n = AppLocalizations.of(context)!;
+    final backupService = BackupService();
+    final result = await backupService.exportBackup();
+
+    if (!mounted) return;
+    Navigator.pop(context); // 로딩 닫기
+
+    if (result) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.backupSuccess)),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.backupFail)),
+      );
+    }
+  }
+
+  Future<void> _restore() async {
+    // 햅틱 피드백
+    await HapticHelper.medium();
+
+    final l10n = AppLocalizations.of(context)!;
+
+    // 1. 확인 팝업
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.restoreConfirmTitle),
+        content: Text(l10n.restoreConfirmContent),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(l10n.cancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(l10n.ok, style: TextStyle(color: Theme.of(context).colorScheme.error)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm != true) return;
+
+    // 로딩 표시
+    if (!mounted) return;
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(child: CircularProgressIndicator()),
+    );
+
+    final backupService = BackupService();
+    final result = await backupService.importBackup();
+
+    if (!mounted) return;
+    Navigator.pop(context); // 로딩 닫기
+
+    if (result) {
+      // 성공 시 앱 재시작 유도 (데이터 갱신)
+      await showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => AlertDialog(
+          title: Text(l10n.restoreTitle),
+          content: Text(l10n.restoreSuccess),
+          actions: [
+            TextButton(
+              onPressed: () {
+                // 앱 재시작 효과를 위해 메인으로 이동 및 리로드
+                Navigator.pop(context);
+                ref.refresh(eventsProvider); // Riverpod 상태 초기화
+                Navigator.of(context).popUntil((route) => route.isFirst);
+              },
+              child: Text(l10n.ok),
+            ),
+          ],
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.restoreFail)),
+      );
     }
   }
 
@@ -208,18 +312,19 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                                     ),
                                                   ],
                                                   selected: {themeMode},
-                                                  onSelectionChanged:
-                                                      (Set<ThemeMode>
-                                                          selection) {
-                                                    ref
-                                                        .read(
-                                                          themeModeProvider
-                                                              .notifier,
-                                                        )
-                                                        .setThemeMode(
-                                                          selection.first,
-                                                        );
-                                                  },
+                                                    onSelectionChanged:
+                                                        (Set<ThemeMode>
+                                                            selection) async {
+                                                      await HapticHelper.selection();
+                                                      ref
+                                                          .read(
+                                                            themeModeProvider
+                                                                .notifier,
+                                                          )
+                                                          .setThemeMode(
+                                                            selection.first,
+                                                          );
+                                                    },
                                                   showSelectedIcon: false,
                                                   style:
                                                       SegmentedButton.styleFrom(
@@ -316,21 +421,22 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                                             ?.languageCode ??
                                                         'auto'
                                                   },
-                                                  onSelectionChanged:
-                                                      (Set<String> selection) {
-                                                    final code =
-                                                        selection.first;
-                                                    ref
-                                                        .read(
-                                                          localeProvider
-                                                              .notifier,
-                                                        )
-                                                        .setLocale(
-                                                          code == 'auto'
-                                                              ? null
-                                                              : Locale(code),
-                                                        );
-                                                  },
+                                                    onSelectionChanged:
+                                                        (Set<String> selection) async {
+                                                      await HapticHelper.selection();
+                                                      final code =
+                                                          selection.first;
+                                                      ref
+                                                          .read(
+                                                            localeProvider
+                                                                .notifier,
+                                                          )
+                                                          .setLocale(
+                                                            code == 'auto'
+                                                                ? null
+                                                                : Locale(code),
+                                                          );
+                                                    },
                                                   showSelectedIcon: false,
                                                   style:
                                                       SegmentedButton.styleFrom(
@@ -368,9 +474,64 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                     ),
                                   ),
                                   subtitle: Text(l10n.globalNotificationSubtitle),
-                                  value: _globalNotifications,
-                                  onChanged: (v) =>
-                                      setState(() => _globalNotifications = v),
+                                   value: _globalNotifications,
+                                   onChanged: (v) async {
+                                     await HapticHelper.light();
+                                     setState(() => _globalNotifications = v);
+                                   },
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              _card(
+                                context,
+                                title: l10n.backupRestoreTitle,
+                                icon: HugeIcons.strokeRoundedFolderSync,
+                                child: Column(
+                                  children: [
+                                    ListTile(
+                                      title: Text(
+                                        l10n.backupTitle,
+                                        style: theme.textTheme.bodyMedium?.copyWith(
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                      subtitle: Text(
+                                        l10n.backupSubtitle,
+                                        style: theme.textTheme.bodySmall?.copyWith(
+                                          color: theme.colorScheme.onSurfaceVariant,
+                                        ),
+                                      ),
+                                      trailing: const HugeIcon(
+                                        icon: HugeIcons.strokeRoundedUpload02,
+                                        size: 20,
+                                      ),
+                                      onTap: _backup,
+                                    ),
+                                    Divider(
+                                      height: 1,
+                                      color: theme.colorScheme.outlineVariant
+                                          .withOpacity(0.2),
+                                    ),
+                                    ListTile(
+                                      title: Text(
+                                        l10n.restoreTitle,
+                                        style: theme.textTheme.bodyMedium?.copyWith(
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                      subtitle: Text(
+                                        l10n.restoreSubtitle,
+                                        style: theme.textTheme.bodySmall?.copyWith(
+                                          color: theme.colorScheme.onSurfaceVariant,
+                                        ),
+                                      ),
+                                      trailing: const HugeIcon(
+                                        icon: HugeIcons.strokeRoundedDownload02,
+                                        size: 20,
+                                      ),
+                                      onTap: _restore,
+                                    ),
+                                  ],
                                 ),
                               ),
                               const SizedBox(height: 16),
@@ -410,7 +571,10 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                         icon: HugeIcons.strokeRoundedArrowRight01,
                                         size: 20,
                                       ),
-                                      onTap: _contactUs,
+                                      onTap: () async {
+                                        await HapticHelper.light();
+                                        _contactUs();
+                                      },
                                     ),
                                     Divider(
                                       height: 1,
@@ -428,11 +592,14 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                         icon: HugeIcons.strokeRoundedArrowRight01,
                                         size: 20,
                                       ),
-                                      onTap: () => showLicensePage(
-                                        context: context,
-                                        applicationName: l10n.appName,
-                                        applicationVersion: _appVersion,
-                                      ),
+                                      onTap: () async {
+                                        await HapticHelper.light();
+                                        showLicensePage(
+                                          context: context,
+                                          applicationName: l10n.appName,
+                                          applicationVersion: _appVersion,
+                                        );
+                                      },
                                     ),
                                   ],
                                 ),

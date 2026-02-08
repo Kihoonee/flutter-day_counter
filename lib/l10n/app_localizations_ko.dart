@@ -245,4 +245,43 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get transitionGuideButton => '추억 기록하러 가기';
+
+  @override
+  String get backupRestoreTitle => '데이터 관리';
+
+  @override
+  String get backupTitle => '백업하기';
+
+  @override
+  String get backupSubtitle => '데이터와 추억을 파일로 저장합니다.';
+
+  @override
+  String get backupSuccess => '백업 파일이 생성되었습니다.';
+
+  @override
+  String get backupFail => '백업에 실패했습니다.';
+
+  @override
+  String get restoreTitle => '복원하기';
+
+  @override
+  String get restoreSubtitle => '백업 파일에서 데이터를 복구합니다.';
+
+  @override
+  String get restoreConfirmTitle => '데이터 덮어쓰기 경고';
+
+  @override
+  String get restoreConfirmContent =>
+      '현재 모든 데이터가 삭제되고 백업 데이터로 교체됩니다. 계속하시겠습니까?';
+
+  @override
+  String get restoreSuccess => '데이터가 복원되었습니다. 앱을 재시작해주세요.';
+
+  @override
+  String get restoreFail => '복원에 실패했습니다.';
+
+  @override
+  String lastBackupFormat(String date) {
+    return '마지막 백업: $date';
+  }
 }

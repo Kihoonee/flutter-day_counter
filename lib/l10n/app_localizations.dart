@@ -553,6 +553,78 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'추억 기록하러 가기'**
   String get transitionGuideButton;
+
+  /// No description provided for @backupRestoreTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'데이터 관리'**
+  String get backupRestoreTitle;
+
+  /// No description provided for @backupTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'백업하기'**
+  String get backupTitle;
+
+  /// No description provided for @backupSubtitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'데이터와 추억을 파일로 저장합니다.'**
+  String get backupSubtitle;
+
+  /// No description provided for @backupSuccess.
+  ///
+  /// In ko, this message translates to:
+  /// **'백업 파일이 생성되었습니다.'**
+  String get backupSuccess;
+
+  /// No description provided for @backupFail.
+  ///
+  /// In ko, this message translates to:
+  /// **'백업에 실패했습니다.'**
+  String get backupFail;
+
+  /// No description provided for @restoreTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'복원하기'**
+  String get restoreTitle;
+
+  /// No description provided for @restoreSubtitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'백업 파일에서 데이터를 복구합니다.'**
+  String get restoreSubtitle;
+
+  /// No description provided for @restoreConfirmTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'데이터 덮어쓰기 경고'**
+  String get restoreConfirmTitle;
+
+  /// No description provided for @restoreConfirmContent.
+  ///
+  /// In ko, this message translates to:
+  /// **'현재 모든 데이터가 삭제되고 백업 데이터로 교체됩니다. 계속하시겠습니까?'**
+  String get restoreConfirmContent;
+
+  /// No description provided for @restoreSuccess.
+  ///
+  /// In ko, this message translates to:
+  /// **'데이터가 복원되었습니다. 앱을 재시작해주세요.'**
+  String get restoreSuccess;
+
+  /// No description provided for @restoreFail.
+  ///
+  /// In ko, this message translates to:
+  /// **'복원에 실패했습니다.'**
+  String get restoreFail;
+
+  /// No description provided for @lastBackupFormat.
+  ///
+  /// In ko, this message translates to:
+  /// **'마지막 백업: {date}'**
+  String lastBackupFormat(String date);
 }
 
 class _AppLocalizationsDelegate

@@ -247,4 +247,43 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get transitionGuideButton => 'Start recording memories';
+
+  @override
+  String get backupRestoreTitle => 'Data Management';
+
+  @override
+  String get backupTitle => 'Backup Data';
+
+  @override
+  String get backupSubtitle => 'Export your data and memories to a file.';
+
+  @override
+  String get backupSuccess => 'Backup file created successfully.';
+
+  @override
+  String get backupFail => 'Backup failed.';
+
+  @override
+  String get restoreTitle => 'Restore Data';
+
+  @override
+  String get restoreSubtitle => 'Restore data from a backup file.';
+
+  @override
+  String get restoreConfirmTitle => 'Overwrite Warning';
+
+  @override
+  String get restoreConfirmContent =>
+      'All current data will be replaced with the backup data. Do you want to continue?';
+
+  @override
+  String get restoreSuccess => 'Data restored. Please restart the app.';
+
+  @override
+  String get restoreFail => 'Restore failed.';
+
+  @override
+  String lastBackupFormat(String date) {
+    return 'Last Backup: $date';
+  }
 }
