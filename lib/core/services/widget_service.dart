@@ -1,14 +1,18 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:home_widget/home_widget.dart';
+import 'package:path_provider/path_provider.dart';
 import '../../features/events/domain/event.dart';
 import '../../features/events/presentation/widgets/poster_card.dart'; // To access posterThemes
 import '../utils/date_calc.dart';
+import 'widget_background_generator.dart';
 
 class WidgetService {
   static const String appGroupId = 'group.com.handroom.daysplus'; 
   static const String androidWidgetName = 'DaysPlusWidget';
+  static const String androidSimpleWidgetName = 'DaysPlusSimpleWidget';
 
   String _colorToHex(dynamic color) {
     if (color is! Color) return 'FFFFFF';
@@ -46,17 +50,19 @@ class WidgetService {
           'fgColor': '4A4A4A',
           'layoutType': e.widgetLayoutType,
           'includeToday': e.includeToday,
+          'themeIndex': e.themeIndex, // Native widgets use this to render gradient patterns
         };
       }).toList();
       
       await HomeWidget.saveWidgetData('widget_events_list', jsonEncode(eventsJson));
       
       // Force widget reload to reflect changes immediately
-      // Each Android widget instance will read its own event from the list
       await HomeWidget.updateWidget(
           name: androidWidgetName, androidName: androidWidgetName, iOSName: androidWidgetName);
+      await HomeWidget.updateWidget(
+          name: androidSimpleWidgetName, androidName: androidSimpleWidgetName, iOSName: androidWidgetName);
       
-      print('WIDGET_SERVICE: Saved ${events.length} events and triggered update');
+      print('WIDGET_SERVICE: Saved ${events.length} events');
     } catch (e) {
       print('WIDGET_SERVICE: Error saving events list: $e');
     }
@@ -82,6 +88,8 @@ class WidgetService {
         await HomeWidget.saveWidgetData('widget_include_today', false);
         await HomeWidget.updateWidget(
             name: androidWidgetName, androidName: androidWidgetName, iOSName: androidWidgetName);
+        await HomeWidget.updateWidget(
+            name: androidSimpleWidgetName, androidName: androidSimpleWidgetName, iOSName: androidWidgetName);
         return;
       }
 
@@ -117,13 +125,43 @@ class WidgetService {
       await HomeWidget.saveWidgetData('widget_layout_type', event.widgetLayoutType);
       await HomeWidget.saveWidgetData('widget_include_today', event.includeToday);
       
+      // Generate background image (Phase 2: Image Background)
+      final imagePath = await _generateAndSaveBackground(
+        themeIndex: event.themeIndex,
+        eventId: event.id,
+      );
+      if (imagePath != null) {
+        await HomeWidget.saveWidgetData('widget_bg_image', imagePath);
+      }
+      
       await HomeWidget.updateWidget(
           name: androidWidgetName, androidName: androidWidgetName, iOSName: androidWidgetName);
+      await HomeWidget.updateWidget(
+          name: androidSimpleWidgetName, androidName: androidSimpleWidgetName, iOSName: androidWidgetName);
       
-      print('WIDGET_SERVICE: Update Success: ${event.title}, $dText, $bgColorHex');
+      print('WIDGET_SERVICE: Update Success: ${event.title}, $dText, $bgColorHex, image: $imagePath');
 
     } catch (e) {
       print('WIDGET_SERVICE: Widget update error: $e');
+    }
+  }
+
+  /// Generates and saves a background image for a widget
+  Future<String?> _generateAndSaveBackground({
+    required int themeIndex,
+    required String eventId,
+  }) async {
+    try {
+      // Use the generator to create an image
+      final imagePath = await WidgetBackgroundGenerator.generateBackground(
+        themeIndex: themeIndex,
+        size: const Size(400, 200), // Widget size (will be scaled)
+        eventId: eventId,
+      );
+      return imagePath;
+    } catch (e) {
+      print('WIDGET_SERVICE: Error generating background: $e');
+      return null;
     }
   }
 }
