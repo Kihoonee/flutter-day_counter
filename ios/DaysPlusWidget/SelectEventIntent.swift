@@ -19,6 +19,7 @@ struct EventEntity: AppEntity {
     var layoutType: Int
     var includeToday: Bool
     var excludeWeekends: Bool
+    var themeIndex: Int
     
     static var typeDisplayRepresentation: TypeDisplayRepresentation = "이벤트를 선택하세요"
     static var defaultQuery = EventEntityQuery()
@@ -63,8 +64,9 @@ struct EventEntityQuery: EntityQuery {
             }
             let includeToday = dict["includeToday"] as? Bool ?? false
             let excludeWeekends = dict["excludeWeekends"] as? Bool ?? false
+            let themeIndex = dict["themeIndex"] as? Int ?? 0
             
-            return EventEntity(id: id, title: title, dDay: dDay, date: date, bgColor: bgColor, fgColor: fgColor, layoutType: layoutType, includeToday: includeToday, excludeWeekends: excludeWeekends)
+            return EventEntity(id: id, title: title, dDay: dDay, date: date, bgColor: bgColor, fgColor: fgColor, layoutType: layoutType, includeToday: includeToday, excludeWeekends: excludeWeekends, themeIndex: themeIndex)
         }
     }
 }
